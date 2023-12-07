@@ -1,8 +1,8 @@
-import "@nomicfoundation/hardhat-toolbox";
-import "@openzeppelin/hardhat-upgrades";
-import "hardhat-deploy";
+import '@nomicfoundation/hardhat-toolbox';
+import '@openzeppelin/hardhat-upgrades';
+import 'hardhat-deploy';
 
-require('dotenv').config()
+require('dotenv').config();
 const gasPrice = parseInt(process.env.GAS_PRICE) || 'auto';
 
 module.exports = {
@@ -32,22 +32,22 @@ module.exports = {
             chainId: 1337,
             gasPrice: 20000000000,
             gas: 6721975,
-        }
+        },
     },
     solidity: {
-        version: "0.8.19",
+        version: '0.8.19',
         settings: {
             optimizer: {
                 enabled: true,
-                runs: 200
-            }
-        }
+                runs: 200,
+            },
+        },
     },
     mocha: {
         enableTimeouts: false,
-        before_timeout: 120000
+        before_timeout: 120000,
     },
     gasReporter: {
-        enabled: true
+        enabled: true,
     },
 };

@@ -10,9 +10,9 @@ import "./interfaces/IStakingPool.sol";
 import "./interfaces/IEigenPodManager.sol";
 
 contract StakingPool is
-IStakingPool,
-Initializable,
-ReentrancyGuardUpgradeable
+    IStakingPool,
+    Initializable,
+    ReentrancyGuardUpgradeable
 {
     /**
      * @dev external contracts
@@ -48,16 +48,16 @@ ReentrancyGuardUpgradeable
         _;
     }
 
-    function initialize(IStakingConfig stakingConfig, uint256 distributeGasLimit) external initializer {
+    function initialize(
+        IStakingConfig stakingConfig,
+        uint256 distributeGasLimit
+    ) external initializer {
         _stakingConfig = stakingConfig;
         IEigenPodManager(stakingConfig.getEigenPodManagerAddress()).createPod();
         __QueuePool_init(distributeGasLimit);
     }
 
-
-    function __QueuePool_init(
-        uint256 distributeGasLimit
-    ) internal {
+    function __QueuePool_init(uint256 distributeGasLimit) internal {
         _DISTRIBUTE_GAS_LIMIT = distributeGasLimit;
         emit DistributeGasLimitChanged(0, distributeGasLimit);
     }
@@ -68,27 +68,53 @@ ReentrancyGuardUpgradeable
             amount >= _stakingConfig.getMinStake(),
             "StakingPool: value must be greater than min amount"
         );
-        ICertificateToken certificateToken = ICertificateToken(_stakingConfig.getCertTokenAddress());
+        ICertificateToken certificateToken = ICertificateToken(
+            _stakingConfig.getCertTokenAddress()
+        );
         uint256 shares = certificateToken.bondsToShares(amount);
         certificateToken.mint(msg.sender, shares);
         emit Staked(msg.sender, amount, shares);
     }
 
-    function pushToBeaconMulti(bytes[] calldata pubkeys, bytes[] calldata signatures, bytes32[] calldata deposit_data_roots) public onlyOperator {
+    function pushToBeaconMulti(
+        bytes[] calldata pubkeys,
+        bytes[] calldata signatures,
+        bytes32[] calldata deposit_data_roots
+    ) public onlyOperator {
         uint256 pubkeysLen = pubkeys.length;
-        require(pubkeysLen == signatures.length && signatures.length == deposit_data_roots.length, "StakingPool: length are not equal");
-        require(address(this).balance >= 32 ether * pubkeysLen, "pending ethers not enough");
-        IEigenPodManager eigenPodManager = IEigenPodManager(_stakingConfig.getEigenPodManagerAddress());
+        require(
+            pubkeysLen == signatures.length &&
+                signatures.length == deposit_data_roots.length,
+            "StakingPool: length are not equal"
+        );
+        require(
+            address(this).balance >= 32 ether * pubkeysLen,
+            "pending ethers not enough"
+        );
+        IEigenPodManager eigenPodManager = IEigenPodManager(
+            _stakingConfig.getEigenPodManagerAddress()
+        );
         for (uint i = 0; i < pubkeysLen; i++) {
-            eigenPodManager.stake(pubkeys[i], signatures[i], deposit_data_roots[i]);
+            eigenPodManager.stake(
+                pubkeys[i],
+                signatures[i],
+                deposit_data_roots[i]
+            );
             emit PoolOnGoing(pubkeys[i]);
         }
     }
 
-
-    function pushToBeacon(bytes calldata pubkey, bytes calldata signature, bytes32 deposit_data_root) public onlyOperator {
+    function pushToBeacon(
+        bytes calldata pubkey,
+        bytes calldata signature,
+        bytes32 deposit_data_root
+    ) public onlyOperator {
         require(address(this).balance >= 32 ether, "pending ethers not enough");
-        IEigenPodManager(_stakingConfig.getEigenPodManagerAddress()).stake(pubkey, signature, deposit_data_root);
+        IEigenPodManager(_stakingConfig.getEigenPodManagerAddress()).stake(
+            pubkey,
+            signature,
+            deposit_data_root
+        );
         emit PoolOnGoing(pubkey);
     }
 
@@ -97,17 +123,16 @@ ReentrancyGuardUpgradeable
     }
 
     /**
-    * @notice Burns amount of certificate from msg.sender
+     * @notice Burns amount of certificate from msg.sender
      * @notice Returns native token immediately or via queue
      * @param receiverAddress address for receiving unstaked funds
      * @param shares amount of certificate token to unstake
      */
-    function unstakeCerts(
-        address receiverAddress,
-        uint256 shares
-    ) external {
+    function unstakeCerts(address receiverAddress, uint256 shares) external {
         address ownerAddress = msg.sender;
-        ICertificateToken certificateToken = ICertificateToken(_stakingConfig.getCertTokenAddress());
+        ICertificateToken certificateToken = ICertificateToken(
+            _stakingConfig.getCertTokenAddress()
+        );
 
         uint256 amount = certificateToken.sharesToBonds(shares);
         require(
@@ -130,11 +155,11 @@ ReentrancyGuardUpgradeable
         return _stakingConfig.getCertTokenAddress();
     }
 
-    function getEigenPodManager() external view virtual returns (address){
+    function getEigenPodManager() external view virtual returns (address) {
         return _stakingConfig.getEigenPodManagerAddress();
     }
 
-    function getMinStake() external view virtual returns (uint256){
+    function getMinStake() external view virtual returns (uint256) {
         return _stakingConfig.getMinStake();
     }
 

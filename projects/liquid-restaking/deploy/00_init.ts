@@ -1,9 +1,13 @@
-import {DeployFunction} from 'hardhat-deploy/types';
+import { DeployFunction } from 'hardhat-deploy/types';
 
-const {constants} = require('@openzeppelin/test-helpers');
+const { constants } = require('@openzeppelin/test-helpers');
 
-const func: DeployFunction = async function ({getUnnamedAccounts, network, deployments}) {
-    const {deploy, execute} = deployments;
+const func: DeployFunction = async function ({
+    getUnnamedAccounts,
+    network,
+    deployments,
+}) {
+    const { deploy, execute } = deployments;
     const [deployer] = await getUnnamedAccounts();
     let eigenPodManager;
     let operatorAddress;
@@ -12,15 +16,15 @@ const func: DeployFunction = async function ({getUnnamedAccounts, network, deplo
     let treasureAddress;
 
     switch (network.name) {
-        case 'goerli' :
+        case 'goerli':
         case 'hardhat':
-            eigenPodManager = "0xa286b84C96aF280a49Fe1F40B9627C2A2827df41";
-            operatorAddress = deployer
-            governanceAddress = deployer
-            treasureAddress = deployer
+            eigenPodManager = '0xa286b84C96aF280a49Fe1F40B9627C2A2827df41';
+            operatorAddress = deployer;
+            governanceAddress = deployer;
+            treasureAddress = deployer;
             break;
         default: {
-            throw new Error(`Not supported network (${network.name})`)
+            throw new Error(`Not supported network (${network.name})`);
         }
     }
 
@@ -34,9 +38,17 @@ const func: DeployFunction = async function ({getUnnamedAccounts, network, deplo
             proxyContract: 'OpenZeppelinTransparentProxy',
             execute: {
                 methodName: 'initialize',
-                args: [0, 0, operatorAddress, governanceAddress,
-                    treasureAddress, constants.ZERO_ADDRESS,
-                    constants.ZERO_ADDRESS, constants.ZERO_ADDRESS, eigenPodManager],
+                args: [
+                    0,
+                    0,
+                    operatorAddress,
+                    governanceAddress,
+                    treasureAddress,
+                    constants.ZERO_ADDRESS,
+                    constants.ZERO_ADDRESS,
+                    constants.ZERO_ADDRESS,
+                    eigenPodManager,
+                ],
             },
         },
     });
@@ -72,14 +84,25 @@ const func: DeployFunction = async function ({getUnnamedAccounts, network, deplo
     });
 
     if (certToken.newlyDeployed) {
-        await execute('RatioFeed', {
-            from: deployer,
-            log: true
-        }, 'setRatioThreshold', 1);
-        await execute('RatioFeed', {
-            from: deployer,
-            log: true
-        }, 'updateRatioBatch', [certToken.address], ['1000000000000000000']);
+        await execute(
+            'RatioFeed',
+            {
+                from: deployer,
+                log: true,
+            },
+            'setRatioThreshold',
+            1
+        );
+        await execute(
+            'RatioFeed',
+            {
+                from: deployer,
+                log: true,
+            },
+            'updateRatioBatch',
+            [certToken.address],
+            ['1000000000000000000']
+        );
     }
 
     const stakingPool = await deploy('StakingPool', {
@@ -97,19 +120,34 @@ const func: DeployFunction = async function ({getUnnamedAccounts, network, deplo
         },
     });
 
-    if (config.newlyDeployed){
-        await execute('StakingConfig', {
-            from: deployer,
-            log: true
-        }, 'setRatioFeedAddress', feed.address);
-        await execute('StakingConfig', {
-            from: deployer,
-            log: true
-        }, 'setStakingPoolAddress', stakingPool.address);
-        await execute('StakingConfig', {
-            from: deployer,
-            log: true
-        }, 'setCertTokenAddress', certToken.address);
+    if (config.newlyDeployed) {
+        await execute(
+            'StakingConfig',
+            {
+                from: deployer,
+                log: true,
+            },
+            'setRatioFeedAddress',
+            feed.address
+        );
+        await execute(
+            'StakingConfig',
+            {
+                from: deployer,
+                log: true,
+            },
+            'setStakingPoolAddress',
+            stakingPool.address
+        );
+        await execute(
+            'StakingConfig',
+            {
+                from: deployer,
+                log: true,
+            },
+            'setCertTokenAddress',
+            certToken.address
+        );
     }
 };
 export default func;

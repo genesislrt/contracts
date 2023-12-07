@@ -2,15 +2,9 @@
 pragma solidity ^0.8.7;
 
 interface IStakingPool {
-    event Staked(
-        address indexed staker,
-        uint256 amount,
-        uint256 shares
-    );
+    event Staked(address indexed staker, uint256 amount, uint256 shares);
 
-    event PoolOnGoing(
-        bytes pubkey
-    );
+    event PoolOnGoing(bytes pubkey);
 
     event DistributeGasLimitChanged(uint256 prevValue, uint256 newValue);
 
@@ -31,5 +25,9 @@ interface IStakingPool {
 
     function getMinUnstake() external view returns (uint256);
 
-    function pushToBeaconMulti(bytes[] calldata pubkeys, bytes[] calldata signatures, bytes32[] calldata deposit_data_roots) external;
+    function pushToBeaconMulti(
+        bytes[] calldata pubkeys,
+        bytes[] calldata signatures,
+        bytes32[] calldata deposit_data_roots
+    ) external;
 }

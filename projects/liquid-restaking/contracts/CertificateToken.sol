@@ -13,12 +13,11 @@ import "./interfaces/IPausable.sol";
 import "./interfaces/IStakingPool.sol";
 import "./interfaces/IPausable.sol";
 
-
 contract CertificateToken is
-OwnableUpgradeable,
-ERC20Upgradeable,
-ICertificateToken,
-IPausable
+    OwnableUpgradeable,
+    ERC20Upgradeable,
+    ICertificateToken,
+    IPausable
 {
     // earn config
     IStakingConfig internal _stakingConfig;
@@ -73,11 +72,11 @@ IPausable
         address to,
         uint256 amount
     )
-    public
-    virtual
-    override(ERC20Upgradeable, IERC20Upgradeable)
-    whenNotPaused
-    returns (bool)
+        public
+        virtual
+        override(ERC20Upgradeable, IERC20Upgradeable)
+        whenNotPaused
+        returns (bool)
     {
         address ownerAddress = _msgSender();
         _transfer(ownerAddress, to, amount);
@@ -89,11 +88,11 @@ IPausable
         address to,
         uint256 amount
     )
-    public
-    virtual
-    override(ERC20Upgradeable, IERC20Upgradeable)
-    whenNotPaused
-    returns (bool)
+        public
+        virtual
+        override(ERC20Upgradeable, IERC20Upgradeable)
+        whenNotPaused
+        returns (bool)
     {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
@@ -105,11 +104,11 @@ IPausable
         address spender,
         uint256 amount
     )
-    public
-    virtual
-    override(ERC20Upgradeable, IERC20Upgradeable)
-    whenNotPaused
-    returns (bool)
+        public
+        virtual
+        override(ERC20Upgradeable, IERC20Upgradeable)
+        whenNotPaused
+        returns (bool)
     {
         address ownerAddress = _msgSender();
         _approve(ownerAddress, spender, amount);

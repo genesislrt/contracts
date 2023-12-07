@@ -6,10 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./interfaces/IRatioFeed.sol";
 import "./interfaces/IStakingConfig.sol";
 
-contract RatioFeed is
-Initializable,
-IRatioFeed
-{
+contract RatioFeed is Initializable, IRatioFeed {
     IStakingConfig _stakingConfig;
 
     struct HistoricalRatios {
@@ -83,7 +80,7 @@ IRatioFeed
             if (block.timestamp - hisRatio.lastUpdate > 1 days - 1 minutes) {
                 uint64 latestOffset = hisRatio.historicalRatios[0];
                 hisRatio.historicalRatios[
-                ((latestOffset + 1) % 8) + 1
+                    ((latestOffset + 1) % 8) + 1
                 ] = uint64(newRatio);
                 hisRatio.historicalRatios[0] = latestOffset + 1;
                 hisRatio.lastUpdate = uint40(block.timestamp);
@@ -118,7 +115,10 @@ IRatioFeed
         uint256 threshold = (oldRatio * _ratioThreshold) / MAX_THRESHOLD;
         if (newRatio < oldRatio - threshold) {
             // valid == false
-            return (valid, reason = "new ratio too low, not in threshold range");
+            return (
+                valid,
+                reason = "new ratio too low, not in threshold range"
+            );
         }
 
         return (valid = true, reason);
@@ -134,10 +134,10 @@ IRatioFeed
         uint64 latestOffset = hisRatio.historicalRatios[0];
 
         uint256 oldestRatio = hisRatio.historicalRatios[
-        ((latestOffset - day) % 8) + 1
+            ((latestOffset - day) % 8) + 1
         ];
         uint256 newestRatio = hisRatio.historicalRatios[
-        ((latestOffset) % 8) + 1
+            ((latestOffset) % 8) + 1
         ];
 
         if (oldestRatio < newestRatio) {
@@ -145,11 +145,14 @@ IRatioFeed
         }
 
         return
-        ((oldestRatio - newestRatio) * 10 ** 20 * 365) /
-        (oldestRatio * (day));
+            ((oldestRatio - newestRatio) * 10 ** 20 * 365) /
+            (oldestRatio * (day));
     }
 
-    function repairRatioFor(address token, uint256 ratio) public onlyGovernance {
+    function repairRatioFor(
+        address token,
+        uint256 ratio
+    ) public onlyGovernance {
         require(ratio != 0, "ratio is zero");
         uint256 oldRatio = _ratios[token];
         _ratios[token] = ratio;

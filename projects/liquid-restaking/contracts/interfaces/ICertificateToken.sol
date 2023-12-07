@@ -4,7 +4,6 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 interface ICertificateToken is IERC20Upgradeable {
-
     function sharesToBonds(uint256 amount) external view returns (uint256);
 
     function bondsToShares(uint256 amount) external view returns (uint256);

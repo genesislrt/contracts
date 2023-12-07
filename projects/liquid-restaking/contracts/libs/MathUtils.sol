@@ -2,22 +2,27 @@
 pragma solidity ^0.8.7;
 
 library MathUtils {
+    function saturatingMultiply(
+        uint256 a,
+        uint256 b
+    ) internal pure returns (uint256) {
+        unchecked {
+            if (a == 0) return 0;
+            uint256 c = a * b;
+            if (c / a != b) return type(uint256).max;
+            return c;
+        }
+    }
 
-    function saturatingMultiply(uint256 a, uint256 b) internal pure returns (uint256) {
-    unchecked {
-        if (a == 0) return 0;
-        uint256 c = a * b;
-        if (c / a != b) return type(uint256).max;
-        return c;
-    }
-    }
-
-    function saturatingAdd(uint256 a, uint256 b) internal pure returns (uint256) {
-    unchecked {
-        uint256 c = a + b;
-        if (c < a) return type(uint256).max;
-        return c;
-    }
+    function saturatingAdd(
+        uint256 a,
+        uint256 b
+    ) internal pure returns (uint256) {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return type(uint256).max;
+            return c;
+        }
     }
 
     // Preconditions:
@@ -30,10 +35,10 @@ library MathUtils {
         uint256 c
     ) internal pure returns (uint256) {
         return
-        saturatingAdd(
-            saturatingMultiply(a / c, b),
-            ((a % c) * b) / c // can't fail because of assumption 2.
-        );
+            saturatingAdd(
+                saturatingMultiply(a / c, b),
+                ((a % c) * b) / c // can't fail because of assumption 2.
+            );
     }
 
     // Preconditions:
@@ -47,9 +52,9 @@ library MathUtils {
     ) internal pure returns (uint256) {
         require(c != 0, "c == 0");
         return
-        saturatingAdd(
-            saturatingMultiply(a / c, b),
-            ((a % c) * b + (c - 1)) / c // can't fail because of assumption 2.
-        );
+            saturatingAdd(
+                saturatingMultiply(a / c, b),
+                ((a % c) * b + (c - 1)) / c // can't fail because of assumption 2.
+            );
     }
 }

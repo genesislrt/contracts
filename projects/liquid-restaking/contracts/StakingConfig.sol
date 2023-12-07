@@ -7,8 +7,8 @@ import "./interfaces/IStakingConfig.sol";
 
 contract StakingConfig is Initializable, IStakingConfig {
     /**
-    * @dev compact size, should be multiplied by 1 gwei
-    */
+     * @dev compact size, should be multiplied by 1 gwei
+     */
     uint64 internal _minimumUnstake;
     uint64 internal _minimumStake;
 
@@ -21,7 +21,10 @@ contract StakingConfig is Initializable, IStakingConfig {
     address internal _certTokenAddress;
 
     modifier onlyGovernance() virtual {
-        require(msg.sender == address(_governanceAddress), "StakingConfig: only governance");
+        require(
+            msg.sender == address(_governanceAddress),
+            "StakingConfig: only governance"
+        );
         _;
     }
 
@@ -58,49 +61,59 @@ contract StakingConfig is Initializable, IStakingConfig {
         return _operatorAddress;
     }
 
-    function setOperatorAddress(address newValue) external override onlyGovernance {
+    function setOperatorAddress(
+        address newValue
+    ) external override onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _operatorAddress;
         _operatorAddress = newValue;
         emit OperatorAddressChanged(prevValue, newValue);
     }
 
-    function setGovernanceAddress(address newValue) external override onlyGovernance {
+    function setGovernanceAddress(
+        address newValue
+    ) external override onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _governanceAddress;
         _governanceAddress = newValue;
         emit GovernanceAddressChanged(prevValue, newValue);
     }
 
-    function setRatioFeedAddress(address newValue) external override onlyGovernance {
+    function setRatioFeedAddress(
+        address newValue
+    ) external override onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _ratioFeedAddress;
         _ratioFeedAddress = newValue;
         emit RatioFeedAddressChanged(prevValue, newValue);
     }
 
-    function setTreasuryAddress(address newValue) external override onlyGovernance {
+    function setTreasuryAddress(
+        address newValue
+    ) external override onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _treasuryAddress;
         _treasuryAddress = newValue;
         emit TreasuryAddressChanged(prevValue, newValue);
     }
 
-    function setStakingPoolAddress(address newValue) external override onlyGovernance {
+    function setStakingPoolAddress(
+        address newValue
+    ) external override onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _stakingPoolAddress;
         _stakingPoolAddress = newValue;
         emit StakingPoolAddressChanged(prevValue, newValue);
     }
 
-
-    function setCertTokenAddress(address newValue) external override onlyGovernance {
+    function setCertTokenAddress(
+        address newValue
+    ) external override onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _certTokenAddress;
         _certTokenAddress = newValue;
         emit CertTokenAddressChanged(prevValue, newValue);
     }
-
 
     function getGovernanceAddress() external view override returns (address) {
         return _governanceAddress;
@@ -114,7 +127,12 @@ contract StakingConfig is Initializable, IStakingConfig {
         return _ratioFeedAddress;
     }
 
-    function getEigenPodManagerAddress() external view override returns (address) {
+    function getEigenPodManagerAddress()
+        external
+        view
+        override
+        returns (address)
+    {
         return _eigenPodManagerAddress;
     }
 
@@ -140,9 +158,7 @@ contract StakingConfig is Initializable, IStakingConfig {
         _setMinUnstake(newValue);
     }
 
-    function _setMinUnstake(
-        uint256 newValue
-    ) internal {
+    function _setMinUnstake(uint256 newValue) internal {
         require(
             newValue % 1 gwei == 0,
             "StakingConfig: value should be multiplied of gwei"
@@ -155,7 +171,6 @@ contract StakingConfig is Initializable, IStakingConfig {
         );
         emit MinUnstakeChanged(prevValue, newValue);
     }
-
 
     function setMinStake(
         uint256 newValue
@@ -170,10 +185,7 @@ contract StakingConfig is Initializable, IStakingConfig {
         );
         uint256 prevValue = getMinStake();
         _minimumStake = uint64(newValue / 1 gwei);
-        require(
-            _minimumStake * 1 gwei == newValue,
-            "StakingConfig: overflow"
-        );
+        require(_minimumStake * 1 gwei == newValue, "StakingConfig: overflow");
         emit MinStakeChanged(prevValue, newValue);
     }
 }
