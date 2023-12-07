@@ -1,9 +1,18 @@
 {
+  "devDependencies": {
+    "prettier": "^3.1.0",
+    "prettier-plugin-solidity": "^1.2.0"
+  },
   "name": "contracts",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/genesislrt/smart-contracts/",
   "author": "GenesisLRT",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "scripts": {
+    "prettier:sol": "prettier --write --plugin=prettier-plugin-solidity './**/*.sol'",
+    "prettier:ts": "prettier --write './**/*.ts'",
+    "prettier:js": "prettier --write './**/*.js'"
+  }
 }
