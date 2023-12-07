@@ -1,0 +1,13 @@
+build
+*local.*
+package-lock.json
+*.DS_Store
+vendor
+.env
+deployments
+node_modules
+typechain-types
+artifacts
+cache
+.idea
+yarn.lock
