@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -19,6 +19,7 @@ contract StakingConfig is Initializable, IStakingConfig {
     address internal _stakingPoolAddress;
     address internal _eigenPodManagerAddress;
     address internal _certTokenAddress;
+    IRestakerDeployer internal _restakerDeployer;
 
     modifier onlyGovernance() virtual {
         require(
@@ -42,88 +43,93 @@ contract StakingConfig is Initializable, IStakingConfig {
         _setMinStake(minimumStake);
         _setMinUnstake(minimumUnstake);
         _operatorAddress = operatorAddress;
-        emit OperatorAddressChanged(address(0x00), operatorAddress);
+        emit OperatorChanged(address(0x00), operatorAddress);
         _certTokenAddress = certTokenAddress;
-        emit CertTokenAddressChanged(address(0x00), certTokenAddress);
+        emit CTokenChanged(ICToken(address(0)), ICToken(certTokenAddress));
         _governanceAddress = governanceAddress;
-        emit GovernanceAddressChanged(address(0x00), governanceAddress);
+        emit GovernanceChanged(address(0), governanceAddress);
         _treasuryAddress = treasuryAddress;
-        emit TreasuryAddressChanged(address(0x00), treasuryAddress);
+        emit TreasuryChanged(address(0), treasuryAddress);
         _stakingPoolAddress = stakingPoolAddress;
-        emit StakingPoolAddressChanged(address(0x00), stakingPoolAddress);
+        emit RestakingPoolChanged(
+            IRestakingPool(address(0)),
+            IRestakingPool(stakingPoolAddress)
+        );
         _eigenPodManagerAddress = eigenPodManager;
-        emit EigenManagerAddressChanged(address(0x00), eigenPodManager);
+        emit EigenManagerAddressChanged(address(0), eigenPodManager);
         _ratioFeedAddress = ratioFeed;
-        emit RatioFeedAddressChanged(address(0x00), ratioFeed);
+        emit RatioFeedChanged(IRatioFeed(address(0)), IRatioFeed(ratioFeed));
     }
 
-    function getOperatorAddress() external view override returns (address) {
+    function getOperator() external view override returns (address) {
         return _operatorAddress;
     }
 
-    function setOperatorAddress(
-        address newValue
-    ) external override onlyGovernance {
+    function setOperatorAddress(address newValue) external onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _operatorAddress;
         _operatorAddress = newValue;
-        emit OperatorAddressChanged(prevValue, newValue);
+        emit OperatorChanged(prevValue, newValue);
     }
 
-    function setGovernanceAddress(
-        address newValue
-    ) external override onlyGovernance {
+    function setGovernanceAddress(address newValue) external onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _governanceAddress;
         _governanceAddress = newValue;
-        emit GovernanceAddressChanged(prevValue, newValue);
+        emit GovernanceChanged(prevValue, newValue);
     }
 
-    function setRatioFeedAddress(
-        address newValue
-    ) external override onlyGovernance {
+    function setRatioFeed(address newValue) external onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _ratioFeedAddress;
         _ratioFeedAddress = newValue;
-        emit RatioFeedAddressChanged(prevValue, newValue);
+        emit RatioFeedChanged(IRatioFeed(prevValue), IRatioFeed(newValue));
     }
 
-    function setTreasuryAddress(
-        address newValue
-    ) external override onlyGovernance {
+    function setTreasury(address newValue) external onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _treasuryAddress;
         _treasuryAddress = newValue;
-        emit TreasuryAddressChanged(prevValue, newValue);
+        emit TreasuryChanged(prevValue, newValue);
     }
 
-    function setStakingPoolAddress(
-        address newValue
-    ) external override onlyGovernance {
+    function setRestakingPool(address newValue) external onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _stakingPoolAddress;
         _stakingPoolAddress = newValue;
-        emit StakingPoolAddressChanged(prevValue, newValue);
+        emit RestakingPoolChanged(
+            IRestakingPool(prevValue),
+            IRestakingPool(newValue)
+        );
     }
 
-    function setCertTokenAddress(
-        address newValue
-    ) external override onlyGovernance {
+    function setCToken(address newValue) external onlyGovernance {
         require(newValue != address(0), "StakingConfig: address can't be nil");
         address prevValue = _certTokenAddress;
         _certTokenAddress = newValue;
-        emit CertTokenAddressChanged(prevValue, newValue);
+        emit CTokenChanged(ICToken(prevValue), ICToken(newValue));
     }
 
-    function getGovernanceAddress() external view override returns (address) {
+    function setRestakerDeployer(
+        IRestakerDeployer newValue
+    ) external onlyGovernance {
+        require(
+            address(newValue) != address(0),
+            "StakingConfig: address can't be nil"
+        );
+        emit RestakerDeployerChanged(_restakerDeployer, newValue);
+        _restakerDeployer = newValue;
+    }
+
+    function getGovernance() external view override returns (address) {
         return _governanceAddress;
     }
 
-    function getStakingPoolAddress() external view override returns (address) {
+    function getStakingPoolAddress() public view override returns (address) {
         return _stakingPoolAddress;
     }
 
-    function getRatioFeedAddress() external view override returns (address) {
+    function getRatioFeedAddress() public view override returns (address) {
         return _ratioFeedAddress;
     }
 
@@ -136,11 +142,11 @@ contract StakingConfig is Initializable, IStakingConfig {
         return _eigenPodManagerAddress;
     }
 
-    function getCertTokenAddress() external view override returns (address) {
+    function getCertTokenAddress() public view override returns (address) {
         return _certTokenAddress;
     }
 
-    function getTreasuryAddress() external view override returns (address) {
+    function getTreasury() external view override returns (address) {
         return _treasuryAddress;
     }
 
@@ -152,9 +158,7 @@ contract StakingConfig is Initializable, IStakingConfig {
         return uint256(_minimumUnstake) * 1 gwei;
     }
 
-    function setMinUnstake(
-        uint256 newValue
-    ) external virtual override onlyGovernance {
+    function setMinUnstake(uint256 newValue) external virtual onlyGovernance {
         _setMinUnstake(newValue);
     }
 
@@ -172,9 +176,7 @@ contract StakingConfig is Initializable, IStakingConfig {
         emit MinUnstakeChanged(prevValue, newValue);
     }
 
-    function setMinStake(
-        uint256 newValue
-    ) external virtual override onlyGovernance {
+    function setMinStake(uint256 newValue) external virtual onlyGovernance {
         _setMinStake(newValue);
     }
 
@@ -187,5 +189,38 @@ contract StakingConfig is Initializable, IStakingConfig {
         _minimumStake = uint64(newValue / 1 gwei);
         require(_minimumStake * 1 gwei == newValue, "StakingConfig: overflow");
         emit MinStakeChanged(prevValue, newValue);
+    }
+
+    function getCToken() external view override returns (ICToken token) {
+        return ICToken(getCertTokenAddress());
+    }
+
+    function getRatioFeed() external view override returns (IRatioFeed feed) {
+        return IRatioFeed(getRatioFeedAddress());
+    }
+
+    function getRestakingPool()
+        external
+        view
+        override
+        returns (IRestakingPool pool)
+    {
+        return IRestakingPool(getStakingPoolAddress());
+    }
+
+    function getEigenPodManager()
+        external
+        view
+        override
+        returns (IEigenPodManager manager)
+    {}
+
+    function getRestakerDeployer()
+        external
+        view
+        override
+        returns (IRestakerDeployer deployer)
+    {
+        return _restakerDeployer;
     }
 }

@@ -794,15 +794,15 @@
     table "^6.8.0"
     undici "^5.14.0"
 
-"@openzeppelin/contracts-upgradeable@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-5.0.0.tgz#859c00c55f04b6dda85b3c88bce507d65019888f"
-  integrity sha512-D54RHzkOKHQ8xUssPgQe2d/U92mwaiBDY7qCCVGq6VqwQjsT3KekEQ3bonev+BLP30oZ0R1U6YC8/oLpizgC5Q==
+"@openzeppelin/contracts-upgradeable@^4.7.0":
+  version "4.9.4"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.9.4.tgz#202222fa94fd85bd0a5794ead73acc63d815b55b"
+  integrity sha512-sVlteLCQ1RMgz7xbuhz/PRtBGT3oAPqmk1a/QWx+aeBibp+hFFeYodZJNXR7fs/4jbRQsXzPh1kuQ6RwMCCEMQ==
 
-"@openzeppelin/contracts@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-5.0.0.tgz#ee0e4b4564f101a5c4ee398cd4d73c0bd92b289c"
-  integrity sha512-bv2sdS6LKqVVMLI5+zqnNrNU/CA+6z6CmwFXm/MzmOPBRSO5reEJN7z0Gbzvs0/bv/MZZXNklubpwy3v2+azsw==
+"@openzeppelin/contracts@^4.5.0":
+  version "4.9.4"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.4.tgz#9241960f6aa5b9f73eb59452d6d85b9e7f21f393"
+  integrity sha512-cZ47skkw2iUz7ApIkgin5bNff7GkCJCZev48HKp81+sRBE0So9yi+Nm5O9G2BMysbjSdA9o9dKDUx0J9Yy1LUQ==
 
 "@openzeppelin/defender-admin-client@^1.52.0":
   version "1.52.0"
