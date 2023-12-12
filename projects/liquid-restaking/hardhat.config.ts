@@ -1,17 +1,15 @@
-import '@nomicfoundation/hardhat-toolbox';
-import '@openzeppelin/hardhat-upgrades';
-import 'hardhat-deploy';
-
-require('dotenv').config();
+import '@nomicfoundation/hardhat-toolbox'
+import '@openzeppelin/hardhat-upgrades'
+import 'hardhat-deploy'
 
 const accounts = process.env.DEPLOYER_PRIVATE_KEY
     ? [process.env.DEPLOYER_PRIVATE_KEY]
-    : ['1495992B2A5CC4DD53E231157BBF401329BD1B7EE355CEAB55A791398921CA17'];
+    : ['1495992B2A5CC4DD53E231157BBF401329BD1B7EE355CEAB55A791398921CA17']
 const gasPrice = process.env.GAS_PRICE
     ? parseInt(process.env.GAS_PRICE)
-    : 'auto';
+    : 'auto'
 
-require('dotenv').config();
+require('dotenv').config()
 
 module.exports = {
     hardhat: {
@@ -58,4 +56,4 @@ module.exports = {
     gasReporter: {
         enabled: true,
     },
-};
+}

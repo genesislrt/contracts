@@ -8,13 +8,7 @@ import "./IEigenPodManager.sol";
 import "../restaker/IRestakerDeployer.sol";
 
 interface IProtocolConfig {
-    /* errors */
-
-    error OnlyGovernanceAllowed();
-    error OnlyOperatorAllowed();
-
     /* events */
-
     event OperatorChanged(address prevValue, address newValue);
     event GovernanceChanged(address prevValue, address newValue);
     event TreasuryChanged(address prevValue, address newValue);

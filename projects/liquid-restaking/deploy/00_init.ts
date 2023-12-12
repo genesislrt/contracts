@@ -7,6 +7,8 @@ const func: DeployFunction = async function ({
     network,
     deployments,
 }) {
+    throw Error('TBD');
+
     const { deploy, execute } = deployments;
     const [deployer] = await getUnnamedAccounts();
     let eigenPodManager;
@@ -28,7 +30,7 @@ const func: DeployFunction = async function ({
         }
     }
 
-    const config = await deploy('StakingConfig', {
+    const config = await deploy('ProtocolConfig', {
         from: deployer,
         log: true,
         args: [],
@@ -68,7 +70,7 @@ const func: DeployFunction = async function ({
         },
     });
 
-    const certToken = await deploy('CertificateToken', {
+    const cToken = await deploy('cToken', {
         from: deployer,
         log: true,
         args: [],
@@ -83,7 +85,7 @@ const func: DeployFunction = async function ({
         },
     });
 
-    if (certToken.newlyDeployed) {
+    if (cToken.newlyDeployed) {
         await execute(
             'RatioFeed',
             {
@@ -99,13 +101,13 @@ const func: DeployFunction = async function ({
                 from: deployer,
                 log: true,
             },
-            'updateRatioBatch',
-            [certToken.address],
-            ['1000000000000000000']
+            'updateRatio',
+            cToken.address,
+            '1000000000000000000'
         );
     }
 
-    const stakingPool = await deploy('StakingPool', {
+    const restakingPool = await deploy('RestakingPool', {
         from: deployer,
         log: true,
         args: [],
@@ -122,31 +124,31 @@ const func: DeployFunction = async function ({
 
     if (config.newlyDeployed) {
         await execute(
-            'StakingConfig',
+            'ProtocolConfig',
             {
                 from: deployer,
                 log: true,
             },
-            'setRatioFeedAddress',
+            'setRatioFeed',
             feed.address
         );
         await execute(
-            'StakingConfig',
+            'ProtocolConfig',
             {
                 from: deployer,
                 log: true,
             },
-            'setStakingPoolAddress',
-            stakingPool.address
+            'setRestakingPool',
+            restakingPool.address
         );
         await execute(
-            'StakingConfig',
+            'ProtocolConfig',
             {
                 from: deployer,
                 log: true,
             },
-            'setCertTokenAddress',
-            certToken.address
+            'setCToken',
+            cToken.address
         );
     }
 };

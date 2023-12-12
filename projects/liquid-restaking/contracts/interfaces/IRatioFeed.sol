@@ -2,11 +2,6 @@
 pragma solidity ^0.8.20;
 
 interface IRatioFeed {
-    /* errors */
-
-    error OnlyGovernanceAllowed();
-    error OnlyOperatorAllowed();
-
     error RatioThresholdNotSet();
     error RatioNotUpdated(string reason);
     error RatioThresholdNotInRange();

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
@@ -30,9 +31,8 @@ contract Restaker is OwnableUpgradeable, IRestaker {
         address owner,
         IRestakerFacets facets
     ) public override initializer {
-        __Ownable_init();
+        __Ownable_init(owner);
         __Restaker_init(facets);
-        transferOwnership(owner);
     }
 
     function __Restaker_init(IRestakerFacets facets) internal onlyInitializing {

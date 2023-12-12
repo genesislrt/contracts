@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.7;
 
 interface IRestakingPool {
     /* structs */
@@ -10,9 +10,6 @@ interface IRestakingPool {
     }
 
     /* errors */
-
-    error OnlyGovernanceAllowed();
-    error OnlyOperatorAllowed();
 
     error PoolZeroAmount();
     error PoolZeroAddress();
@@ -55,11 +52,6 @@ interface IRestakingPool {
         uint256 amount,
         uint256 shares
     );
-
-    /**
-     * @dev Deprecated.
-     */
-    event RewardsDistributed(address[] claimers, uint256[] amounts);
 
     event UnstakesDistributed(Unstake[] unstakes);
 

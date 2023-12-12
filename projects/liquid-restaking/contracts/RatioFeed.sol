@@ -1,46 +1,54 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
+import "./Configurable.sol";
 import "./interfaces/IRatioFeed.sol";
 import "./interfaces/IProtocolConfig.sol";
-import "./interfaces/IStakingConfig.sol";
 
-contract RatioFeed is Initializable, IRatioFeed {
-    IStakingConfig _stakingConfig;
+/**
+ * @title Stores ratio of genETH
+ * @author GenesisLRT
+ */
+contract RatioFeed is Configurable, IRatioFeed {
+    uint32 public constant MAX_THRESHOLD = uint32(1e8); // 100000000
 
     mapping(address => uint256) private _ratios;
     mapping(address => HistoricalRatios) public historicalRatios;
 
-    uint32 public constant MAX_THRESHOLD = uint32(1e8); // 100000000
+    /**
+     * @notice diff between the current ratio and a new one in %(0.000001 ... 100%)
+     */
+    uint256 public ratioThreshold;
 
-    /// @dev diff between the current ratio and a new one in %(0.000001 ... 100%)
-    uint256 private _ratioThreshold;
-
-    /// @dev use this instead of HistoricalRatios.lastUpdate to check for 12hr ratio update timeout
+    /**
+     * @dev use this instead of HistoricalRatios.lastUpdate to check for 12hr ratio update timeout
+     */
     mapping(address => uint256) private _ratioUpdates;
 
     /*******************************************************************************
                         CONSTRUCTOR
     *******************************************************************************/
 
-    function initialize(IStakingConfig stakingConfig) public initializer {
-        _stakingConfig = stakingConfig;
+    /// @dev https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializing_the_implementation_contract
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
     }
 
-    modifier onlyGovernance() virtual {
-        if (msg.sender != _stakingConfig.getGovernance()) {
-            revert OnlyGovernanceAllowed();
-        }
-        _;
+    function initialize(
+        IProtocolConfig config,
+        uint256 ratioThreshold_
+    ) public initializer {
+        __Configurable_init(config);
+        __RatioFeed_init(ratioThreshold_);
     }
 
-    modifier onlyOperator() virtual {
-        if (msg.sender != _stakingConfig.getOperator()) {
-            revert OnlyOperatorAllowed();
-        }
-        _;
+    function __RatioFeed_init(
+        uint256 ratioThreshold_
+    ) internal onlyInitializing {
+        _setRatioThreshold(ratioThreshold_);
     }
 
     /*******************************************************************************
@@ -51,7 +59,7 @@ contract RatioFeed is Initializable, IRatioFeed {
         address token,
         uint256 newRatio
     ) public override onlyOperator {
-        if (_ratioThreshold == 0) {
+        if (ratioThreshold == 0) {
             revert RatioThresholdNotSet();
         }
 
@@ -99,7 +107,7 @@ contract RatioFeed is Initializable, IRatioFeed {
         if (newRatio > oldRatio) {
             return (valid, reason = "new ratio cannot be greater than old");
         }
-        uint256 threshold = (oldRatio * _ratioThreshold) / MAX_THRESHOLD;
+        uint256 threshold = (oldRatio * ratioThreshold) / MAX_THRESHOLD;
         if (newRatio < oldRatio - threshold) {
             return (
                 valid,
@@ -129,17 +137,13 @@ contract RatioFeed is Initializable, IRatioFeed {
         if (value >= MAX_THRESHOLD || value == 0) {
             revert RatioThresholdNotInRange();
         }
-        emit RatioThresholdChanged(_ratioThreshold, value);
-        _ratioThreshold = value;
+        emit RatioThresholdChanged(ratioThreshold, value);
+        ratioThreshold = value;
     }
 
     /*******************************************************************************
                         READ FUNCTIONS
     *******************************************************************************/
-
-    function ratioThreshold() external view returns (uint256) {
-        return _ratioThreshold;
-    }
 
     function getRatio(address token) public view override returns (uint256) {
         return _ratios[token];

@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
+import "../Configurable.sol";
 import "../interfaces/IEigenPodManager.sol";
 import "./IRestaker.sol";
 import "./IRestakerFacets.sol";
@@ -33,9 +35,8 @@ contract RestakerFacets is OwnableUpgradeable, IRestakerFacets {
         IEigenPodManager podManager,
         IDelegationManager delegationManager
     ) external initializer {
-        __Ownable_init();
+        __Ownable_init(owner);
         __RestakerFacets_init(podManager, delegationManager);
-        transferOwnership(owner);
     }
 
     function __RestakerFacets_init(

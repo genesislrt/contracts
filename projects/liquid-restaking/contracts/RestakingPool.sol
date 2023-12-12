@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-import "./interfaces/ICToken.sol";
-import "./interfaces/IEigenPodManager.sol";
-import "./interfaces/IStakingConfig.sol";
-import "./interfaces/IStakingPool.sol";
+import "./Configurable.sol";
+import "./interfaces/IEigenPod.sol";
+import "./restaker/IRestaker.sol";
+import "./restaker/IRestakerDeployer.sol";
 
-import "hardhat/console.sol";
-
-contract StakingPool is
-    IStakingPool,
-    Initializable,
-    ReentrancyGuardUpgradeable
+/**
+ * @title General contract where stakes and unstakes of genETH happens.
+ * @author GenesisLRT
+ */
+contract RestakingPool is
+    Configurable,
+    ReentrancyGuardUpgradeable,
+    IRestakingPool
 {
     // @dev block gas limit
     uint64 internal constant MAX_GAS_LIMIT = 30_000_000;
@@ -22,80 +23,84 @@ contract StakingPool is
     // @dev max gas allocated for {_sendValue}
     uint256 public constant CALL_GAS_LIMIT = 10_000;
 
-    /**
-     * @dev external contracts
-     */
-    IStakingConfig internal _stakingConfig;
+    uint256 internal _minStakeAmount;
+    uint256 internal _minUnstakeAmount;
 
-    uint256 internal _distributeGasLimit;
+    // @dev staked ETH to protocol.
+    uint256 internal _totalStaked;
+    // @dev unstaked ETH from protocol
+    uint256 internal _totalUnstaked;
 
     // @dev Current gap of {_pendingUnstakes}.
     uint256 internal _pendingGap;
-
-    uint256 internal _pendingTotalUnstakes;
-    address[] internal _pendingClaimers;
-    mapping(address => uint256) internal _pendingClaimerUnstakes;
-
-    uint256[] internal _pendingRequests;
+    // @dev Unstake queue.
+    Unstake[] internal _pendingUnstakes;
+    // @dev Total unstake amount in {_pendingUnstakes}.
+    uint256 internal _totalPendingUnstakes;
+    mapping(address => uint256) internal _totalUnstakesOf;
+    // @dev max gas is 30_000_000
+    uint32 internal _distributeGasLimit;
 
     uint256 internal _totalClaimable;
     mapping(address => uint256) internal _claimable;
+
     // keccak256(provider) => Restaker
     mapping(bytes32 => address) internal _restakers;
 
-    // reserve some gap for the future upgrades
-    uint256[50 - 8] private __reserved;
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
+    uint256[50 - 12] private __gap;
 
-    modifier onlyGovernance() virtual {
-        require(
-            msg.sender == _stakingConfig.getGovernance(),
-            "StakingPool: only governance allowed"
-        );
-        _;
-    }
+    /*******************************************************************************
+                        CONSTRUCTOR
+    *******************************************************************************/
 
-    modifier onlyOperator() {
-        require(
-            msg.sender == _stakingConfig.getOperator(),
-            "StakingPool: only consensus allowed"
-        );
-        _;
+    /// @dev https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializing_the_implementation_contract
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
     }
 
     function initialize(
-        IStakingConfig stakingConfig,
-        uint256 distributeGasLimit
+        IProtocolConfig config,
+        uint32 distributeGasLimit
     ) external initializer {
-        _stakingConfig = stakingConfig;
-        IEigenPodManager(stakingConfig.getEigenPodManager()).createPod();
-        __QueuePool_init(distributeGasLimit);
+        __ReentrancyGuard_init();
+        __Configurable_init(config);
+        __RestakingPool_init(distributeGasLimit);
     }
 
-    function __QueuePool_init(uint256 distributeGasLimit) internal {
-        setDistributeGasLimit(distributeGasLimit);
+    function __RestakingPool_init(
+        uint32 distributeGasLimit
+    ) internal onlyInitializing {
+        _setDistributeGasLimit(distributeGasLimit);
+    }
+
+    /*******************************************************************************
+                        WRITE FUNCTIONS
+    *******************************************************************************/
+
+    // @dev need to open incoming transfers to receive ETH from EigenPods
+    receive() external payable {
+        emit Received(_msgSender(), msg.value);
     }
 
     function stake() external payable {
-        stakeCerts();
-    }
-
-    /**
-     * @dev Deprecated.
-     */
-    function stakeCerts() public payable override {
         uint256 amount = msg.value;
-        require(
-            amount >= _stakingConfig.getMinStake(),
-            "StakingPool: value must be greater than min amount"
-        );
-        ICToken certificateToken = _stakingConfig.getCToken();
-        uint256 shares = certificateToken.convertToShares(amount);
-        certificateToken.mint(msg.sender, shares);
-        emit Staked(msg.sender, amount, shares);
-    }
 
-    function unstake(address to, uint256 shares) external {
-        unstakeCerts(to, shares);
+        if (amount < getMinStake()) {
+            revert PoolStakeAmLessThanMin();
+        }
+
+        ICToken token = config().getCToken();
+        uint256 shares = token.convertToShares(amount);
+        token.mint(_msgSender(), shares);
+
+        _totalStaked += amount;
+        emit Staked(_msgSender(), amount, shares);
     }
 
     function batchDeposit(
@@ -112,7 +117,7 @@ contract StakingPool is
         ) {
             revert PoolWrongInputLength();
         }
-        if (getPending() < 32 ether * pubkeysLen) {
+        if (address(this).balance < 32 ether * pubkeysLen) {
             revert PoolInsufficientBalance();
         }
 
@@ -133,104 +138,100 @@ contract StakingPool is
     }
 
     /**
-     * @dev Deprecated.
+     *
+     * @notice Burns shares from owner and add exactly amount of ETH to unstake queue in order for `to`.
+     * @dev Returns ETH via queue
+     * @param to Address for receiving unstaked funds
+     * @param shares Amount of cToken to unstake
      */
-    function unstakeCerts(address receiverAddress, uint256 shares) public {
-        address ownerAddress = msg.sender;
-        ICToken certificateToken = _stakingConfig.getCToken();
+    function unstake(address to, uint256 shares) external {
+        if (shares < getMinUnstake()) {
+            revert PoolUnstakeAmLessThanMin();
+        }
 
-        uint256 amount = certificateToken.convertToAmount(shares);
-        require(
-            amount >= _stakingConfig.getMinUnstake(),
-            "StakingPool: value must be greater than min amount"
-        );
+        address from = _msgSender();
+        ICToken token = config().getCToken();
+        uint256 amount = token.convertToAmount(shares);
 
-        require(
-            certificateToken.balanceOf(ownerAddress) >= shares,
-            "StakingPool: cannot unstake more than have on address"
-        );
-        certificateToken.burn(ownerAddress, shares);
-        _addIntoQueue(ownerAddress, receiverAddress, shares, amount);
+        // @dev don't need to check balance, because it throws ERC20InsufficientBalance
+        token.burn(from, shares);
+
+        _addIntoQueue(to, amount);
+
+        _totalUnstaked += amount;
+        emit Unstaked(from, to, amount, shares);
     }
 
-    function _addIntoQueue(
-        address owner,
-        address claimer,
-        uint256 shares,
-        uint256 amount
-    ) internal {
-        require(
-            amount != 0 && claimer != address(0),
-            "LiquidTokenStakingPool: zero input values"
-        );
+    function _addIntoQueue(address recipient, uint256 amount) internal {
+        if (recipient == address(0)) {
+            revert PoolZeroAddress();
+        }
+        if (amount == 0) {
+            revert PoolZeroAmount();
+        }
+
         // each new request is placed at the end of the queue
-        _pendingTotalUnstakes += amount;
-        _pendingClaimers.push(claimer);
-        _pendingRequests.push(amount);
-        _pendingClaimerUnstakes[claimer] += amount;
-        emit PendingUnstake(owner, claimer, amount, shares);
+        _totalPendingUnstakes += amount;
+        _totalUnstakesOf[recipient] += amount;
+
+        _pendingUnstakes.push(Unstake(recipient, amount));
     }
 
     function distributeUnstakes() external nonReentrant {
-        require(
-            _distributeGasLimit > 0,
-            "StakingPool: DISTRIBUTE_GAS_LIMIT is not set"
-        );
         uint256 poolBalance = getPending();
-        address[] memory claimers = new address[](
-            _pendingClaimers.length - _pendingGap
-        );
-        uint256[] memory amounts = new uint256[](
-            _pendingClaimers.length - _pendingGap
+
+        Unstake[] memory unstakes = new Unstake[](
+            _pendingUnstakes.length - _pendingGap
         );
         uint256 j = 0;
         uint256 i = _pendingGap;
 
         while (
-            i < _pendingClaimers.length &&
+            i < _pendingUnstakes.length &&
             poolBalance > 0 &&
             gasleft() > _distributeGasLimit
         ) {
-            address claimer = _pendingClaimers[i];
-            uint256 toDistribute = _pendingRequests[i];
-            if (claimer == address(0) || toDistribute == 0) {
+            Unstake memory unstake_ = _pendingUnstakes[i];
+
+            if (unstake_.recipient == address(0) || unstake_.amount == 0) {
                 ++i;
                 continue;
             }
 
-            if (poolBalance < toDistribute) {
+            if (poolBalance < unstake_.amount) {
                 break;
             }
 
-            _pendingClaimerUnstakes[claimer] -= toDistribute;
-            _pendingTotalUnstakes -= toDistribute;
-            poolBalance -= toDistribute;
-            delete _pendingClaimers[i];
-            delete _pendingRequests[i];
+            _totalUnstakesOf[unstake_.recipient] -= unstake_.amount;
+            _totalPendingUnstakes -= unstake_.amount;
+            poolBalance -= unstake_.amount;
+            delete _pendingUnstakes[i];
             ++i;
 
-            bool success = _sendValue(claimer, toDistribute, true);
+            bool success = _sendValue(
+                unstake_.recipient,
+                unstake_.amount,
+                true
+            );
             if (!success) {
-                _addClaimable(claimer, toDistribute);
+                _addClaimable(unstake_.recipient, unstake_.amount);
                 continue;
             }
-            claimers[j] = claimer;
-            amounts[j] = toDistribute;
+
+            unstakes[j] = unstake_;
             ++j;
         }
         _pendingGap = i;
+
         /* decrease arrays */
-        uint256 removeCells = claimers.length - j;
+        uint256 removeCells = unstakes.length - j;
         if (removeCells > 0) {
             assembly {
-                mstore(claimers, j)
-            }
-            assembly {
-                mstore(amounts, j)
+                mstore(unstakes, j)
             }
         }
 
-        emit RewardsDistributed(claimers, amounts);
+        emit UnstakesDistributed(unstakes);
     }
 
     function _sendValue(
@@ -282,7 +283,7 @@ contract StakingPool is
             revert PoolFailedInnerCall();
         }
 
-        emit UnstakeClaimed(claimer, msg.sender, amount);
+        emit UnstakeClaimed(claimer, _msgSender(), amount);
     }
 
     /*******************************************************************************
@@ -347,7 +348,7 @@ contract StakingPool is
         restaker.recoverTokens(
             tokenList,
             amountsToWithdraw,
-            _stakingConfig.getOperator()
+            config().getOperator()
         );
     }
 
@@ -356,7 +357,12 @@ contract StakingPool is
     *******************************************************************************/
 
     function getMinStake() public view virtual returns (uint256 amount) {
-        return _stakingConfig.getMinStake();
+        // 1 shares = minimal respresentable amount
+        uint256 minConvertableAmount = config().getCToken().convertToAmount(1);
+        return
+            _minStakeAmount > minConvertableAmount
+                ? _minStakeAmount
+                : minConvertableAmount;
     }
 
     function getMinUnstake()
@@ -366,7 +372,15 @@ contract StakingPool is
         override
         returns (uint256 shares)
     {
-        return _stakingConfig.getMinUnstake();
+        ICToken token = config().getCToken();
+        // 1 shares => amount => shares = minimal possible shares amount
+        uint256 minConvertableShare = token.convertToShares(
+            token.convertToAmount(1)
+        );
+        return
+            _minStakeAmount > minConvertableShare
+                ? _minStakeAmount
+                : minConvertableShare;
     }
 
     function getPending() public view returns (uint256) {
@@ -384,39 +398,33 @@ contract StakingPool is
         return _totalClaimable;
     }
 
-    /**
-     * @dev Deprecated.
-     */
-    function getFreeBalance() external view virtual returns (uint256) {
-        return getPending();
-    }
-
-    /**
-     * @return Certificate token address
-     */
-    function getCert() external view virtual returns (address) {
-        return _stakingConfig.getCertTokenAddress();
-    }
-
-    function getEigenPodManager() external view virtual returns (address) {
-        return _stakingConfig.getEigenPodManagerAddress();
-    }
-
     function getTotalPendingUnstakes() public view returns (uint256) {
-        return _pendingTotalUnstakes;
+        return _totalPendingUnstakes;
     }
 
-    function getPendingRequestsOf(
-        address claimer
-    ) public view returns (uint256[] memory) {
+    /**
+     * @notice Get all unstakes in queue
+     * @dev avoid to use not in view methods
+     */
+    function getUnstakes() external view returns (Unstake[] memory unstakes) {
+        unstakes = new Unstake[](_pendingUnstakes.length - _pendingGap);
         uint256 j;
-        uint256[] memory unstakes = new uint256[](
-            _pendingClaimers.length - _pendingGap
-        );
-        for (uint256 i = _pendingGap; i < _pendingClaimers.length; i++) {
-            if (_pendingClaimers[i] == claimer) {
-                unstakes[j] = _pendingRequests[i];
-                ++j;
+        for (uint256 i = _pendingGap; i < _pendingUnstakes.length; i++) {
+            unstakes[j++] = _pendingUnstakes[i];
+        }
+    }
+
+    /**
+     * @dev avoid to use not in view methods
+     */
+    function getUnstakesOf(
+        address recipient
+    ) external view returns (Unstake[] memory unstakes) {
+        unstakes = new Unstake[](_pendingUnstakes.length - _pendingGap);
+        uint256 j;
+        for (uint256 i = _pendingGap; i < _pendingUnstakes.length; i++) {
+            if (_pendingUnstakes[i].recipient == recipient) {
+                unstakes[j++] = _pendingUnstakes[i];
             }
         }
         uint256 removeCells = unstakes.length - j;
@@ -425,13 +433,12 @@ contract StakingPool is
                 mstore(unstakes, j)
             }
         }
-        return unstakes;
     }
 
-    function getPendingUnstakesOf(
-        address claimer
+    function getTotalUnstakesOf(
+        address recipient
     ) public view returns (uint256) {
-        return _pendingClaimerUnstakes[claimer];
+        return _totalUnstakesOf[recipient];
     }
 
     function hasClaimable(address claimer) public view returns (bool) {
@@ -468,14 +475,19 @@ contract StakingPool is
             revert PoolRestakerExists();
         }
         _restakers[providerHash] = address(
-            _stakingConfig.getRestakerDeployer().deployRestaker()
+            config().getRestakerDeployer().deployRestaker()
         );
     }
 
-    function setDistributeGasLimit(uint256 newValue) public onlyGovernance {
-        uint256 prevValue = _distributeGasLimit;
-        _distributeGasLimit = newValue;
+    function setDistributeGasLimit(uint32 newValue) external onlyGovernance {
+        _setDistributeGasLimit(newValue);
+    }
 
-        emit DistributeGasLimitChanged(uint32(prevValue), uint32(newValue));
+    function _setDistributeGasLimit(uint32 newValue) internal {
+        if (newValue >= MAX_GAS_LIMIT || newValue == 0) {
+            revert PoolDistributeGasLimitNotInRange(MAX_GAS_LIMIT);
+        }
+        emit DistributeGasLimitChanged(_distributeGasLimit, newValue);
+        _distributeGasLimit = newValue;
     }
 }
