@@ -1,18 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "./interfaces/IRatioFeed.sol";
+import "./interfaces/IProtocolConfig.sol";
 import "./interfaces/IStakingConfig.sol";
 
 contract RatioFeed is Initializable, IRatioFeed {
     IStakingConfig _stakingConfig;
-
-    struct HistoricalRatios {
-        uint64[9] historicalRatios;
-        uint40 lastUpdate;
-    }
 
     mapping(address => uint256) private _ratios;
     mapping(address => HistoricalRatios) public historicalRatios;
@@ -25,71 +21,67 @@ contract RatioFeed is Initializable, IRatioFeed {
     /// @dev use this instead of HistoricalRatios.lastUpdate to check for 12hr ratio update timeout
     mapping(address => uint256) private _ratioUpdates;
 
+    /*******************************************************************************
+                        CONSTRUCTOR
+    *******************************************************************************/
+
     function initialize(IStakingConfig stakingConfig) public initializer {
         _stakingConfig = stakingConfig;
     }
 
     modifier onlyGovernance() virtual {
-        require(
-            msg.sender == _stakingConfig.getGovernanceAddress(),
-            "RatioFeed: only governance allowed"
-        );
-        _;
-    }
-
-    modifier onlyOperator() {
-        require(
-            msg.sender == _stakingConfig.getOperatorAddress(),
-            "RatioFeed: only operator allowed"
-        );
-        _;
-    }
-
-    function updateRatioBatch(
-        address[] calldata addresses,
-        uint256[] calldata ratios
-    ) public override onlyOperator {
-        require(addresses.length == ratios.length, "corrupted ratio data");
-        require(_ratioThreshold > 0, "ratio threshold is not set");
-
-        for (uint256 i = 0; i < addresses.length; i++) {
-            address tokenAddr = addresses[i];
-            uint256 lastUpdate = _ratioUpdates[tokenAddr];
-            uint256 oldRatio = _ratios[tokenAddr];
-            uint256 newRatio = ratios[i];
-
-            (bool valid, string memory reason) = _checkRatioRules(
-                lastUpdate,
-                newRatio,
-                oldRatio
-            );
-
-            if (!valid) {
-                emit RatioNotUpdated(tokenAddr, newRatio, reason);
-                // continue to other ratios
-                continue;
-            }
-
-            _ratios[tokenAddr] = newRatio;
-            emit RatioUpdated(tokenAddr, oldRatio, newRatio);
-
-            _ratioUpdates[tokenAddr] = uint40(block.timestamp);
-
-            // let's compare with a new ratio
-            HistoricalRatios storage hisRatio = historicalRatios[tokenAddr];
-            if (block.timestamp - hisRatio.lastUpdate > 1 days - 1 minutes) {
-                uint64 latestOffset = hisRatio.historicalRatios[0];
-                hisRatio.historicalRatios[
-                    ((latestOffset + 1) % 8) + 1
-                ] = uint64(newRatio);
-                hisRatio.historicalRatios[0] = latestOffset + 1;
-                hisRatio.lastUpdate = uint40(block.timestamp);
-            }
+        if (msg.sender != _stakingConfig.getGovernance()) {
+            revert OnlyGovernanceAllowed();
         }
+        _;
     }
 
-    function getRatioThreshold() public view returns (uint256) {
-        return _ratioThreshold;
+    modifier onlyOperator() virtual {
+        if (msg.sender != _stakingConfig.getOperator()) {
+            revert OnlyOperatorAllowed();
+        }
+        _;
+    }
+
+    /*******************************************************************************
+                        WRITE FUNCTIONS
+    *******************************************************************************/
+
+    function updateRatio(
+        address token,
+        uint256 newRatio
+    ) public override onlyOperator {
+        if (_ratioThreshold == 0) {
+            revert RatioThresholdNotSet();
+        }
+
+        uint256 lastUpdate = _ratioUpdates[token];
+        uint256 oldRatio = _ratios[token];
+
+        (bool valid, string memory reason) = _checkRatioRules(
+            lastUpdate,
+            newRatio,
+            oldRatio
+        );
+
+        if (!valid) {
+            revert RatioNotUpdated(reason);
+        }
+
+        _ratios[token] = newRatio;
+        emit RatioUpdated(token, oldRatio, newRatio);
+
+        _ratioUpdates[token] = uint40(block.timestamp);
+
+        HistoricalRatios storage hisRatio = historicalRatios[token];
+        if (block.timestamp - hisRatio.lastUpdate > 1 days - 1 minutes) {
+            uint64 latestOffset = hisRatio.historicalRatios[0];
+            hisRatio.historicalRatios[((latestOffset + 1) % 8) + 1] = uint64(
+                newRatio
+            );
+            hisRatio.historicalRatios[0] = latestOffset + 1;
+            hisRatio.lastUpdate = uint40(block.timestamp);
+        }
     }
 
     function _checkRatioRules(
@@ -97,24 +89,18 @@ contract RatioFeed is Initializable, IRatioFeed {
         uint256 newRatio,
         uint256 oldRatio
     ) internal view returns (bool valid, string memory reason) {
-        // initialization of the first ratio -> skip checks
         if (oldRatio == 0) {
             return (valid = true, reason);
         }
 
         if (block.timestamp - lastUpdated < 12 hours) {
-            // valid == false
             return (valid, reason = "ratio was updated less than 12 hours ago");
         }
-        // new ratio should be not greater than a previous one
         if (newRatio > oldRatio) {
-            // valid == false
             return (valid, reason = "new ratio cannot be greater than old");
         }
-        // new ratio should be in the range (oldRatio - threshold , oldRatio]
         uint256 threshold = (oldRatio * _ratioThreshold) / MAX_THRESHOLD;
         if (newRatio < oldRatio - threshold) {
-            // valid == false
             return (
                 valid,
                 reason = "new ratio too low, not in threshold range"
@@ -124,13 +110,51 @@ contract RatioFeed is Initializable, IRatioFeed {
         return (valid = true, reason);
     }
 
+    function repairRatio(
+        address token,
+        uint256 newRatio
+    ) public onlyGovernance {
+        if (newRatio > 1e18 || newRatio == 0) {
+            revert RatioNotUpdated("not in range");
+        }
+        emit RatioUpdated(token, _ratios[token], newRatio);
+        _ratios[token] = newRatio;
+    }
+
+    function setRatioThreshold(uint256 newValue) external onlyGovernance {
+        _setRatioThreshold(newValue);
+    }
+
+    function _setRatioThreshold(uint256 value) internal {
+        if (value >= MAX_THRESHOLD || value == 0) {
+            revert RatioThresholdNotInRange();
+        }
+        emit RatioThresholdChanged(_ratioThreshold, value);
+        _ratioThreshold = value;
+    }
+
+    /*******************************************************************************
+                        READ FUNCTIONS
+    *******************************************************************************/
+
+    function ratioThreshold() external view returns (uint256) {
+        return _ratioThreshold;
+    }
+
+    function getRatio(address token) public view override returns (uint256) {
+        return _ratios[token];
+    }
+
+    /**
+     * @notice Returns APR based on ratio changes for `day`s
+     */
     function averagePercentageRate(
-        address addr,
-        uint256 day
+        address token,
+        uint8 day
     ) external view returns (uint256) {
         require(day > 0 && day < 8, "day should be from 1 to 7");
 
-        HistoricalRatios storage hisRatio = historicalRatios[addr];
+        HistoricalRatios storage hisRatio = historicalRatios[token];
         uint64 latestOffset = hisRatio.historicalRatios[0];
 
         uint256 oldestRatio = hisRatio.historicalRatios[
@@ -147,29 +171,5 @@ contract RatioFeed is Initializable, IRatioFeed {
         return
             ((oldestRatio - newestRatio) * 10 ** 20 * 365) /
             (oldestRatio * (day));
-    }
-
-    function repairRatioFor(
-        address token,
-        uint256 ratio
-    ) public onlyGovernance {
-        require(ratio != 0, "ratio is zero");
-        uint256 oldRatio = _ratios[token];
-        _ratios[token] = ratio;
-        emit RatioUpdated(token, oldRatio, ratio);
-    }
-
-    function getRatioFor(address token) public view override returns (uint256) {
-        return _ratios[token];
-    }
-
-    function setRatioThreshold(uint256 newValue) public onlyGovernance {
-        require(
-            newValue < MAX_THRESHOLD && newValue > 0,
-            "wrong value for ratio threshold"
-        );
-        uint256 oldValue = _ratioThreshold;
-        _ratioThreshold = newValue;
-        emit RatioThresholdChanged(oldValue, newValue);
     }
 }

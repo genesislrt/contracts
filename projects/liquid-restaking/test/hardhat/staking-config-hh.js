@@ -66,25 +66,25 @@ const init = async () => {
         { initializer: 'initialize' }
     );
     await ratioFeed.deployed();
-    await stakingConfig.setRatioFeedAddress(ratioFeed.address);
+    await stakingConfig.setRatioFeed(ratioFeed.address);
 
     console.log(`- StakingPool`);
     const stakingPoolFactory =
-        await ethers.getContractFactory('StakingPool_V1');
+        await ethers.getContractFactory('StakingPool');
     const stakingPool = await upgrades.deployProxy(
         stakingPoolFactory,
         [stakingConfig.address, _DISTRIBUTE_GAS_LIMIT],
         { initializer: 'initialize' }
     );
     await stakingPool.deployed();
-    await stakingConfig.setStakingPoolAddress(stakingPool.address);
+    await stakingConfig.setRestakingPool(stakingPool.address);
 
     console.log('... Initialization completed ...');
 
     await ratioFeed.setRatioThreshold(_ratioThreshold);
     await ratioFeed
         .connect(operator)
-        .updateRatioBatch([certificateToken.address], [e18]);
+        .updateRatio(certificateToken.address, e18);
     await increaseChainTimeForSeconds(60 * 60 * 12 + 1); //+12h
     return [
         podManager,
@@ -109,8 +109,8 @@ describe('Staking config', function () {
             ] = await init();
         });
 
-        it('getOperatorAddress()', async function () {
-            expect(await stakingConfig.getOperatorAddress()).to.be.eq(
+        it('getOperator()', async function () {
+            expect(await stakingConfig.getOperator()).to.be.eq(
                 operator.address
             );
         });
@@ -120,7 +120,7 @@ describe('Staking config', function () {
             const tx = await stakingConfig.setOperatorAddress(newAddress);
             const rec = await tx.wait();
             const events = rec.events?.filter((e) => {
-                return e.event === 'OperatorAddressChanged';
+                return e.event === 'OperatorChanged';
             });
             expect(events.length).to.be.eq(1);
             expect(events[0].args['prevValue'].toLowerCase()).to.be.eq(
@@ -131,7 +131,7 @@ describe('Staking config', function () {
             );
 
             expect(
-                (await stakingConfig.getOperatorAddress()).toLowerCase()
+                (await stakingConfig.getOperator()).toLowerCase()
             ).to.be.eq(newAddress);
         });
 
@@ -161,8 +161,8 @@ describe('Staking config', function () {
             ] = await init();
         });
 
-        it('getGovernanceAddress()', async function () {
-            expect(await stakingConfig.getGovernanceAddress()).to.be.eq(
+        it('getGovernance()', async function () {
+            expect(await stakingConfig.getGovernance()).to.be.eq(
                 governance.address
             );
         });
@@ -186,7 +186,7 @@ describe('Staking config', function () {
             const tx = await stakingConfig.setGovernanceAddress(newAddress);
             const rec = await tx.wait();
             const events = rec.events?.filter((e) => {
-                return e.event === 'GovernanceAddressChanged';
+                return e.event === 'GovernanceChanged';
             });
             expect(events.length).to.be.eq(1);
             expect(events[0].args['prevValue'].toLowerCase()).to.be.eq(
@@ -197,7 +197,7 @@ describe('Staking config', function () {
             );
 
             expect(
-                (await stakingConfig.getGovernanceAddress()).toLowerCase()
+                (await stakingConfig.getGovernance()).toLowerCase()
             ).to.be.eq(newAddress);
         });
     });
@@ -219,26 +219,26 @@ describe('Staking config', function () {
             );
         });
 
-        it('setRatioFeedAddress(): only governance can', async function () {
+        it('setRatioFeed(): only governance can', async function () {
             await expect(
                 stakingConfig
                     .connect(signer1)
-                    .setRatioFeedAddress(randomAddress())
+                    .setRatioFeed(randomAddress())
             ).to.be.revertedWith('StakingConfig: only governance');
         });
 
-        it('setRatioFeedAddress(): reverts: when change to zero address', async function () {
+        it('setRatioFeed(): reverts: when change to zero address', async function () {
             await expect(
-                stakingConfig.setRatioFeedAddress(zeroAddress)
+                stakingConfig.setRatioFeed(zeroAddress)
             ).to.be.revertedWith("StakingConfig: address can't be nil");
         });
 
-        it('setRatioFeedAddress()', async function () {
+        it('setRatioFeed()', async function () {
             const newAddress = randomAddress();
-            const tx = await stakingConfig.setRatioFeedAddress(newAddress);
+            const tx = await stakingConfig.setRatioFeed(newAddress);
             const rec = await tx.wait();
             const events = rec.events?.filter((e) => {
-                return e.event === 'RatioFeedAddressChanged';
+                return e.event === 'RatioFeedChanged';
             });
             expect(events.length).to.be.eq(1);
             expect(events[0].args['prevValue'].toLowerCase()).to.be.eq(
@@ -265,32 +265,32 @@ describe('Staking config', function () {
             ] = await init();
         });
 
-        it('getTreasuryAddress()', async function () {
-            expect(await stakingConfig.getTreasuryAddress()).to.be.eq(
+        it('getTreasury()', async function () {
+            expect(await stakingConfig.getTreasury()).to.be.eq(
                 treasury.address
             );
         });
 
-        it('setTreasuryAddress(): only governance can', async function () {
+        it('setTreasury(): only governance can', async function () {
             await expect(
                 stakingConfig
                     .connect(signer1)
-                    .setTreasuryAddress(randomAddress())
+                    .setTreasury(randomAddress())
             ).to.be.revertedWith('StakingConfig: only governance');
         });
 
-        it('setTreasuryAddress(): reverts: when change to zero address', async function () {
+        it('setTreasury(): reverts: when change to zero address', async function () {
             await expect(
-                stakingConfig.setTreasuryAddress(zeroAddress)
+                stakingConfig.setTreasury(zeroAddress)
             ).to.be.revertedWith("StakingConfig: address can't be nil");
         });
 
-        it('setTreasuryAddress()', async function () {
+        it('setTreasury()', async function () {
             const newAddress = randomAddress();
-            const tx = await stakingConfig.setTreasuryAddress(newAddress);
+            const tx = await stakingConfig.setTreasury(newAddress);
             const rec = await tx.wait();
             const events = rec.events?.filter((e) => {
-                return e.event === 'TreasuryAddressChanged';
+                return e.event === 'TreasuryChanged';
             });
             expect(events.length).to.be.eq(1);
             expect(events[0].args['prevValue'].toLowerCase()).to.be.eq(
@@ -301,7 +301,7 @@ describe('Staking config', function () {
             );
 
             expect(
-                (await stakingConfig.getTreasuryAddress()).toLowerCase()
+                (await stakingConfig.getTreasury()).toLowerCase()
             ).to.be.eq(newAddress);
         });
     });
@@ -323,26 +323,26 @@ describe('Staking config', function () {
             );
         });
 
-        it('setStakingPoolAddress(): only governance can', async function () {
+        it('setRestakingPool(): only governance can', async function () {
             await expect(
                 stakingConfig
                     .connect(signer1)
-                    .setStakingPoolAddress(randomAddress())
+                    .setRestakingPool(randomAddress())
             ).to.be.revertedWith('StakingConfig: only governance');
         });
 
-        it('setStakingPoolAddress(): reverts: when change to zero address', async function () {
+        it('setRestakingPool(): reverts: when change to zero address', async function () {
             await expect(
-                stakingConfig.setStakingPoolAddress(zeroAddress)
+                stakingConfig.setRestakingPool(zeroAddress)
             ).to.be.revertedWith("StakingConfig: address can't be nil");
         });
 
-        it('setStakingPoolAddress()', async function () {
+        it('setRestakingPool()', async function () {
             const newAddress = randomAddress();
-            const tx = await stakingConfig.setStakingPoolAddress(newAddress);
+            const tx = await stakingConfig.setRestakingPool(newAddress);
             const rec = await tx.wait();
             const events = rec.events?.filter((e) => {
-                return e.event === 'StakingPoolAddressChanged';
+                return e.event === 'RestakingPoolChanged';
             });
             expect(events.length).to.be.eq(1);
             expect(events[0].args['prevValue'].toLowerCase()).to.be.eq(
@@ -375,26 +375,26 @@ describe('Staking config', function () {
             );
         });
 
-        it('setCertTokenAddress(): only governance can', async function () {
+        it('setCToken(): only governance can', async function () {
             await expect(
                 stakingConfig
                     .connect(signer1)
-                    .setCertTokenAddress(randomAddress())
+                    .setCToken(randomAddress())
             ).to.be.revertedWith('StakingConfig: only governance');
         });
 
-        it('setCertTokenAddress(): reverts: when change to zero address', async function () {
+        it('setCToken(): reverts: when change to zero address', async function () {
             await expect(
-                stakingConfig.setCertTokenAddress(zeroAddress)
+                stakingConfig.setCToken(zeroAddress)
             ).to.be.revertedWith("StakingConfig: address can't be nil");
         });
 
-        it('setCertTokenAddress()', async function () {
+        it('setCToken()', async function () {
             const newAddress = randomAddress();
-            const tx = await stakingConfig.setCertTokenAddress(newAddress);
+            const tx = await stakingConfig.setCToken(newAddress);
             const rec = await tx.wait();
             const events = rec.events?.filter((e) => {
-                return e.event === 'CertTokenAddressChanged';
+                return e.event === 'CTokenChanged';
             });
             expect(events.length).to.be.eq(1);
             expect(events[0].args['prevValue'].toLowerCase()).to.be.eq(
@@ -507,7 +507,7 @@ async function updateRatio(ratioFeed, token, ratio) {
     await increaseChainTimeForSeconds(60 * 60 * 12 + 1); //+12h
     await ratioFeed
         .connect(operator)
-        .updateRatioBatch([token.address], [ratio]);
+        .updateRatio(token.address, ratio);
     console.log(`### Ratio updated: ${await token.ratio()}`);
 }
 

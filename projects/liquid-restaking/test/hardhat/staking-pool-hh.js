@@ -66,26 +66,48 @@ const init = async () => {
         { initializer: 'initialize' }
     );
     await ratioFeed.deployed();
-    await stakingConfig.setRatioFeedAddress(ratioFeed.address);
+    await stakingConfig.setRatioFeed(ratioFeed.address);
 
     console.log(`- StakingPool`);
     const stakingPoolFactory =
-        await ethers.getContractFactory('StakingPool_V1');
+        await ethers.getContractFactory('StakingPool');
     const stakingPool = await upgrades.deployProxy(
         stakingPoolFactory,
         [stakingConfig.address, _DISTRIBUTE_GAS_LIMIT],
         { initializer: 'initialize' }
     );
     await stakingPool.deployed();
-    await stakingConfig.setStakingPoolAddress(stakingPool.address);
+    await stakingConfig.setRestakingPool(stakingPool.address);
+
+    console.log(`- Restaker`);
+    const restakerBeacon = await upgrades.deployBeacon(
+        await ethers.getContractFactory('Restaker'),
+    );
+    await restakerBeacon.deployed();
+
+    const restakerFacets = await upgrades.deployProxy(
+        await ethers.getContractFactory('RestakerFacets'),
+        [
+            governance.address,
+            podManager.address,
+            podManager.address, // just to fill
+        ]
+    );
+    await restakerFacets.deployed();
+
+    const restakerDeployer = await ethers.deployContract('RestakerDeployer', [ restakerBeacon.address, restakerFacets.address ]);
+    await restakerDeployer.deployed();
+
+    await stakingConfig.setRestakerDeployer(restakerDeployer.address);
 
     console.log('... Initialization completed ...');
 
     await ratioFeed.setRatioThreshold(_ratioThreshold);
     await ratioFeed
         .connect(operator)
-        .updateRatioBatch([certificateToken.address], [e18]);
+        .updateRatio(certificateToken.address, e18);
     await increaseChainTimeForSeconds(60 * 60 * 12 + 1); //+12h
+
     return [
         podManager,
         stakingConfig,
@@ -131,14 +153,8 @@ describe('Staking pool', function () {
             expect(await stakingPool.getMinUnstake()).to.be.eq(_minimumUnstake);
         });
 
-        it('getDistributeGasLimit()', async function () {
-            expect(await stakingPool.getDistributeGasLimit()).to.be.eq(
-                _DISTRIBUTE_GAS_LIMIT
-            );
-        });
-
         it('setDistributeGasLimit()', async function () {
-            const oldValue = await stakingPool.getDistributeGasLimit();
+            const oldValue = _DISTRIBUTE_GAS_LIMIT;
             const newValue = randomBN(3);
             const tx = await stakingPool.setDistributeGasLimit(newValue);
             const rec = await tx.wait();
@@ -148,10 +164,6 @@ describe('Staking pool', function () {
             expect(events.length).to.be.eq(1);
             expect(events[0].args['prevValue']).to.be.eq(oldValue);
             expect(events[0].args['newValue']).to.be.eq(newValue);
-
-            expect(await stakingPool.getDistributeGasLimit()).to.be.eq(
-                newValue
-            );
         });
 
         it('setDistributeGasLimit(): reverts: only governance can', async function () {
@@ -565,19 +577,19 @@ describe('Staking pool', function () {
             ).to.be.closeTo(expectedAsset, 1);
         });
 
-        it('distributePendingRewards(): when gas is not enough', async function () {
+        it('distributeUnstakes(): when gas is not enough', async function () {
             const totalPendingUnstakesBefore =
                 await stakingPool.getTotalPendingUnstakes();
             console.log(
                 `Pending unstakes before: ${totalPendingUnstakesBefore}`
             );
-            await stakingPool.distributePendingRewards({ gasLimit: 50_000 });
+            await stakingPool.distributeUnstakes({ gasLimit: 500_000 });
             const totalPendingUnstakesAfter =
                 await stakingPool.getTotalPendingUnstakes();
             console.log(`Pending unstakes after: ${totalPendingUnstakesAfter}`);
         });
 
-        it('distributePendingRewards()', async function () {
+        it('distributeUnstakes()', async function () {
             console.log(`Ratio: ${await certificateToken.ratio()}`);
             const poolBalanceBefore = await stakingPool.getFreeBalance();
             console.log(`Pool free balance before: ${poolBalanceBefore}`);
@@ -601,7 +613,7 @@ describe('Staking pool', function () {
                 await stakingPool.getTotalPendingUnstakes();
 
             //Distribute
-            await stakingPool.connect(signer3).distributePendingRewards();
+            await stakingPool.connect(signer3).distributeUnstakes();
 
             const signer1BalanceAfter = await ethers.provider.getBalance(
                 signer1.address
@@ -662,21 +674,10 @@ describe('Staking pool', function () {
                 certificateToken,
                 stakingPool,
             ] = await init();
+            await stakingPool.addRestaker('PROVIDER');
         });
 
-        it('pushToBeacon(): Reverts: when pool balance < 32Eth', async function () {
-            await expect(
-                stakingPool
-                    .connect(operator)
-                    .pushToBeacon(
-                        '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25b',
-                        '0x927b16171b51ca4ccab59de07ea20dacc33baa0f89f06b6a762051cac07233eb613a6c272b724a46b8145850b8851e4a12eb470bfb140e028ae0ac794f3a890ec4fac33910d338343f059d93a6d688238510c147f155d984de7c01daa0d3241b',
-                        '0x50021ea68edb12aaa54fc8a2706b2f4b1d35d1406512fc6de230e0ea0391cf97'
-                    )
-            ).to.be.revertedWith('pending ethers not enough');
-        });
-
-        it('pushToBeaconMulti(): Reverts: when pool balance not enough', async function () {
+        it('batchDeposit(): Reverts: when pool balance not enough', async function () {
             await stakingPool
                 .connect(signer2)
                 .stakeCerts({ value: e18.mul(33) });
@@ -687,7 +688,8 @@ describe('Staking pool', function () {
             await expect(
                 stakingPool
                     .connect(operator)
-                    .pushToBeaconMulti(
+                    .batchDeposit(
+                        'PROVIDER',
                         [pubkey1, pubkey2],
                         [
                             '0x927b16171b51ca4ccab59de07ea20dacc33baa0f89f06b6a762051cac07233eb613a6c272b724a46b8145850b8851e4a12eb470bfb140e028ae0ac794f3a890ec4fac33910d338343f059d93a6d688238510c147f155d984de7c01daa0d3241b',
@@ -698,10 +700,10 @@ describe('Staking pool', function () {
                             '0x50021ea68edb12aaa54fc8a2706b2f4b1d35d1406512fc6de230e0ea0391cf97',
                         ]
                     )
-            ).to.be.revertedWith('pending ethers not enough');
+            ).to.be.revertedWithCustomError(stakingPool, 'PoolInsufficientBalance');
         });
 
-        it('pushToBeacon()', async function () {
+        it('batchDeposit()', async function () {
             await stakingPool
                 .connect(signer1)
                 .stakeCerts({ value: e18.mul(33) });
@@ -710,20 +712,20 @@ describe('Staking pool', function () {
                 '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25b';
             const tx = await stakingPool
                 .connect(operator)
-                .pushToBeacon(
-                    '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25b',
-                    '0x927b16171b51ca4ccab59de07ea20dacc33baa0f89f06b6a762051cac07233eb613a6c272b724a46b8145850b8851e4a12eb470bfb140e028ae0ac794f3a890ec4fac33910d338343f059d93a6d688238510c147f155d984de7c01daa0d3241b',
-                    '0x50021ea68edb12aaa54fc8a2706b2f4b1d35d1406512fc6de230e0ea0391cf97'
+                .batchDeposit(
+                    'PROVIDER',
+                    [pubkey],
+                    ['0x927b16171b51ca4ccab59de07ea20dacc33baa0f89f06b6a762051cac07233eb613a6c272b724a46b8145850b8851e4a12eb470bfb140e028ae0ac794f3a890ec4fac33910d338343f059d93a6d688238510c147f155d984de7c01daa0d3241b'],
+                    ['0x50021ea68edb12aaa54fc8a2706b2f4b1d35d1406512fc6de230e0ea0391cf97']
                 );
             const rec = await tx.wait();
             const events = rec.events?.filter((e) => {
-                return e.event === 'PoolOnGoing';
+                return e.event === 'Deposited';
             });
             expect(events.length).to.be.eq(1);
-            expect(events[0].args['pubkey']).to.be.eq(pubkey);
         });
 
-        it('pushToBeaconMulti()', async function () {
+        it('batchDeposit()', async function () {
             await stakingPool
                 .connect(signer2)
                 .stakeCerts({ value: e18.mul(65) });
@@ -733,7 +735,8 @@ describe('Staking pool', function () {
                 '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25a';
             const tx = await stakingPool
                 .connect(operator)
-                .pushToBeaconMulti(
+                .batchDeposit(
+                    'PROVIDER',
                     [pubkey1, pubkey2],
                     [
                         '0x927b16171b51ca4ccab59de07ea20dacc33baa0f89f06b6a762051cac07233eb613a6c272b724a46b8145850b8851e4a12eb470bfb140e028ae0ac794f3a890ec4fac33910d338343f059d93a6d688238510c147f155d984de7c01daa0d3241b',
@@ -746,26 +749,26 @@ describe('Staking pool', function () {
                 );
             const rec = await tx.wait();
             const events = rec.events?.filter((e) => {
-                return e.event === 'PoolOnGoing';
+                return e.event === 'Deposited';
             });
-            expect(events.length).to.be.eq(2);
-            expect(events[0].args['pubkey']).to.be.eq(pubkey1);
-            expect(events[1].args['pubkey']).to.be.eq(pubkey2);
+            expect(events.length).to.be.eq(1);
+            expect(events[0].args[1].length).to.be.eq(2);
         });
 
-        it('pushToBeacon(): Only operator can', async function () {
+        it('batchDeposit(): Only operator can', async function () {
             await expect(
                 stakingPool
                     .connect(governance)
-                    .pushToBeacon(
-                        '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25b',
-                        '0x927b16171b51ca4ccab59de07ea20dacc33baa0f89f06b6a762051cac07233eb613a6c272b724a46b8145850b8851e4a12eb470bfb140e028ae0ac794f3a890ec4fac33910d338343f059d93a6d688238510c147f155d984de7c01daa0d3241b',
-                        '0x50021ea68edb12aaa54fc8a2706b2f4b1d35d1406512fc6de230e0ea0391cf97'
+                    .batchDeposit(
+                        'PROVIDER',
+                        ['0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25b'],
+                        ['0x927b16171b51ca4ccab59de07ea20dacc33baa0f89f06b6a762051cac07233eb613a6c272b724a46b8145850b8851e4a12eb470bfb140e028ae0ac794f3a890ec4fac33910d338343f059d93a6d688238510c147f155d984de7c01daa0d3241b'],
+                        ['0x50021ea68edb12aaa54fc8a2706b2f4b1d35d1406512fc6de230e0ea0391cf97']
                     )
             ).to.be.revertedWith('StakingPool: only consensus allowed');
         });
 
-        it('pushToBeaconMulti(): Only operator can', async function () {
+        it('batchDeposit(): Only operator can', async function () {
             const pubkey1 =
                 '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25b';
             const pubkey2 =
@@ -773,7 +776,8 @@ describe('Staking pool', function () {
             await expect(
                 stakingPool
                     .connect(governance)
-                    .pushToBeaconMulti(
+                    .batchDeposit(
+                        'PROVIDER',
                         [pubkey1, pubkey2],
                         [
                             '0x927b16171b51ca4ccab59de07ea20dacc33baa0f89f06b6a762051cac07233eb613a6c272b724a46b8145850b8851e4a12eb470bfb140e028ae0ac794f3a890ec4fac33910d338343f059d93a6d688238510c147f155d984de7c01daa0d3241b',
@@ -793,7 +797,7 @@ async function updateRatio(ratioFeed, token, ratio) {
     await increaseChainTimeForSeconds(60 * 60 * 12 + 1); //+12h
     await ratioFeed
         .connect(operator)
-        .updateRatioBatch([token.address], [ratio]);
+        .updateRatio(token.address, ratio);
     console.log(`### Ratio updated: ${await token.ratio()}`);
 }
 

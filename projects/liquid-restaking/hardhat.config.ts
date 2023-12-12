@@ -3,13 +3,21 @@ import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-deploy';
 
 require('dotenv').config();
-const gasPrice = parseInt(process.env.GAS_PRICE) || 'auto';
+
+const accounts = process.env.DEPLOYER_PRIVATE_KEY
+    ? [process.env.DEPLOYER_PRIVATE_KEY]
+    : ['1495992B2A5CC4DD53E231157BBF401329BD1B7EE355CEAB55A791398921CA17'];
+const gasPrice = process.env.GAS_PRICE
+    ? parseInt(process.env.GAS_PRICE)
+    : 'auto';
+
+require('dotenv').config();
 
 module.exports = {
     hardhat: {
-        gas: 2100000,
-        gasPrice: 8000000000,
-        allowUnlimitedContractSize: true,
+        gas: 8000000,
+        gasPrice,
+        allowUnlimitedContractSize: false,
     },
     networks: {
         // Ethereum
@@ -17,15 +25,15 @@ module.exports = {
             url: process.env.MAINNET_RPC || 'https://rpc.ankr.com/eth',
             chainId: 1,
             gas: 8000000,
-            gasPrice: gasPrice,
-            accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+            gasPrice,
+            accounts,
         },
         goerli: {
             url: process.env.GOERLI_RPC || 'https://rpc.ankr.com/eth_goerli',
             chainId: 5,
-            gasPrice: gasPrice,
+            gasPrice,
             gas: 8000000,
-            accounts: [process.env.DEPLOYER_PRIVATE_KEY],
+            accounts,
         },
         local: {
             url: process.env.LOCAL_RPC || 'http://127.0.0.1:8545',
@@ -35,7 +43,7 @@ module.exports = {
         },
     },
     solidity: {
-        version: '0.8.19',
+        version: '0.8.20',
         settings: {
             optimizer: {
                 enabled: true,

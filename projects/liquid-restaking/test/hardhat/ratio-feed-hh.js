@@ -66,18 +66,17 @@ const init = async () => {
         { initializer: 'initialize' }
     );
     await ratioFeed.deployed();
-    await stakingConfig.setRatioFeedAddress(ratioFeed.address);
+    await stakingConfig.setRatioFeed(ratioFeed.address);
 
     console.log(`- StakingPool`);
     const stakingPoolFactory =
-        await ethers.getContractFactory('StakingPool_V1');
+        await ethers.getContractFactory('StakingPool');
     const stakingPool = await upgrades.deployProxy(
         stakingPoolFactory,
-        [stakingConfig.address, _DISTRIBUTE_GAS_LIMIT],
-        { initializer: 'initialize' }
+        [stakingConfig.address, _DISTRIBUTE_GAS_LIMIT]
     );
     await stakingPool.deployed();
-    await stakingConfig.setStakingPoolAddress(stakingPool.address);
+    await stakingConfig.setRestakingPool(stakingPool.address);
 
     console.log('... Initialization completed ...');
     return [
@@ -104,7 +103,7 @@ describe('RatioFeed', function () {
         });
 
         it('Changes threshold value', async function () {
-            const oldThreshold = await ratioFeed.getRatioThreshold();
+            const oldThreshold = await ratioFeed.ratioThreshold();
             const newThreshold = randomBN(7);
             const tx = await ratioFeed.setRatioThreshold(newThreshold);
             const receipt = await tx.wait();
@@ -116,11 +115,11 @@ describe('RatioFeed', function () {
             expect(events[0].args['oldValue']).to.be.eq(oldThreshold);
             expect(events[0].args['newValue']).to.be.eq(newThreshold);
 
-            expect(await ratioFeed.getRatioThreshold()).to.be.eq(newThreshold);
+            expect(await ratioFeed.ratioThreshold()).to.be.eq(newThreshold);
         });
 
         it('Changes threshold one more time', async function () {
-            const oldThreshold = await ratioFeed.getRatioThreshold();
+            const oldThreshold = await ratioFeed.ratioThreshold();
             const newThreshold = randomBN(7);
             const tx = await ratioFeed.setRatioThreshold(newThreshold);
             const receipt = await tx.wait();
@@ -132,30 +131,32 @@ describe('RatioFeed', function () {
             expect(events[0].args['oldValue']).to.be.eq(oldThreshold);
             expect(events[0].args['newValue']).to.be.eq(newThreshold);
 
-            expect(await ratioFeed.getRatioThreshold()).to.be.eq(newThreshold);
+            expect(await ratioFeed.ratioThreshold()).to.be.eq(newThreshold);
         });
 
         it('Reverts: only governance can modify', async function () {
             const newThreshold = randomBN(7);
             await expect(
                 ratioFeed.connect(signer1).setRatioThreshold(newThreshold)
-            ).to.be.revertedWith('RatioFeed: only governance allowed');
+            ).to.be.revertedWithCustomError(ratioFeed, 'OnlyGovernanceAllowed');
         });
 
         it('Reverts: when threshold >= MAX_THRESHOLD', async function () {
             await expect(
                 ratioFeed.setRatioThreshold(await ratioFeed.MAX_THRESHOLD())
-            ).to.be.revertedWith('wrong value for ratio threshold');
+            ).to.be.revertedWithCustomError(
+                ratioFeed, 'RatioThresholdNotInRange'
+            );
         });
 
         it('Reverts: when threshold = 0', async function () {
-            await expect(ratioFeed.setRatioThreshold('0')).to.be.revertedWith(
-                'wrong value for ratio threshold'
+            await expect(ratioFeed.setRatioThreshold('0')).to.be.revertedWithCustomError(
+                ratioFeed, 'RatioThresholdNotInRange'
             );
         });
     });
 
-    describe('updateRatioBatch(): publishes ratio for listed addresses', function () {
+    describe('updateRatio(): publishes ratio for listed addresses', function () {
         before(async function () {
             [
                 podManager,
@@ -170,11 +171,11 @@ describe('RatioFeed', function () {
             await expect(
                 ratioFeed
                     .connect(operator)
-                    .updateRatioBatch(
-                        [certificateToken.address],
-                        [randomBN(18)]
+                    .updateRatio(
+                        certificateToken.address,
+                        randomBN(18)
                     )
-            ).to.be.revertedWith('ratio threshold is not set');
+            ).to.be.revertedWithCustomError(ratioFeed, 'RatioThresholdNotSet');
         });
 
         it('Set threshold value', async function () {
@@ -182,14 +183,14 @@ describe('RatioFeed', function () {
         });
 
         it('Publish ratio for the first time', async function () {
-            const ratioBefore = await ratioFeed.getRatioFor(
+            const ratioBefore = await ratioFeed.getRatio(
                 certificateToken.address
             );
             console.log(`Ratio before: ${ratioBefore}`);
             const newRatio = e18;
             const tx = await ratioFeed
                 .connect(operator)
-                .updateRatioBatch([certificateToken.address], [newRatio]);
+                .updateRatio(certificateToken.address, newRatio);
             const receipt = await tx.wait();
             const events = receipt.events?.filter((e) => {
                 return e.event === 'RatioUpdated';
@@ -201,7 +202,7 @@ describe('RatioFeed', function () {
             expect(events[0].args['oldRatio']).to.be.eq(ratioBefore);
             expect(events[0].args['newRatio']).to.be.eq(newRatio);
 
-            const ratioAfter = await ratioFeed.getRatioFor(
+            const ratioAfter = await ratioFeed.getRatio(
                 certificateToken.address
             );
             console.log(`Ratio after: ${ratioAfter}`);
@@ -210,17 +211,17 @@ describe('RatioFeed', function () {
 
         it('Publish ratio within threshold', async function () {
             await increaseChainTimeForSeconds(60 * 60 * 12 + 1); //+12h
-            const ratioBefore = await ratioFeed.getRatioFor(
+            const ratioBefore = await ratioFeed.getRatio(
                 certificateToken.address
             );
             console.log(`Ratio before: ${ratioBefore}`);
             const threshold = ratioBefore
-                .mul(await ratioFeed.getRatioThreshold())
+                .mul(await ratioFeed.ratioThreshold())
                 .div(await ratioFeed.MAX_THRESHOLD());
             const newRatio = ratioBefore.sub(randomBNbyMax(threshold));
             const tx = await ratioFeed
                 .connect(operator)
-                .updateRatioBatch([certificateToken.address], [newRatio]);
+                .updateRatio(certificateToken.address, newRatio);
             const receipt = await tx.wait();
             const events = receipt.events?.filter((e) => {
                 return e.event === 'RatioUpdated';
@@ -232,7 +233,7 @@ describe('RatioFeed', function () {
             expect(events[0].args['oldRatio']).to.be.eq(ratioBefore);
             expect(events[0].args['newRatio']).to.be.eq(newRatio);
 
-            const ratioAfter = await ratioFeed.getRatioFor(
+            const ratioAfter = await ratioFeed.getRatio(
                 certificateToken.address
             );
             console.log(`Ratio after: ${ratioAfter}`);
@@ -241,12 +242,12 @@ describe('RatioFeed', function () {
 
         it('Publish the same ratio', async function () {
             await increaseChainTimeForSeconds(60 * 60 * 12 + 1); //+12h
-            const ratioBefore = await ratioFeed.getRatioFor(
+            const ratioBefore = await ratioFeed.getRatio(
                 certificateToken.address
             );
             const tx = await ratioFeed
                 .connect(operator)
-                .updateRatioBatch([certificateToken.address], [ratioBefore]);
+                .updateRatio(certificateToken.address, ratioBefore);
             const receipt = await tx.wait();
             const events = receipt.events?.filter((e) => {
                 return e.event === 'RatioUpdated';
@@ -259,105 +260,24 @@ describe('RatioFeed', function () {
             expect(events[0].args['newRatio']).to.be.eq(ratioBefore);
 
             expect(
-                await ratioFeed.getRatioFor(certificateToken.address)
-            ).to.be.eq(ratioBefore);
-        });
-
-        it('Skips: when publish second time in less than 12h', async function () {
-            await increaseChainTimeForSeconds(60 * 60 * 11.5);
-            const ratioBefore = await ratioFeed.getRatioFor(
-                certificateToken.address
-            );
-            const newRatio = ratioBefore.sub(1);
-            const tx = await ratioFeed
-                .connect(operator)
-                .updateRatioBatch([certificateToken.address], [newRatio]);
-            const rec = await tx.wait();
-            const events = rec.events?.filter((e) => {
-                return e.event === 'RatioNotUpdated';
-            });
-            expect(events.length).to.be.eq(1);
-            expect(events[0].args['tokenAddress'].toLowerCase()).to.be.eq(
-                certificateToken.address.toLowerCase()
-            );
-            expect(events[0].args['failedRatio']).to.be.eq(newRatio);
-            expect(events[0].args['reason']).to.be.eq(
-                'ratio was updated less than 12 hours ago'
-            );
-            expect(
-                await ratioFeed.getRatioFor(certificateToken.address)
-            ).to.be.eq(ratioBefore);
-        });
-
-        it('Skips: when new ratio > current ratio', async function () {
-            await increaseChainTimeForSeconds(60 * 60 * 13);
-            const ratioBefore = await ratioFeed.getRatioFor(
-                certificateToken.address
-            );
-            const newRatio = ratioBefore.add(1);
-            const tx = await ratioFeed
-                .connect(operator)
-                .updateRatioBatch([certificateToken.address], [newRatio]);
-            const rec = await tx.wait();
-            const events = rec.events?.filter((e) => {
-                return e.event === 'RatioNotUpdated';
-            });
-            expect(events.length).to.be.eq(1);
-            expect(events[0].args['tokenAddress'].toLowerCase()).to.be.eq(
-                certificateToken.address.toLowerCase()
-            );
-            expect(events[0].args['failedRatio']).to.be.eq(newRatio);
-            expect(events[0].args['reason']).to.be.eq(
-                'new ratio cannot be greater than old'
-            );
-            expect(
-                await ratioFeed.getRatioFor(certificateToken.address)
-            ).to.be.eq(ratioBefore);
-        });
-
-        it('Skips: when current - new ratio > threshold', async function () {
-            await increaseChainTimeForSeconds(60 * 60 * 13);
-            const ratioBefore = await ratioFeed.getRatioFor(
-                certificateToken.address
-            );
-            const threshold = ratioBefore
-                .mul(await ratioFeed.getRatioThreshold())
-                .div(await ratioFeed.MAX_THRESHOLD());
-            const newRatio = ratioBefore.sub(threshold.add(1));
-            const tx = await ratioFeed
-                .connect(operator)
-                .updateRatioBatch([certificateToken.address], [newRatio]);
-            const rec = await tx.wait();
-            const events = rec.events?.filter((e) => {
-                return e.event === 'RatioNotUpdated';
-            });
-            expect(events.length).to.be.eq(1);
-            expect(events[0].args['tokenAddress'].toLowerCase()).to.be.eq(
-                certificateToken.address.toLowerCase()
-            );
-            expect(events[0].args['failedRatio']).to.be.eq(newRatio);
-            expect(events[0].args['reason']).to.be.eq(
-                'new ratio too low, not in threshold range'
-            );
-            expect(
-                await ratioFeed.getRatioFor(certificateToken.address)
+                await ratioFeed.getRatio(certificateToken.address)
             ).to.be.eq(ratioBefore);
         });
 
         it('Reverts: only operator can', async function () {
-            const ratioBefore = await ratioFeed.getRatioFor(
+            const ratioBefore = await ratioFeed.getRatio(
                 certificateToken.address
             );
             const newRatio = ratioBefore.sub(1);
             await expect(
                 ratioFeed
                     .connect(signer1)
-                    .updateRatioBatch([certificateToken.address], [newRatio])
-            ).to.be.revertedWith('RatioFeed: only operator allowed');
+                    .updateRatio(certificateToken.address, newRatio)
+            ).to.be.revertedWithCustomError(ratioFeed, 'OnlyOperatorAllowed');
         });
     });
 
-    describe('repairRatioFor(): sets specified value', function () {
+    describe('repairRatio(): sets specified value', function () {
         before(async function () {
             [
                 podManager,
@@ -370,16 +290,16 @@ describe('RatioFeed', function () {
             await ratioFeed.setRatioThreshold('10000000');
             await ratioFeed
                 .connect(operator)
-                .updateRatioBatch([certificateToken.address], [e18]);
+                .updateRatio(certificateToken.address, e18);
         });
 
         it('Decrease ratio', async function () {
-            const ratioBefore = await ratioFeed.getRatioFor(
+            const ratioBefore = await ratioFeed.getRatio(
                 certificateToken.address
             );
             console.log(`Ratio before: ${ratioBefore}`);
             const newRatio = ratioBefore.sub(1);
-            const tx = await ratioFeed.repairRatioFor(
+            const tx = await ratioFeed.repairRatio(
                 certificateToken.address,
                 newRatio
             );
@@ -394,7 +314,7 @@ describe('RatioFeed', function () {
             expect(events[0].args['oldRatio']).to.be.eq(ratioBefore);
             expect(events[0].args['newRatio']).to.be.eq(newRatio);
 
-            const ratioAfter = await ratioFeed.getRatioFor(
+            const ratioAfter = await ratioFeed.getRatio(
                 certificateToken.address
             );
             console.log(`Ratio after: ${ratioAfter}`);
@@ -402,12 +322,12 @@ describe('RatioFeed', function () {
         });
 
         it('Increase ratio', async function () {
-            const ratioBefore = await ratioFeed.getRatioFor(
+            const ratioBefore = await ratioFeed.getRatio(
                 certificateToken.address
             );
             console.log(`Ratio before: ${ratioBefore}`);
             const newRatio = ratioBefore.add(1);
-            const tx = await ratioFeed.repairRatioFor(
+            const tx = await ratioFeed.repairRatio(
                 certificateToken.address,
                 newRatio
             );
@@ -422,7 +342,7 @@ describe('RatioFeed', function () {
             expect(events[0].args['oldRatio']).to.be.eq(ratioBefore);
             expect(events[0].args['newRatio']).to.be.eq(newRatio);
 
-            const ratioAfter = await ratioFeed.getRatioFor(
+            const ratioAfter = await ratioFeed.getRatio(
                 certificateToken.address
             );
             console.log(`Ratio after: ${ratioAfter}`);
@@ -431,16 +351,16 @@ describe('RatioFeed', function () {
 
         it('Reverts: when new ratio = 0', async function () {
             await expect(
-                ratioFeed.repairRatioFor(certificateToken.address, '0')
-            ).to.be.revertedWith('ratio is zero');
+                ratioFeed.repairRatio(certificateToken.address, '0')
+            ).to.be.revertedWithCustomError(ratioFeed, 'RatioNotUpdated');
         });
 
         it('Reverts: only governance can', async function () {
             await expect(
                 ratioFeed
                     .connect(signer1)
-                    .repairRatioFor(certificateToken.address, randomBN(18))
-            ).to.be.revertedWith('RatioFeed: only governance allowed');
+                    .repairRatio(certificateToken.address, randomBN(18))
+            ).to.be.revertedWithCustomError(ratioFeed, 'OnlyGovernanceAllowed');
         });
     });
 
@@ -458,13 +378,13 @@ describe('RatioFeed', function () {
             await ratioFeed.setRatioThreshold('1000000');
             await ratioFeed
                 .connect(operator)
-                .updateRatioBatch([certificateToken.address], [e18]);
+                .updateRatio(certificateToken.address, e18);
         });
 
         it('Publish ratio for 8days', async function () {
             for (let i = 1; i < 8; i++) {
                 const ts = await increaseChainTimeForSeconds(60 * 60 * 24); //12h
-                const ratioBefore = await ratioFeed.getRatioFor(
+                const ratioBefore = await ratioFeed.getRatio(
                     certificateToken.address
                 );
                 // const newRatio = ratioBefore.sub(randomBNbyMax(toBN(1000000)));
@@ -472,7 +392,7 @@ describe('RatioFeed', function () {
                 console.log(`${i}. Ratio:\t${ts}\t${ratioBefore}`);
                 await ratioFeed
                     .connect(operator)
-                    .updateRatioBatch([certificateToken.address], [newRatio]);
+                    .updateRatio(certificateToken.address, newRatio);
             }
         });
 
