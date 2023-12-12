@@ -9,6 +9,8 @@ import "./interfaces/IEigenPodManager.sol";
 import "./interfaces/IStakingConfig.sol";
 import "./interfaces/IStakingPool.sol";
 
+import "hardhat/console.sol";
+
 contract StakingPool is
     IStakingPool,
     Initializable,
@@ -96,6 +98,43 @@ contract StakingPool is
         unstakeCerts(to, shares);
     }
 
+    function batchDeposit(
+        string memory provider,
+        bytes[] calldata pubkeys,
+        bytes[] calldata signatures,
+        bytes32[] calldata deposit_data_roots
+    ) external onlyOperator nonReentrant {
+        uint256 pubkeysLen = pubkeys.length;
+
+        if (
+            pubkeysLen != signatures.length ||
+            pubkeysLen != deposit_data_roots.length
+        ) {
+            revert PoolWrongInputLength();
+        }
+        if (getPending() < 32 ether * pubkeysLen) {
+            revert PoolInsufficientBalance();
+        }
+
+        address restaker = _restakers[_getProviderHash(provider)];
+        if (restaker == address(0)) {
+            revert PoolRestakerNotExists();
+        }
+
+        for (uint i; i < pubkeysLen; i++) {
+            IEigenPodManager(restaker).stake{value: 32 ether}(
+                pubkeys[i],
+                signatures[i],
+                deposit_data_roots[i]
+            );
+        }
+
+        emit Deposited(provider, pubkeys);
+    }
+
+    /**
+     * @dev Deprecated.
+     */
     function unstakeCerts(address receiverAddress, uint256 shares) public {
         address ownerAddress = msg.sender;
         ICToken certificateToken = _stakingConfig.getCToken();
@@ -437,6 +476,6 @@ contract StakingPool is
         uint256 prevValue = _distributeGasLimit;
         _distributeGasLimit = newValue;
 
-        emit DistributeGasLimitChanged(prevValue, newValue);
+        emit DistributeGasLimitChanged(uint32(prevValue), uint32(newValue));
     }
 }

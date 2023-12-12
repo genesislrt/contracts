@@ -137,6 +137,10 @@ contract RatioFeed is Initializable, IRatioFeed {
                         READ FUNCTIONS
     *******************************************************************************/
 
+    function ratioThreshold() external view returns (uint256) {
+        return _ratioThreshold;
+    }
+
     function getRatio(address token) public view override returns (uint256) {
         return _ratios[token];
     }

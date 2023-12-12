@@ -133,8 +133,11 @@ contract StakingConfig is Initializable, IStakingConfig {
         return _ratioFeedAddress;
     }
 
+    /**
+     * @dev Deprecated.
+     */
     function getEigenPodManagerAddress()
-        external
+        public
         view
         override
         returns (address)
@@ -142,6 +145,9 @@ contract StakingConfig is Initializable, IStakingConfig {
         return _eigenPodManagerAddress;
     }
 
+    /**
+     * @dev Deprecated.
+     */
     function getCertTokenAddress() public view override returns (address) {
         return _certTokenAddress;
     }
@@ -213,7 +219,9 @@ contract StakingConfig is Initializable, IStakingConfig {
         view
         override
         returns (IEigenPodManager manager)
-    {}
+    {
+        return IEigenPodManager(getEigenPodManagerAddress());
+    }
 
     function getRestakerDeployer()
         external

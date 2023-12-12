@@ -115,6 +115,13 @@ contract CertificateToken is
     *******************************************************************************/
 
     /**
+     * @dev Deprecated.
+     */
+    function sharesToBonds(uint256 shares) external view returns (uint256) {
+        return convertToAmount(shares);
+    }
+
+    /**
      * @notice Returns the `amount` of ETH that the cToken would exchange for the amount of `shares` provided, in an ideal
      * scenario where all the conditions are met.
      */
@@ -124,7 +131,10 @@ contract CertificateToken is
         return shares.mulDiv(1 ether, ratio(), MathUpgradeable.Rounding.Up);
     }
 
-    function bondToShares(uint256 amount) external view returns (uint256) {
+    /**
+     * @dev Deprecated.
+     */
+    function bondsToShares(uint256 amount) external view returns (uint256) {
         return convertToShares(amount);
     }
 
