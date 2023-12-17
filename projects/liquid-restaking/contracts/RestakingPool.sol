@@ -17,34 +17,53 @@ contract RestakingPool is
     ReentrancyGuardUpgradeable,
     IRestakingPool
 {
-    // @dev block gas limit
+    /**
+     * @dev block gas limit
+     */
     uint64 internal constant MAX_GAS_LIMIT = 30_000_000;
 
-    // @dev max gas allocated for {_sendValue}
+    /**
+     * @notice gas available to receive unstake
+     * @dev max gas allocated for {_sendValue}
+     */
     uint256 public constant CALL_GAS_LIMIT = 10_000;
 
     uint256 internal _minStakeAmount;
     uint256 internal _minUnstakeAmount;
 
-    // @dev staked ETH to protocol.
+    /**
+     * @dev staked ETH to protocol.
+     */ 
     uint256 internal _totalStaked;
-    // @dev unstaked ETH from protocol
+    /**
+     * @dev unstaked ETH from protocol
+     */
     uint256 internal _totalUnstaked;
 
-    // @dev Current gap of {_pendingUnstakes}.
+    /**
+     * @dev Current gap of {_pendingUnstakes}.
+     */
     uint256 internal _pendingGap;
-    // @dev Unstake queue.
+    /**
+     * @dev Unstake queue.
+     */
     Unstake[] internal _pendingUnstakes;
-    // @dev Total unstake amount in {_pendingUnstakes}.
+    /**
+     * @dev Total unstake amount in {_pendingUnstakes}.
+     */
     uint256 internal _totalPendingUnstakes;
     mapping(address => uint256) internal _totalUnstakesOf;
-    // @dev max gas is 30_000_000
+    /**
+     * @dev max gas spendable per interation of {distributeUnstakes}
+     */
     uint32 internal _distributeGasLimit;
 
     uint256 internal _totalClaimable;
     mapping(address => uint256) internal _claimable;
 
-    // keccak256(provider) => Restaker
+    /**
+     * @dev keccak256(provider name) => Restaker
+     */
     mapping(bytes32 => address) internal _restakers;
 
     /**
@@ -83,11 +102,17 @@ contract RestakingPool is
                         WRITE FUNCTIONS
     *******************************************************************************/
 
-    // @dev need to open incoming transfers to receive ETH from EigenPods
+    /**
+     *
+     * @dev need to open incoming transfers to receive ETH from EigenPods
+     */ 
     receive() external payable {
         emit Received(_msgSender(), msg.value);
     }
 
+    /**
+     * @notice Exchange `msg.value` ETH for genETH by ratio.
+     */
     function stake() external payable {
         uint256 amount = msg.value;
 
@@ -103,6 +128,14 @@ contract RestakingPool is
         emit Staked(_msgSender(), amount, shares);
     }
 
+    /**
+     *
+     * @notice Deposit pubkeys together with 32 ETH to given `provider`.
+     * @param provider Provider to restake ETH.
+     * @param pubkeys Array of provider's `pubkeys`.
+     * @param signatures Array of provider's `signatures`.
+     * @param deposit_data_roots Array of provider's `deposit_data_roots`.
+     */
     function batchDeposit(
         string memory provider,
         bytes[] calldata pubkeys,
@@ -177,6 +210,10 @@ contract RestakingPool is
         _pendingUnstakes.push(Unstake(recipient, amount));
     }
 
+    /**
+     * @notice Pay waiting unstakes from {getPending} balance.
+     * @dev Callable by operator once per 1-3 days if {getPending} enough to pay at least one unstake.
+     */
     function distributeUnstakes() external nonReentrant {
         uint256 poolBalance = getPending();
 
@@ -261,6 +298,10 @@ contract RestakingPool is
         emit ClaimExpected(account, amount);
     }
 
+    /**
+     *
+     * @notice Claim ETH available in {claimableOf}
+     */
     function claimUnstake(address claimer) external nonReentrant {
         if (claimer == address(0)) {
             revert PoolZeroAddress();
@@ -288,9 +329,14 @@ contract RestakingPool is
 
     /*******************************************************************************
                         EIGEN POD OWNER WRITE FUNCTIONS
+                        THIS FUNCTIONS MAKE POSSIBLE TO
+                        CALL DIFFERENT CONTRACTS WITH
+                        RESTAKER CONTEXT
     *******************************************************************************/
 
-    // @dev will be called only once for each restaker, because it activates restaking.
+    /**
+     * @dev will be called only once for each restaker, because it activates restaking.
+     */
     function activateRestaking(string memory provider) external onlyOperator {
         address restaker = _getRestakerOrRevert(provider);
         // it withdraw ETH to restaker
@@ -299,7 +345,10 @@ contract RestakingPool is
         IRestaker(restaker).__claim();
     }
 
-    // @dev withdraw not restaked ETH
+    /**
+     *
+     * @dev withdraw not restaked ETH
+     */
     function withdrawBeforeRestaking(
         string memory provider
     ) external onlyOperator {
@@ -356,6 +405,9 @@ contract RestakingPool is
                         VIEW FUNCTIONS
     *******************************************************************************/
 
+    /**
+     * @notice Get minimal available amount to stake.
+     */
     function getMinStake() public view virtual returns (uint256 amount) {
         // 1 shares = minimal respresentable amount
         uint256 minConvertableAmount = config().getCToken().convertToAmount(1);
@@ -365,6 +417,9 @@ contract RestakingPool is
                 : minConvertableAmount;
     }
 
+    /**
+     * @notice Get minimal availabe unstake of shares.
+     */
     function getMinUnstake()
         public
         view
@@ -383,6 +438,9 @@ contract RestakingPool is
                 : minConvertableShare;
     }
 
+    /**
+     * @notice Get free to {batchDeposit}/{distributeUnstakes} balance.
+     */
     function getPending() public view returns (uint256) {
         uint256 balance = address(this).balance;
         uint256 claimable = getTotalClaimable();
@@ -394,17 +452,23 @@ contract RestakingPool is
         }
     }
 
+    /**
+     * @notice Total amount waiting for claim by users.
+     */
     function getTotalClaimable() public view returns (uint256) {
         return _totalClaimable;
     }
 
+    /**
+     * @notice Total amount of waiting unstakes.
+     */
     function getTotalPendingUnstakes() public view returns (uint256) {
         return _totalPendingUnstakes;
     }
 
     /**
-     * @notice Get all unstakes in queue
-     * @dev avoid to use not in view methods
+     * @notice Get all waiting unstakes in queue.
+     * @dev Avoid to use not in view methods.
      */
     function getUnstakes() external view returns (Unstake[] memory unstakes) {
         unstakes = new Unstake[](_pendingUnstakes.length - _pendingGap);
@@ -415,7 +479,8 @@ contract RestakingPool is
     }
 
     /**
-     * @dev avoid to use not in view methods
+     * @notice Get waiting unstakes.
+     * @dev Avoid to use not in view methods.
      */
     function getUnstakesOf(
         address recipient
@@ -435,16 +500,27 @@ contract RestakingPool is
         }
     }
 
+    /**
+     *
+     * @notice Get total amount of waiting unstakes of user.
+     */
     function getTotalUnstakesOf(
         address recipient
     ) public view returns (uint256) {
         return _totalUnstakesOf[recipient];
     }
 
+    /**
+     * @notice Is {claimableOf} > 0.
+     */
     function hasClaimable(address claimer) public view returns (bool) {
         return _claimable[claimer] != uint256(0);
     }
 
+    /**
+     * @notice Claimable amount of non executed unstakes.
+     * @dev Value increased when {_sendValue} failed during {distributeUnstakes} due to {CALL_GAS_LIMIT}.
+     */
     function claimableOf(address claimer) public view returns (uint256) {
         return _claimable[claimer];
     }
@@ -468,6 +544,9 @@ contract RestakingPool is
                         GOVERNANCE FUNCTIONS
     *******************************************************************************/
 
+    /**
+     * @notice Deploy Restaker contract for the given provider.
+     */
     function addRestaker(string memory provider) external onlyGovernance {
         bytes32 providerHash = _getProviderHash(provider);
         address restaker = _restakers[providerHash];
@@ -479,6 +558,9 @@ contract RestakingPool is
         );
     }
 
+    /**
+     * @dev Governance can set gas limit allocated for unstake payout
+     */
     function setDistributeGasLimit(uint32 newValue) external onlyGovernance {
         _setDistributeGasLimit(newValue);
     }

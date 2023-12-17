@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "./interfaces/IProtocolConfig.sol";
 
 /**
- * @title Basic layout with common variables from config
+ * @title Basic layout with common variables and modifiers from config
  * @author GenesisLRT
  */
 abstract contract Configurable is Initializable, ContextUpgradeable {

@@ -41,12 +41,15 @@ contract FeeCollector is
                         WRITE FUNCTIONS
     *******************************************************************************/
 
+    /**
+     * @dev receive implemented to receive MEV transfers.
+     */
     receive() external payable {
         emit Received(_msgSender(), msg.value);
     }
 
     /**
-     * @notice withdraw collected rewards to pool and treasury
+     * @notice Withdraw collected rewards to pool and treasury.
      */
     function withdraw() external override nonReentrant {
         uint256 balance = address(this).balance;
@@ -78,12 +81,16 @@ contract FeeCollector is
     *******************************************************************************/
 
     /**
-     * @notice get collected pool rewards w/ fee
+     * @notice Get collected pool rewards w/ fee.
      */
     function getRewards() external view returns (uint256 rewards) {
         (, rewards) = _takeFee(address(this).balance);
     }
 
+    /**
+     *
+     * @dev Take fee from `amount`.
+     */
     function _takeFee(
         uint256 amount
     ) internal view returns (uint256 fee, uint256 rewards) {

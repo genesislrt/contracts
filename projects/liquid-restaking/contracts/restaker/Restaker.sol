@@ -42,6 +42,10 @@ contract Restaker is OwnableUpgradeable, IRestaker {
         facets.getEigenPodManager().createPod();
     }
 
+    /**
+     * @notice Claim ETH to owner.
+     * @dev __ at begining used to not override selectors accidentally.
+     */
     function __claim() external {
         uint256 amount = address(this).balance;
         address recipient = owner();
@@ -54,7 +58,10 @@ contract Restaker is OwnableUpgradeable, IRestaker {
         }
     }
 
-    // @dev Mix of OpenZeppelin proxy {_delegate()} method and ERC-2535 with {call} instead of {delegatecall}.
+    /**
+     *
+     * @dev Mix of OpenZeppelin proxy {_delegate()} method and ERC-2535 with {call} instead of {delegatecall}.
+     */
     fallback() external payable virtual onlyOwner {
         address target = _facets.selectorToTarget(msg.sig);
         require(target != address(0));

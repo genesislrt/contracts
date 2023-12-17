@@ -9,8 +9,9 @@ import "./IRestaker.sol";
 import "./IRestakerFacets.sol";
 
 /**
- * @title create2 deployer of beacon proxy
+ * @title create2 deployer of {Restaker}
  * @author GenesisLRT
+ * @notice Not upgradeable contracts makes possible to everyone deploy new instance of Restaker.
  */
 contract RestakerDeployer is IRestakerDeployer {
     bytes public constant BEACON_PROXY_BYTECODE =

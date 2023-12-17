@@ -71,6 +71,10 @@ contract RestakerFacets is OwnableUpgradeable, IRestakerFacets {
         }
     }
 
+    /**
+     *
+     * @notice Define the target of given signature.
+     */
     function selectorToTarget(
         bytes4 sig
     ) external view override returns (address) {
@@ -86,6 +90,10 @@ contract RestakerFacets is OwnableUpgradeable, IRestakerFacets {
         return address(_podManager.getPod(_msgSender()));
     }
 
+    /**
+     *
+     * @notice Set the `target` for `signature`.
+     */
     function _addSignature(
         FuncTarget target,
         string memory signature

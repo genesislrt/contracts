@@ -14,7 +14,7 @@ import "./interfaces/IProtocolConfig.sol";
 contract RatioFeed is Configurable, IRatioFeed {
     uint32 public constant MAX_THRESHOLD = uint32(1e8); // 100000000
 
-    mapping(address => uint256) private _ratios;
+    mapping(address => uint256) internal _ratios;
     mapping(address => HistoricalRatios) public historicalRatios;
 
     /**
@@ -55,6 +55,10 @@ contract RatioFeed is Configurable, IRatioFeed {
                         WRITE FUNCTIONS
     *******************************************************************************/
 
+    /**
+     *
+     * @notice Update the `token` ratio to `newRatio`.
+     */
     function updateRatio(
         address token,
         uint256 newRatio
@@ -118,6 +122,11 @@ contract RatioFeed is Configurable, IRatioFeed {
         return (valid = true, reason);
     }
 
+    /**
+     *
+     * @notice Force update of the `token` ratio to `newRatio` .
+     * @dev Callable only by governance in case of malicious operator.
+     */
     function repairRatio(
         address token,
         uint256 newRatio
@@ -145,6 +154,9 @@ contract RatioFeed is Configurable, IRatioFeed {
                         READ FUNCTIONS
     *******************************************************************************/
 
+    /**
+     * @notice Get ratio of a token.
+     */
     function getRatio(address token) public view override returns (uint256) {
         return _ratios[token];
     }

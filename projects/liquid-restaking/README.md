@@ -19,7 +19,7 @@ graph TD
 ### Contracts
 #### Genesis
 * **cToken** - implementation of genETH token; not rebased.
-* **RestakingPool** - the pool that implements the LRT (liquid restaking token) logic.
+* **RestakingPool** - the pool that implements such features as exchange ETH to genETH and vice versa; owner of Restakers assigned to different providers.
 * **RatioFeed** - contract stores ratio between ETH and genETH.
 * **ProtocolConfig** - contract stores general variables of liquid restaking protocol.
 * **FeeCollector** - contract receives Tips & Mev rewards for produced blocks. Must be set as --fee-recipient in validator client.
