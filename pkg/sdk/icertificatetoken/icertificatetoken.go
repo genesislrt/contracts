@@ -9,7 +9,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/TagusLabs/genesis-smart-contracts/abigen/generated"
+	"github.com/genesislrt/contracts/abigen/generated"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"

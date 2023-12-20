@@ -17,7 +17,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"github.com/TagusLabs/genesis-smart-contracts/abigen"
+	"github.com/genesislrt/contracts/abigen"
 	"golang.org/x/text/unicode/norm"
 	"io"
 	"os"

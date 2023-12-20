@@ -1,4 +1,4 @@
-module github.com/TagusLabs/genesis-smart-contracts
+module github.com/genesislrt/contracts
 
 go 1.19
 

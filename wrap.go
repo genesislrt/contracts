@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/TagusLabs/genesis-smart-contracts/abigen"
+	"github.com/genesislrt/contracts/abigen"
 	gethParams "github.com/ethereum/go-ethereum/params"
 	"os"
 	"path/filepath"
