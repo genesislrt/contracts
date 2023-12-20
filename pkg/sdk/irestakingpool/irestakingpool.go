@@ -9,13 +9,13 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/genesislrt/contracts/abigen/generated"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/genesislrt/contracts/abigen/generated"
 )
 
 var (
@@ -36,7 +36,7 @@ type IRestakingPoolUnstake struct {
 }
 
 var ContractMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[],\"name\":\"OnlyGovernanceAllowed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOperatorAllowed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"max\",\"type\":\"uint64\"}],\"name\":\"PoolDistributeGasLimitNotInRange\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolDistributeGasLimitNotSet\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolFailedInnerCall\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolInsufficientBalance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolRestakerExists\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolRestakerNotExists\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolStakeAmLessThanMin\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolUnstakeAmLessThanMin\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolWrongInputLength\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolZeroAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolZeroAmount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"claimer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"ClaimExpected\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"provider\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"bytes[]\",\"name\":\"pubkeys\",\"type\":\"bytes[]\"}],\"name\":\"Deposited\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"prevValue\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"newValue\",\"type\":\"uint32\"}],\"name\":\"DistributeGasLimitChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"ownerAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiverAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"shares\",\"type\":\"uint256\"}],\"name\":\"PendingUnstake\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Received\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"claimers\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"RewardsDistributed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"staker\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"shares\",\"type\":\"uint256\"}],\"name\":\"Staked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"claimer\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"UnstakeClaimed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"shares\",\"type\":\"uint256\"}],\"name\":\"Unstaked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"indexed\":false,\"internalType\":\"structIRestakingPool.Unstake[]\",\"name\":\"unstakes\",\"type\":\"tuple[]\"}],\"name\":\"UnstakesDistributed\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getMinStake\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMinUnstake\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[],\"name\":\"OnlyGovernanceAllowed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOperatorAllowed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint64\",\"name\":\"max\",\"type\":\"uint64\"}],\"name\":\"PoolDistributeGasLimitNotInRange\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolDistributeGasLimitNotSet\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolFailedInnerCall\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolInsufficientBalance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolRestakerExists\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolRestakerNotExists\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolStakeAmLessThanMin\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolUnstakeAmLessThanMin\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolWrongInputLength\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolZeroAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"PoolZeroAmount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"claimer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"ClaimExpected\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"provider\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"bytes[]\",\"name\":\"pubkeys\",\"type\":\"bytes[]\"}],\"name\":\"Deposited\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"prevValue\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"newValue\",\"type\":\"uint32\"}],\"name\":\"DistributeGasLimitChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"ownerAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"receiverAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"shares\",\"type\":\"uint256\"}],\"name\":\"PendingUnstake\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Received\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"string\",\"name\":\"provider\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"restaker\",\"type\":\"address\"}],\"name\":\"RestakerAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"claimers\",\"type\":\"address[]\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"RewardsDistributed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"staker\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"shares\",\"type\":\"uint256\"}],\"name\":\"Staked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"claimer\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"UnstakeClaimed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"shares\",\"type\":\"uint256\"}],\"name\":\"Unstaked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"indexed\":false,\"internalType\":\"structIRestakingPool.Unstake[]\",\"name\":\"unstakes\",\"type\":\"tuple[]\"}],\"name\":\"UnstakesDistributed\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getMinStake\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMinUnstake\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 var ContractABI = ContractMetaData.ABI
@@ -841,6 +841,134 @@ func (_Contract *ContractFilterer) ParseReceived(log types.Log) (*ContractReceiv
 	return event, nil
 }
 
+type ContractRestakerAddedIterator struct {
+	Event *ContractRestakerAdded
+
+	contract *bind.BoundContract
+	event    string
+
+	logs chan types.Log
+	sub  ethereum.Subscription
+	done bool
+	fail error
+}
+
+func (it *ContractRestakerAddedIterator) Next() bool {
+
+	if it.fail != nil {
+		return false
+	}
+
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(ContractRestakerAdded)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+
+	select {
+	case log := <-it.logs:
+		it.Event = new(ContractRestakerAdded)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+func (it *ContractRestakerAddedIterator) Error() error {
+	return it.fail
+}
+
+func (it *ContractRestakerAddedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+type ContractRestakerAdded struct {
+	Provider common.Hash
+	Restaker common.Address
+	Raw      types.Log
+}
+
+func (_Contract *ContractFilterer) FilterRestakerAdded(opts *bind.FilterOpts, provider []string) (*ContractRestakerAddedIterator, error) {
+
+	var providerRule []interface{}
+	for _, providerItem := range provider {
+		providerRule = append(providerRule, providerItem)
+	}
+
+	logs, sub, err := _Contract.contract.FilterLogs(opts, "RestakerAdded", providerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &ContractRestakerAddedIterator{contract: _Contract.contract, event: "RestakerAdded", logs: logs, sub: sub}, nil
+}
+
+func (_Contract *ContractFilterer) WatchRestakerAdded(opts *bind.WatchOpts, sink chan<- *ContractRestakerAdded, provider []string) (event.Subscription, error) {
+
+	var providerRule []interface{}
+	for _, providerItem := range provider {
+		providerRule = append(providerRule, providerItem)
+	}
+
+	logs, sub, err := _Contract.contract.WatchLogs(opts, "RestakerAdded", providerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+
+				event := new(ContractRestakerAdded)
+				if err := _Contract.contract.UnpackLog(event, "RestakerAdded", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+func (_Contract *ContractFilterer) ParseRestakerAdded(log types.Log) (*ContractRestakerAdded, error) {
+	event := new(ContractRestakerAdded)
+	if err := _Contract.contract.UnpackLog(event, "RestakerAdded", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
 type ContractRewardsDistributedIterator struct {
 	Event *ContractRewardsDistributed
 
@@ -1492,6 +1620,8 @@ func (_Contract *Contract) ParseLog(log types.Log) (generated.AbigenLog, error) 
 		return _Contract.ParsePendingUnstake(log)
 	case _Contract.abi.Events["Received"].ID:
 		return _Contract.ParseReceived(log)
+	case _Contract.abi.Events["RestakerAdded"].ID:
+		return _Contract.ParseRestakerAdded(log)
 	case _Contract.abi.Events["RewardsDistributed"].ID:
 		return _Contract.ParseRewardsDistributed(log)
 	case _Contract.abi.Events["Staked"].ID:
@@ -1526,6 +1656,10 @@ func (ContractPendingUnstake) Topic() common.Hash {
 
 func (ContractReceived) Topic() common.Hash {
 	return common.HexToHash("0x88a5966d370b9919b20f3e2c13ff65706f196a4e32cc2c12bf57088f88525874")
+}
+
+func (ContractRestakerAdded) Topic() common.Hash {
+	return common.HexToHash("0x187f9ad308b4b25229d086a632166f351b45905117cc3162fb9ec6873b9a9ce8")
 }
 
 func (ContractRewardsDistributed) Topic() common.Hash {
@@ -1586,6 +1720,12 @@ type ContractInterface interface {
 	WatchReceived(opts *bind.WatchOpts, sink chan<- *ContractReceived, sender []common.Address) (event.Subscription, error)
 
 	ParseReceived(log types.Log) (*ContractReceived, error)
+
+	FilterRestakerAdded(opts *bind.FilterOpts, provider []string) (*ContractRestakerAddedIterator, error)
+
+	WatchRestakerAdded(opts *bind.WatchOpts, sink chan<- *ContractRestakerAdded, provider []string) (event.Subscription, error)
+
+	ParseRestakerAdded(log types.Log) (*ContractRestakerAdded, error)
 
 	FilterRewardsDistributed(opts *bind.FilterOpts) (*ContractRewardsDistributedIterator, error)
 
