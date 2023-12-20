@@ -83,4 +83,9 @@ module.exports = {
             mainnet: '',
         },
     },
+    verify: {
+        etherscan: {
+          apiKey: process.env.ETHERSCAN_API_KEY
+        }
+      }
 };

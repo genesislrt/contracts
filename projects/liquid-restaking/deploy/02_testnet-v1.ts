@@ -9,8 +9,7 @@ const func: DeployFunction = async function ({
 }) {
     const { deploy, get } = deployments;
 
-    const { deployer, operator, governance, treasury, eigenPodManager } =
-        await getNamedAccounts();
+    const { deployer } = await getNamedAccounts();
 
     const config = await get('StakingConfig');
 
@@ -35,7 +34,6 @@ const func: DeployFunction = async function ({
         args: [],
         skipIfAlreadyDeployed: true,
         proxy: {
-            implementationName: 'RatioFeed',
             proxyContract: 'OpenZeppelinTransparentProxy',
             upgradeIndex: 1,
         },
@@ -45,11 +43,9 @@ const func: DeployFunction = async function ({
         from: deployer,
         log: true,
         args: [],
-        skipIfAlreadyDeployed: true,
+        skipIfAlreadyDeployed: false,
         proxy: {
-            implementationName: 'StakingPool',
             proxyContract: 'OpenZeppelinTransparentProxy',
-            upgradeIndex: 2,
         },
     });
 
@@ -59,7 +55,6 @@ const func: DeployFunction = async function ({
         args: [],
         skipIfAlreadyDeployed: true,
         proxy: {
-            implementationName: 'CertificateToken',
             proxyContract: 'OpenZeppelinTransparentProxy',
             upgradeIndex: 1,
         },
@@ -69,7 +64,7 @@ const func: DeployFunction = async function ({
 };
 
 module.exports = func;
-module.exports.tags = ['01_V1'];
+module.exports.tags = ['02_V1'];
 module.exports.dependencies = [];
 module.exports.skip = false;
-module.exports.id = '01';
+module.exports.id = '02';

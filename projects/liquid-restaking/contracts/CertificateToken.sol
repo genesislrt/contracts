@@ -21,7 +21,7 @@ contract CertificateToken is
     IStakingConfig internal _stakingConfig;
 
     // pausable
-    bool private git;
+    bool private _paused;
 
     // reserve some gap for the future upgrades
     uint256[100 - 4] private __reserved;

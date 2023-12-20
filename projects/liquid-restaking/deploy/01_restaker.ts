@@ -12,13 +12,17 @@ const func: DeployFunction = async function ({
     const { deployer, governance, eigenPodManager, delegationManager } =
         await getNamedAccounts();
 
+    const beacon = await upgrades.deployBeacon(
+        await ethers.getContractFactory('Restaker')
+    );
+    await beacon.deployed();
+
     await deploy('StakingConfig', {
         from: deployer,
         log: true,
         args: [],
         skipIfAlreadyDeployed: true,
         proxy: {
-            implementationName: 'StakingConfig',
             proxyContract: 'OpenZeppelinTransparentProxy',
             upgradeIndex: 1,
         },
@@ -39,10 +43,6 @@ const func: DeployFunction = async function ({
         },
     });
 
-    const beacon = await upgrades.deployBeacon(
-        await ethers.getContractFactory('Restaker')
-    );
-
     const restakerDeployer = await deploy('RestakerDeployer', {
         from: deployer,
         log: true,
@@ -50,7 +50,7 @@ const func: DeployFunction = async function ({
     });
 
     await execute(
-        'RestakerDeployer',
+        'StakingConfig',
         {
             from: deployer,
             log: true,

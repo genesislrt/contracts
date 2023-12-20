@@ -135,8 +135,9 @@ const func: DeployFunction = async function ({
 
     return true;
 };
+
 module.exports = func;
 module.exports.tags = ['00_init'];
 module.exports.dependencies = [];
-module.exports.skip = true;
+module.exports.skip = async () => (true);
 module.exports.id = '00';
