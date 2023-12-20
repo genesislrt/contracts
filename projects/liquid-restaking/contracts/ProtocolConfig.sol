@@ -142,7 +142,7 @@ contract ProtocolConfig is Initializable, ContextUpgradeable, IProtocolConfig {
         _CTOKEN_SLOT.getAddressSlot().value = address(newValue);
     }
 
-    function setRestakedDeployer(
+    function setRestakerDeployer(
         IRestakerDeployer newValue
     ) external onlyGovernance {
         _requireNotZero(address(newValue));

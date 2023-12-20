@@ -76,7 +76,7 @@ export async function deployRestakerContacts({
         await restakerFacets.getAddress(),
     ]);
     await restakerDeployer.waitForDeployment();
-    await protocolConfig.setRestakedDeployer(
+    await protocolConfig.setRestakerDeployer(
         await restakerDeployer.getAddress()
     );
 
