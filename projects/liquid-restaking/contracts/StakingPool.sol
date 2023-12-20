@@ -467,9 +467,11 @@ contract StakingPool is
         if (restaker != address(0)) {
             revert PoolRestakerExists();
         }
-        _restakers[providerHash] = address(
+        restaker = address(
             _stakingConfig.getRestakerDeployer().deployRestaker()
         );
+        _restakers[providerHash] = restaker;
+        emit RestakerAdded(provider, restaker);
     }
 
     function setDistributeGasLimit(uint256 newValue) public onlyGovernance {
