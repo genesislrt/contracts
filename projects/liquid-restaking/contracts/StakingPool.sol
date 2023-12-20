@@ -385,6 +385,7 @@ contract StakingPool is
     }
 
     /**
+     * @notice Use {getPending} instead.
      * @dev Deprecated.
      */
     function getFreeBalance() external view virtual returns (uint256) {
@@ -392,12 +393,16 @@ contract StakingPool is
     }
 
     /**
-     * @return Certificate token address
+     * @dev Deprecated.
+     * @return Certificate token address.
      */
     function getCert() external view virtual returns (address) {
         return _stakingConfig.getCertTokenAddress();
     }
 
+    /**
+     * @dev Deprecated.
+     */
     function getEigenPodManager() external view virtual returns (address) {
         return _stakingConfig.getEigenPodManagerAddress();
     }

@@ -3,30 +3,13 @@ import { DeployFunction } from 'hardhat-deploy/types';
 const { constants } = require('@openzeppelin/test-helpers');
 
 const func: DeployFunction = async function ({
-    getUnnamedAccounts,
+    getNamedAccounts,
     network,
     deployments,
 }) {
     const { deploy, execute } = deployments;
-    const [deployer] = await getUnnamedAccounts();
-    let eigenPodManager;
-    let operatorAddress;
-    let consensusAddress;
-    let governanceAddress;
-    let treasureAddress;
-
-    switch (network.name) {
-        case 'goerli':
-        case 'hardhat':
-            eigenPodManager = '0xa286b84C96aF280a49Fe1F40B9627C2A2827df41';
-            operatorAddress = deployer;
-            governanceAddress = deployer;
-            treasureAddress = deployer;
-            break;
-        default: {
-            throw new Error(`Not supported network (${network.name})`);
-        }
-    }
+    const { deployer, operator, governance, treasury, eigenPodManager } =
+        await getNamedAccounts();
 
     const config = await deploy('StakingConfig', {
         from: deployer,
@@ -41,9 +24,9 @@ const func: DeployFunction = async function ({
                 args: [
                     0,
                     0,
-                    operatorAddress,
-                    governanceAddress,
-                    treasureAddress,
+                    operator,
+                    governance,
+                    treasury,
                     constants.ZERO_ADDRESS,
                     constants.ZERO_ADDRESS,
                     constants.ZERO_ADDRESS,
@@ -149,6 +132,11 @@ const func: DeployFunction = async function ({
             certToken.address
         );
     }
+
+    return true;
 };
-export default func;
-func.tags = ['init'];
+module.exports = func;
+module.exports.tags = ['00_init'];
+module.exports.dependencies = [];
+module.exports.skip = true;
+module.exports.id = '00';

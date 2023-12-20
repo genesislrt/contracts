@@ -58,4 +58,29 @@ module.exports = {
     gasReporter: {
         enabled: true,
     },
+    namedAccounts: {
+        deployer: {
+            default: 0,
+        },
+        treasury: {
+            goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
+            mainnet: '',
+        },
+        operator: {
+            goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
+            mainnet: '',
+        },
+        governance: {
+            goerli: '0x05e0e5198820fb62cbf7684c4d920b6d7f92ff67',
+            mainnet: '',
+        },
+        eigenPodManager: {
+            goerli: '0xa286b84C96aF280a49Fe1F40B9627C2A2827df41',
+            mainnet: '',
+        },
+        delegationManager: {
+            goerli: '0x1b7b8F6b258f95Cf9596EabB9aa18B62940Eb0a8',
+            mainnet: '',
+        },
+    },
 };
