@@ -31,7 +31,7 @@ var (
 )
 
 var ContractMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"OperatorAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"OperatorRemoved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"failedRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"RatioNotUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldValue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"RatioThresholdChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newRatio\",\"type\":\"uint256\"}],\"name\":\"RatioUpdated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"getRatioFor\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"addresses\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"ratios\",\"type\":\"uint256[]\"}],\"name\":\"updateRatioBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[],\"name\":\"OnlyGovernanceAllowed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOperatorAllowed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"RatioNotUpdated\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RatioThresholdNotInRange\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RatioThresholdNotSet\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldValue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"RatioThresholdChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newRatio\",\"type\":\"uint256\"}],\"name\":\"RatioUpdated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getRatio\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ratio\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"ratio\",\"type\":\"uint256\"}],\"name\":\"updateRatio\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 var ContractABI = ContractMetaData.ABI
@@ -152,9 +152,9 @@ func (_Contract *ContractTransactorRaw) Transact(opts *bind.TransactOpts, method
 	return _Contract.Contract.contract.Transact(opts, method, params...)
 }
 
-func (_Contract *ContractCaller) GetRatioFor(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
+func (_Contract *ContractCaller) GetRatio(opts *bind.CallOpts, token common.Address) (*big.Int, error) {
 	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getRatioFor", arg0)
+	err := _Contract.contract.Call(opts, &out, "getRatio", token)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -166,387 +166,24 @@ func (_Contract *ContractCaller) GetRatioFor(opts *bind.CallOpts, arg0 common.Ad
 
 }
 
-func (_Contract *ContractSession) GetRatioFor(arg0 common.Address) (*big.Int, error) {
-	return _Contract.Contract.GetRatioFor(&_Contract.CallOpts, arg0)
+func (_Contract *ContractSession) GetRatio(token common.Address) (*big.Int, error) {
+	return _Contract.Contract.GetRatio(&_Contract.CallOpts, token)
 }
 
-func (_Contract *ContractCallerSession) GetRatioFor(arg0 common.Address) (*big.Int, error) {
-	return _Contract.Contract.GetRatioFor(&_Contract.CallOpts, arg0)
+func (_Contract *ContractCallerSession) GetRatio(token common.Address) (*big.Int, error) {
+	return _Contract.Contract.GetRatio(&_Contract.CallOpts, token)
 }
 
-func (_Contract *ContractTransactor) UpdateRatioBatch(opts *bind.TransactOpts, addresses []common.Address, ratios []*big.Int) (*types.Transaction, error) {
-	return _Contract.contract.Transact(opts, "updateRatioBatch", addresses, ratios)
+func (_Contract *ContractTransactor) UpdateRatio(opts *bind.TransactOpts, token common.Address, ratio *big.Int) (*types.Transaction, error) {
+	return _Contract.contract.Transact(opts, "updateRatio", token, ratio)
 }
 
-func (_Contract *ContractSession) UpdateRatioBatch(addresses []common.Address, ratios []*big.Int) (*types.Transaction, error) {
-	return _Contract.Contract.UpdateRatioBatch(&_Contract.TransactOpts, addresses, ratios)
+func (_Contract *ContractSession) UpdateRatio(token common.Address, ratio *big.Int) (*types.Transaction, error) {
+	return _Contract.Contract.UpdateRatio(&_Contract.TransactOpts, token, ratio)
 }
 
-func (_Contract *ContractTransactorSession) UpdateRatioBatch(addresses []common.Address, ratios []*big.Int) (*types.Transaction, error) {
-	return _Contract.Contract.UpdateRatioBatch(&_Contract.TransactOpts, addresses, ratios)
-}
-
-type ContractOperatorAddedIterator struct {
-	Event *ContractOperatorAdded
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractOperatorAddedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractOperatorAdded)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractOperatorAdded)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractOperatorAddedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractOperatorAddedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractOperatorAdded struct {
-	Operator common.Address
-	Raw      types.Log
-}
-
-func (_Contract *ContractFilterer) FilterOperatorAdded(opts *bind.FilterOpts) (*ContractOperatorAddedIterator, error) {
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "OperatorAdded")
-	if err != nil {
-		return nil, err
-	}
-	return &ContractOperatorAddedIterator{contract: _Contract.contract, event: "OperatorAdded", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchOperatorAdded(opts *bind.WatchOpts, sink chan<- *ContractOperatorAdded) (event.Subscription, error) {
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "OperatorAdded")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractOperatorAdded)
-				if err := _Contract.contract.UnpackLog(event, "OperatorAdded", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseOperatorAdded(log types.Log) (*ContractOperatorAdded, error) {
-	event := new(ContractOperatorAdded)
-	if err := _Contract.contract.UnpackLog(event, "OperatorAdded", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-type ContractOperatorRemovedIterator struct {
-	Event *ContractOperatorRemoved
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractOperatorRemovedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractOperatorRemoved)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractOperatorRemoved)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractOperatorRemovedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractOperatorRemovedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractOperatorRemoved struct {
-	Operator common.Address
-	Raw      types.Log
-}
-
-func (_Contract *ContractFilterer) FilterOperatorRemoved(opts *bind.FilterOpts) (*ContractOperatorRemovedIterator, error) {
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "OperatorRemoved")
-	if err != nil {
-		return nil, err
-	}
-	return &ContractOperatorRemovedIterator{contract: _Contract.contract, event: "OperatorRemoved", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchOperatorRemoved(opts *bind.WatchOpts, sink chan<- *ContractOperatorRemoved) (event.Subscription, error) {
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "OperatorRemoved")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractOperatorRemoved)
-				if err := _Contract.contract.UnpackLog(event, "OperatorRemoved", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseOperatorRemoved(log types.Log) (*ContractOperatorRemoved, error) {
-	event := new(ContractOperatorRemoved)
-	if err := _Contract.contract.UnpackLog(event, "OperatorRemoved", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-type ContractRatioNotUpdatedIterator struct {
-	Event *ContractRatioNotUpdated
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractRatioNotUpdatedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractRatioNotUpdated)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractRatioNotUpdated)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractRatioNotUpdatedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractRatioNotUpdatedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractRatioNotUpdated struct {
-	TokenAddress common.Address
-	FailedRatio  *big.Int
-	Reason       string
-	Raw          types.Log
-}
-
-func (_Contract *ContractFilterer) FilterRatioNotUpdated(opts *bind.FilterOpts, tokenAddress []common.Address) (*ContractRatioNotUpdatedIterator, error) {
-
-	var tokenAddressRule []interface{}
-	for _, tokenAddressItem := range tokenAddress {
-		tokenAddressRule = append(tokenAddressRule, tokenAddressItem)
-	}
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "RatioNotUpdated", tokenAddressRule)
-	if err != nil {
-		return nil, err
-	}
-	return &ContractRatioNotUpdatedIterator{contract: _Contract.contract, event: "RatioNotUpdated", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchRatioNotUpdated(opts *bind.WatchOpts, sink chan<- *ContractRatioNotUpdated, tokenAddress []common.Address) (event.Subscription, error) {
-
-	var tokenAddressRule []interface{}
-	for _, tokenAddressItem := range tokenAddress {
-		tokenAddressRule = append(tokenAddressRule, tokenAddressItem)
-	}
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "RatioNotUpdated", tokenAddressRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractRatioNotUpdated)
-				if err := _Contract.contract.UnpackLog(event, "RatioNotUpdated", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseRatioNotUpdated(log types.Log) (*ContractRatioNotUpdated, error) {
-	event := new(ContractRatioNotUpdated)
-	if err := _Contract.contract.UnpackLog(event, "RatioNotUpdated", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
+func (_Contract *ContractTransactorSession) UpdateRatio(token common.Address, ratio *big.Int) (*types.Transaction, error) {
+	return _Contract.Contract.UpdateRatio(&_Contract.TransactOpts, token, ratio)
 }
 
 type ContractRatioThresholdChangedIterator struct {
@@ -798,12 +435,6 @@ func (_Contract *ContractFilterer) ParseRatioUpdated(log types.Log) (*ContractRa
 
 func (_Contract *Contract) ParseLog(log types.Log) (generated.AbigenLog, error) {
 	switch log.Topics[0] {
-	case _Contract.abi.Events["OperatorAdded"].ID:
-		return _Contract.ParseOperatorAdded(log)
-	case _Contract.abi.Events["OperatorRemoved"].ID:
-		return _Contract.ParseOperatorRemoved(log)
-	case _Contract.abi.Events["RatioNotUpdated"].ID:
-		return _Contract.ParseRatioNotUpdated(log)
 	case _Contract.abi.Events["RatioThresholdChanged"].ID:
 		return _Contract.ParseRatioThresholdChanged(log)
 	case _Contract.abi.Events["RatioUpdated"].ID:
@@ -812,18 +443,6 @@ func (_Contract *Contract) ParseLog(log types.Log) (generated.AbigenLog, error) 
 	default:
 		return nil, fmt.Errorf("abigen wrapper received unknown log topic: %v", log.Topics[0])
 	}
-}
-
-func (ContractOperatorAdded) Topic() common.Hash {
-	return common.HexToHash("0xac6fa858e9350a46cec16539926e0fde25b7629f84b5a72bffaae4df888ae86d")
-}
-
-func (ContractOperatorRemoved) Topic() common.Hash {
-	return common.HexToHash("0x80c0b871b97b595b16a7741c1b06fed0c6f6f558639f18ccbce50724325dc40d")
-}
-
-func (ContractRatioNotUpdated) Topic() common.Hash {
-	return common.HexToHash("0x2471a7627ad27128888e46dfc72f5d674c7156d6e99c969a675492a558a0b0e0")
 }
 
 func (ContractRatioThresholdChanged) Topic() common.Hash {
@@ -839,27 +458,9 @@ func (_Contract *Contract) Address() common.Address {
 }
 
 type ContractInterface interface {
-	GetRatioFor(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error)
+	GetRatio(opts *bind.CallOpts, token common.Address) (*big.Int, error)
 
-	UpdateRatioBatch(opts *bind.TransactOpts, addresses []common.Address, ratios []*big.Int) (*types.Transaction, error)
-
-	FilterOperatorAdded(opts *bind.FilterOpts) (*ContractOperatorAddedIterator, error)
-
-	WatchOperatorAdded(opts *bind.WatchOpts, sink chan<- *ContractOperatorAdded) (event.Subscription, error)
-
-	ParseOperatorAdded(log types.Log) (*ContractOperatorAdded, error)
-
-	FilterOperatorRemoved(opts *bind.FilterOpts) (*ContractOperatorRemovedIterator, error)
-
-	WatchOperatorRemoved(opts *bind.WatchOpts, sink chan<- *ContractOperatorRemoved) (event.Subscription, error)
-
-	ParseOperatorRemoved(log types.Log) (*ContractOperatorRemoved, error)
-
-	FilterRatioNotUpdated(opts *bind.FilterOpts, tokenAddress []common.Address) (*ContractRatioNotUpdatedIterator, error)
-
-	WatchRatioNotUpdated(opts *bind.WatchOpts, sink chan<- *ContractRatioNotUpdated, tokenAddress []common.Address) (event.Subscription, error)
-
-	ParseRatioNotUpdated(log types.Log) (*ContractRatioNotUpdated, error)
+	UpdateRatio(opts *bind.TransactOpts, token common.Address, ratio *big.Int) (*types.Transaction, error)
 
 	FilterRatioThresholdChanged(opts *bind.FilterOpts) (*ContractRatioThresholdChangedIterator, error)
 

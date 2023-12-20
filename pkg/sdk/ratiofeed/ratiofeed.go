@@ -31,8 +31,8 @@ var (
 )
 
 var ContractMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"version\",\"type\":\"uint8\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"OperatorAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"OperatorRemoved\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"failedRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"RatioNotUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldValue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"RatioThresholdChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newRatio\",\"type\":\"uint256\"}],\"name\":\"RatioUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"MAX_THRESHOLD\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"day\",\"type\":\"uint256\"}],\"name\":\"averagePercentageRate\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getRatioFor\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRatioThreshold\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"historicalRatios\",\"outputs\":[{\"internalType\":\"uint40\",\"name\":\"lastUpdate\",\"type\":\"uint40\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIStakingConfig\",\"name\":\"stakingConfig\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"ratio\",\"type\":\"uint256\"}],\"name\":\"repairRatioFor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"setRatioThreshold\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"addresses\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"ratios\",\"type\":\"uint256[]\"}],\"name\":\"updateRatioBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
-	Bin: "0x608060405234801561001057600080fd5b50610f3e806100206000396000f3fe608060405234801561001057600080fd5b50600436106100935760003560e01c8063a1f1d48d11610066578063a1f1d48d14610106578063b037d56a1461012f578063ba34fa0514610142578063c4d66de81461014a578063ec653c4b1461015d57600080fd5b806308af5431146100985780632364753a146100bd5780632acaaff4146100d25780632ef86a1f146100f3575b600080fd5b6100a36305f5e10081565b60405163ffffffff90911681526020015b60405180910390f35b6100d06100cb366004610b9a565b61019d565b005b6100e56100e0366004610bcb565b6102f2565b6040519081526020016100b4565b6100d0610101366004610bcb565b610488565b6100e5610114366004610bf7565b6001600160a01b031660009081526001602052604090205490565b6100d061013d366004610c66565b6105ce565b6003546100e5565b6100d0610158366004610bf7565b610997565b61018761016b366004610bf7565b60026020526000908152604090206003015464ffffffffff1681565b60405164ffffffffff90911681526020016100b4565b600060029054906101000a90046001600160a01b03166001600160a01b031663732524946040518163ffffffff1660e01b8152600401602060405180830381865afa1580156101f0573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102149190610cd1565b6001600160a01b0316336001600160a01b03161461024d5760405162461bcd60e51b815260040161024490610cee565b60405180910390fd5b6305f5e100811080156102605750600081115b6102ac5760405162461bcd60e51b815260206004820152601f60248201527f77726f6e672076616c756520666f7220726174696f207468726573686f6c64006044820152606401610244565b600380549082905560408051828152602081018490527f661e4cadf2d36ec16a59d60dcfeebe23f9be2aec99852725798a4be99790840e91015b60405180910390a15050565b600080821180156103035750600882105b61034f5760405162461bcd60e51b815260206004820152601960248201527f6461792073686f756c642062652066726f6d203120746f2037000000000000006044820152606401610244565b6001600160a01b0383166000908152600260205260408120805490916001600160401b03909116908260086103848785610d5c565b61038e9190610d85565b610399906001610d99565b600981106103a9576103a9610d30565b60048104909101546001600160401b036008600390931683026101000a90910416915060009084906103db9085610dac565b6103e6906001610dd2565b6001600160401b0316600981106103ff576103ff610d30565b600491828204019190066008029054906101000a90046001600160401b03166001600160401b031690508082101561043e576000945050505050610482565b6104488683610df9565b6104528284610d5c565b6104659068056bc75e2d63100000610df9565b6104719061016d610df9565b61047b9190610e10565b9450505050505b92915050565b600060029054906101000a90046001600160a01b03166001600160a01b031663732524946040518163ffffffff1660e01b8152600401602060405180830381865afa1580156104db573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104ff9190610cd1565b6001600160a01b0316336001600160a01b03161461052f5760405162461bcd60e51b815260040161024490610cee565b8060000361056f5760405162461bcd60e51b815260206004820152600d60248201526c726174696f206973207a65726f60981b6044820152606401610244565b6001600160a01b038216600081815260016020908152604091829020805490859055825181815291820185905292917f4c5c23b4efbfea6d16c8453f565e165a02a22cda9a8dc7aac0a66f91d2304da6910160405180910390a2505050565b600060029054906101000a90046001600160a01b03166001600160a01b0316632ec338ba6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610621573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106459190610cd1565b6001600160a01b0316336001600160a01b0316146106a55760405162461bcd60e51b815260206004820181905260248201527f526174696f466565643a206f6e6c79206f70657261746f7220616c6c6f7765646044820152606401610244565b8281146106eb5760405162461bcd60e51b8152602060048201526014602482015273636f7272757074656420726174696f206461746160601b6044820152606401610244565b60006003541161073d5760405162461bcd60e51b815260206004820152601a60248201527f726174696f207468726573686f6c64206973206e6f74207365740000000000006044820152606401610244565b60005b8381101561099057600085858381811061075c5761075c610d30565b90506020020160208101906107719190610bf7565b6001600160a01b038116600090815260046020908152604080832054600190925282205492935091908686868181106107ac576107ac610d30565b9050602002013590506000806107c3858486610abf565b915091508161081a57856001600160a01b03167f2471a7627ad27128888e46dfc72f5d674c7156d6e99c969a675492a558a0b0e08483604051610807929190610e24565b60405180910390a250505050505061097e565b6001600160a01b03861660008181526001602090815260409182902086905581518781529081018690527f4c5c23b4efbfea6d16c8453f565e165a02a22cda9a8dc7aac0a66f91d2304da6910160405180910390a26001600160a01b038616600090815260046020908152604080832064ffffffffff42818116909255600290935292206003810154909262015144926108b5921690610d5c565b11156109765780546001600160401b0316848260086108d5846001610dd2565b6108df9190610dac565b6108ea906001610dd2565b6001600160401b03166009811061090357610903610d30565b600491828204019190066008026101000a8154816001600160401b0302191690836001600160401b0316021790555080600161093f9190610dd2565b825467ffffffffffffffff19166001600160401b03919091161782555060038101805464ffffffffff19164264ffffffffff161790555b505050505050505b8061098881610e7a565b915050610740565b5050505050565b600054610100900460ff16158080156109b75750600054600160ff909116105b806109d15750303b1580156109d1575060005460ff166001145b610a345760405162461bcd60e51b815260206004820152602e60248201527f496e697469616c697a61626c653a20636f6e747261637420697320616c72656160448201526d191e481a5b9a5d1a585b1a5e995960921b6064820152608401610244565b6000805460ff191660011790558015610a57576000805461ff0019166101001790555b6000805462010000600160b01b031916620100006001600160a01b038516021790558015610abb576000805461ff0019169055604051600181527f7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498906020016102e6565b5050565b6000606082600003610ad45760019150610b92565b61a8c0610ae18642610d5c565b1015610b0a5781604051806060016040528060288152602001610e946028913991509150610b92565b82841115610b355781604051806060016040528060248152602001610ebc6024913991509150610b92565b6003546000906305f5e10090610b4b9086610df9565b610b559190610e10565b9050610b618185610d5c565b851015610b8c5782604051806060016040528060298152602001610ee0602991399250925050610b92565b60019250505b935093915050565b600060208284031215610bac57600080fd5b5035919050565b6001600160a01b0381168114610bc857600080fd5b50565b60008060408385031215610bde57600080fd5b8235610be981610bb3565b946020939093013593505050565b600060208284031215610c0957600080fd5b8135610c1481610bb3565b9392505050565b60008083601f840112610c2d57600080fd5b5081356001600160401b03811115610c4457600080fd5b6020830191508360208260051b8501011115610c5f57600080fd5b9250929050565b60008060008060408587031215610c7c57600080fd5b84356001600160401b0380821115610c9357600080fd5b610c9f88838901610c1b565b90965094506020870135915080821115610cb857600080fd5b50610cc587828801610c1b565b95989497509550505050565b600060208284031215610ce357600080fd5b8151610c1481610bb3565b60208082526022908201527f526174696f466565643a206f6e6c7920676f7665726e616e636520616c6c6f77604082015261195960f21b606082015260800190565b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b8181038181111561048257610482610d46565b634e487b7160e01b600052601260045260246000fd5b600082610d9457610d94610d6f565b500690565b8082018082111561048257610482610d46565b60006001600160401b0380841680610dc657610dc6610d6f565b92169190910692915050565b6001600160401b03818116838216019080821115610df257610df2610d46565b5092915050565b808202811582820484141761048257610482610d46565b600082610e1f57610e1f610d6f565b500490565b82815260006020604081840152835180604085015260005b81811015610e5857858101830151858201606001528201610e3c565b506000606082860101526060601f19601f830116850101925050509392505050565b600060018201610e8c57610e8c610d46565b506001019056fe726174696f207761732075706461746564206c657373207468616e20313220686f7572732061676f6e657720726174696f2063616e6e6f742062652067726561746572207468616e206f6c646e657720726174696f20746f6f206c6f772c206e6f7420696e207468726573686f6c642072616e6765a2646970667358221220059463b2dc4ab7038c8c2a2d256d75c278691a7fb0c72c455834fa09af263d8764736f6c63430008130033",
+	ABI: "[{\"inputs\":[],\"name\":\"OnlyGovernanceAllowed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOperatorAllowed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"reason\",\"type\":\"string\"}],\"name\":\"RatioNotUpdated\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RatioThresholdNotInRange\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"RatioThresholdNotSet\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"version\",\"type\":\"uint8\"}],\"name\":\"Initialized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldValue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"RatioThresholdChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"tokenAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"oldRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newRatio\",\"type\":\"uint256\"}],\"name\":\"RatioUpdated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"MAX_THRESHOLD\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"day\",\"type\":\"uint8\"}],\"name\":\"averagePercentageRate\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getRatio\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"historicalRatios\",\"outputs\":[{\"internalType\":\"uint40\",\"name\":\"lastUpdate\",\"type\":\"uint40\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIStakingConfig\",\"name\":\"stakingConfig\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ratioThreshold\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"newRatio\",\"type\":\"uint256\"}],\"name\":\"repairRatio\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"setRatioThreshold\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"newRatio\",\"type\":\"uint256\"}],\"name\":\"updateRatio\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	Bin: "0x608060405234801561000f575f80fd5b50610cec8061001d5f395ff3fe608060405234801561000f575f80fd5b5060043610610090575f3560e01c80633be19c03116100635780633be19c03146101025780637068ca0d1461010a578063754b27071461011d578063c4d66de814610145578063ec653c4b14610158575f80fd5b806308af54311461009457806311ad2955146100b95780632364753a146100ce57806327a0a544146100e1575b5f80fd5b61009f6305f5e10081565b60405163ffffffff90911681526020015b60405180910390f35b6100cc6100c7366004610a57565b610197565b005b6100cc6100dc366004610a81565b6102ff565b6100f46100ef366004610a98565b6103b0565b6040519081526020016100b0565b6003546100f4565b6100cc610118366004610a57565b610557565b6100f461012b366004610ad4565b6001600160a01b03165f9081526001602052604090205490565b6100cc610153366004610ad4565b6107d6565b610181610166366004610ad4565b60026020525f908152604090206003015464ffffffffff1681565b60405164ffffffffff90911681526020016100b0565b5f60029054906101000a90046001600160a01b03166001600160a01b031663289b3c0d6040518163ffffffff1660e01b8152600401602060405180830381865afa1580156101e7573d5f803e3d5ffd5b505050506040513d601f19601f8201168201806040525081019061020b9190610af6565b6001600160a01b0316336001600160a01b03161461023c5760405163e2d4f15f60e01b815260040160405180910390fd5b670de0b6b3a7640000811180610250575080155b1561029257604051632481e5bd60e11b815260206004820152600c60248201526b6e6f7420696e2072616e676560a01b60448201526064015b60405180910390fd5b6001600160a01b0382165f818152600160209081526040918290205482519081529081018490527f4c5c23b4efbfea6d16c8453f565e165a02a22cda9a8dc7aac0a66f91d2304da6910160405180910390a26001600160a01b039091165f90815260016020526040902055565b5f60029054906101000a90046001600160a01b03166001600160a01b031663289b3c0d6040518163ffffffff1660e01b8152600401602060405180830381865afa15801561034f573d5f803e3d5ffd5b505050506040513d601f19601f820116820180604052508101906103739190610af6565b6001600160a01b0316336001600160a01b0316146103a45760405163e2d4f15f60e01b815260040160405180910390fd5b6103ad816108fb565b50565b5f808260ff161180156103c6575060088260ff16105b6104125760405162461bcd60e51b815260206004820152601960248201527f6461792073686f756c642062652066726f6d203120746f2037000000000000006044820152606401610289565b6001600160a01b0383165f908152600260205260408120805490916001600160401b039091169082600861044960ff881685610b39565b6104539190610b74565b61045e906001610b99565b6001600160401b03166009811061047757610477610b11565b60048104909101546001600160401b036008600390931683026101000a9091041691505f9084906104a89085610b74565b6104b3906001610b99565b6001600160401b0316600981106104cc576104cc610b11565b600491828204019190066008029054906101000a90046001600160401b03166001600160401b031690508082101561050a575f945050505050610551565b61051760ff871683610bb9565b6105218284610bd0565b6105349068056bc75e2d63100000610bb9565b6105409061016d610bb9565b61054a9190610be3565b9450505050505b92915050565b5f60029054906101000a90046001600160a01b03166001600160a01b031663e7f43c686040518163ffffffff1660e01b8152600401602060405180830381865afa1580156105a7573d5f803e3d5ffd5b505050506040513d601f19601f820116820180604052508101906105cb9190610af6565b6001600160a01b0316336001600160a01b0316146105fc57604051633734611360e01b815260040160405180910390fd5b6003545f0361061e57604051633c70047d60e01b815260040160405180910390fd5b6001600160a01b0382165f90815260046020908152604080832054600190925282205490918061064f84868561096b565b91509150816106735780604051632481e5bd60e11b81526004016102899190610bf6565b6001600160a01b0386165f8181526001602090815260409182902088905581518681529081018890527f4c5c23b4efbfea6d16c8453f565e165a02a22cda9a8dc7aac0a66f91d2304da6910160405180910390a26001600160a01b0386165f90815260046020908152604080832064ffffffffff428181169092556002909352922060038101549092620151449261070c921690610bd0565b11156107cd5780546001600160401b03168682600861072c846001610b99565b6107369190610b74565b610741906001610b99565b6001600160401b03166009811061075a5761075a610b11565b600491828204019190066008026101000a8154816001600160401b0302191690836001600160401b031602179055508060016107969190610b99565b825467ffffffffffffffff19166001600160401b03919091161782555060038101805464ffffffffff19164264ffffffffff161790555b50505050505050565b5f54610100900460ff16158080156107f457505f54600160ff909116105b8061080d5750303b15801561080d57505f5460ff166001145b6108705760405162461bcd60e51b815260206004820152602e60248201527f496e697469616c697a61626c653a20636f6e747261637420697320616c72656160448201526d191e481a5b9a5d1a585b1a5e995960921b6064820152608401610289565b5f805460ff191660011790558015610891575f805461ff0019166101001790555b5f805462010000600160b01b031916620100006001600160a01b0385160217905580156108f7575f805461ff0019169055604051600181527f7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb38474024989060200160405180910390a15b5050565b6305f5e1008110158061090c575080155b1561092a57604051630a57072960e01b815260040160405180910390fd5b60035460408051918252602082018390527f661e4cadf2d36ec16a59d60dcfeebe23f9be2aec99852725798a4be99790840e910160405180910390a1600355565b5f6060825f0361097e5760019150610a3b565b61a8c061098b8642610bd0565b10156109b45781604051806060016040528060288152602001610c426028913991509150610a3b565b828411156109df5781604051806060016040528060248152602001610c6a6024913991509150610a3b565b6003545f906305f5e100906109f49086610bb9565b6109fe9190610be3565b9050610a0a8185610bd0565b851015610a355782604051806060016040528060298152602001610c8e602991399250925050610a3b565b60019250505b935093915050565b6001600160a01b03811681146103ad575f80fd5b5f8060408385031215610a68575f80fd5b8235610a7381610a43565b946020939093013593505050565b5f60208284031215610a91575f80fd5b5035919050565b5f8060408385031215610aa9575f80fd5b8235610ab481610a43565b9150602083013560ff81168114610ac9575f80fd5b809150509250929050565b5f60208284031215610ae4575f80fd5b8135610aef81610a43565b9392505050565b5f60208284031215610b06575f80fd5b8151610aef81610a43565b634e487b7160e01b5f52603260045260245ffd5b634e487b7160e01b5f52601160045260245ffd5b6001600160401b03828116828216039080821115610b5957610b59610b25565b5092915050565b634e487b7160e01b5f52601260045260245ffd5b5f6001600160401b0380841680610b8d57610b8d610b60565b92169190910692915050565b6001600160401b03818116838216019080821115610b5957610b59610b25565b808202811582820484141761055157610551610b25565b8181038181111561055157610551610b25565b5f82610bf157610bf1610b60565b500490565b5f6020808352835180828501525f5b81811015610c2157858101830151858201604001528201610c05565b505f604082860101526040601f19601f830116850101925050509291505056fe726174696f207761732075706461746564206c657373207468616e20313220686f7572732061676f6e657720726174696f2063616e6e6f742062652067726561746572207468616e206f6c646e657720726174696f20746f6f206c6f772c206e6f7420696e207468726573686f6c642072616e6765a26469706673582212204b2c32962e117c85f0dbe2f1a649c1f8a2ccd3ef404430fad6b3926183c9f46f64736f6c63430008140033",
 }
 
 var ContractABI = ContractMetaData.ABI
@@ -193,9 +193,9 @@ func (_Contract *ContractCallerSession) MAXTHRESHOLD() (uint32, error) {
 	return _Contract.Contract.MAXTHRESHOLD(&_Contract.CallOpts)
 }
 
-func (_Contract *ContractCaller) AveragePercentageRate(opts *bind.CallOpts, addr common.Address, day *big.Int) (*big.Int, error) {
+func (_Contract *ContractCaller) AveragePercentageRate(opts *bind.CallOpts, token common.Address, day uint8) (*big.Int, error) {
 	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "averagePercentageRate", addr, day)
+	err := _Contract.contract.Call(opts, &out, "averagePercentageRate", token, day)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -207,17 +207,17 @@ func (_Contract *ContractCaller) AveragePercentageRate(opts *bind.CallOpts, addr
 
 }
 
-func (_Contract *ContractSession) AveragePercentageRate(addr common.Address, day *big.Int) (*big.Int, error) {
-	return _Contract.Contract.AveragePercentageRate(&_Contract.CallOpts, addr, day)
+func (_Contract *ContractSession) AveragePercentageRate(token common.Address, day uint8) (*big.Int, error) {
+	return _Contract.Contract.AveragePercentageRate(&_Contract.CallOpts, token, day)
 }
 
-func (_Contract *ContractCallerSession) AveragePercentageRate(addr common.Address, day *big.Int) (*big.Int, error) {
-	return _Contract.Contract.AveragePercentageRate(&_Contract.CallOpts, addr, day)
+func (_Contract *ContractCallerSession) AveragePercentageRate(token common.Address, day uint8) (*big.Int, error) {
+	return _Contract.Contract.AveragePercentageRate(&_Contract.CallOpts, token, day)
 }
 
-func (_Contract *ContractCaller) GetRatioFor(opts *bind.CallOpts, token common.Address) (*big.Int, error) {
+func (_Contract *ContractCaller) GetRatio(opts *bind.CallOpts, token common.Address) (*big.Int, error) {
 	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getRatioFor", token)
+	err := _Contract.contract.Call(opts, &out, "getRatio", token)
 
 	if err != nil {
 		return *new(*big.Int), err
@@ -229,34 +229,12 @@ func (_Contract *ContractCaller) GetRatioFor(opts *bind.CallOpts, token common.A
 
 }
 
-func (_Contract *ContractSession) GetRatioFor(token common.Address) (*big.Int, error) {
-	return _Contract.Contract.GetRatioFor(&_Contract.CallOpts, token)
+func (_Contract *ContractSession) GetRatio(token common.Address) (*big.Int, error) {
+	return _Contract.Contract.GetRatio(&_Contract.CallOpts, token)
 }
 
-func (_Contract *ContractCallerSession) GetRatioFor(token common.Address) (*big.Int, error) {
-	return _Contract.Contract.GetRatioFor(&_Contract.CallOpts, token)
-}
-
-func (_Contract *ContractCaller) GetRatioThreshold(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getRatioThreshold")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
-}
-
-func (_Contract *ContractSession) GetRatioThreshold() (*big.Int, error) {
-	return _Contract.Contract.GetRatioThreshold(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCallerSession) GetRatioThreshold() (*big.Int, error) {
-	return _Contract.Contract.GetRatioThreshold(&_Contract.CallOpts)
+func (_Contract *ContractCallerSession) GetRatio(token common.Address) (*big.Int, error) {
+	return _Contract.Contract.GetRatio(&_Contract.CallOpts, token)
 }
 
 func (_Contract *ContractCaller) HistoricalRatios(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
@@ -281,6 +259,28 @@ func (_Contract *ContractCallerSession) HistoricalRatios(arg0 common.Address) (*
 	return _Contract.Contract.HistoricalRatios(&_Contract.CallOpts, arg0)
 }
 
+func (_Contract *ContractCaller) RatioThreshold(opts *bind.CallOpts) (*big.Int, error) {
+	var out []interface{}
+	err := _Contract.contract.Call(opts, &out, "ratioThreshold")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+func (_Contract *ContractSession) RatioThreshold() (*big.Int, error) {
+	return _Contract.Contract.RatioThreshold(&_Contract.CallOpts)
+}
+
+func (_Contract *ContractCallerSession) RatioThreshold() (*big.Int, error) {
+	return _Contract.Contract.RatioThreshold(&_Contract.CallOpts)
+}
+
 func (_Contract *ContractTransactor) Initialize(opts *bind.TransactOpts, stakingConfig common.Address) (*types.Transaction, error) {
 	return _Contract.contract.Transact(opts, "initialize", stakingConfig)
 }
@@ -293,16 +293,16 @@ func (_Contract *ContractTransactorSession) Initialize(stakingConfig common.Addr
 	return _Contract.Contract.Initialize(&_Contract.TransactOpts, stakingConfig)
 }
 
-func (_Contract *ContractTransactor) RepairRatioFor(opts *bind.TransactOpts, token common.Address, ratio *big.Int) (*types.Transaction, error) {
-	return _Contract.contract.Transact(opts, "repairRatioFor", token, ratio)
+func (_Contract *ContractTransactor) RepairRatio(opts *bind.TransactOpts, token common.Address, newRatio *big.Int) (*types.Transaction, error) {
+	return _Contract.contract.Transact(opts, "repairRatio", token, newRatio)
 }
 
-func (_Contract *ContractSession) RepairRatioFor(token common.Address, ratio *big.Int) (*types.Transaction, error) {
-	return _Contract.Contract.RepairRatioFor(&_Contract.TransactOpts, token, ratio)
+func (_Contract *ContractSession) RepairRatio(token common.Address, newRatio *big.Int) (*types.Transaction, error) {
+	return _Contract.Contract.RepairRatio(&_Contract.TransactOpts, token, newRatio)
 }
 
-func (_Contract *ContractTransactorSession) RepairRatioFor(token common.Address, ratio *big.Int) (*types.Transaction, error) {
-	return _Contract.Contract.RepairRatioFor(&_Contract.TransactOpts, token, ratio)
+func (_Contract *ContractTransactorSession) RepairRatio(token common.Address, newRatio *big.Int) (*types.Transaction, error) {
+	return _Contract.Contract.RepairRatio(&_Contract.TransactOpts, token, newRatio)
 }
 
 func (_Contract *ContractTransactor) SetRatioThreshold(opts *bind.TransactOpts, newValue *big.Int) (*types.Transaction, error) {
@@ -317,16 +317,16 @@ func (_Contract *ContractTransactorSession) SetRatioThreshold(newValue *big.Int)
 	return _Contract.Contract.SetRatioThreshold(&_Contract.TransactOpts, newValue)
 }
 
-func (_Contract *ContractTransactor) UpdateRatioBatch(opts *bind.TransactOpts, addresses []common.Address, ratios []*big.Int) (*types.Transaction, error) {
-	return _Contract.contract.Transact(opts, "updateRatioBatch", addresses, ratios)
+func (_Contract *ContractTransactor) UpdateRatio(opts *bind.TransactOpts, token common.Address, newRatio *big.Int) (*types.Transaction, error) {
+	return _Contract.contract.Transact(opts, "updateRatio", token, newRatio)
 }
 
-func (_Contract *ContractSession) UpdateRatioBatch(addresses []common.Address, ratios []*big.Int) (*types.Transaction, error) {
-	return _Contract.Contract.UpdateRatioBatch(&_Contract.TransactOpts, addresses, ratios)
+func (_Contract *ContractSession) UpdateRatio(token common.Address, newRatio *big.Int) (*types.Transaction, error) {
+	return _Contract.Contract.UpdateRatio(&_Contract.TransactOpts, token, newRatio)
 }
 
-func (_Contract *ContractTransactorSession) UpdateRatioBatch(addresses []common.Address, ratios []*big.Int) (*types.Transaction, error) {
-	return _Contract.Contract.UpdateRatioBatch(&_Contract.TransactOpts, addresses, ratios)
+func (_Contract *ContractTransactorSession) UpdateRatio(token common.Address, newRatio *big.Int) (*types.Transaction, error) {
+	return _Contract.Contract.UpdateRatio(&_Contract.TransactOpts, token, newRatio)
 }
 
 type ContractInitializedIterator struct {
@@ -440,369 +440,6 @@ func (_Contract *ContractFilterer) WatchInitialized(opts *bind.WatchOpts, sink c
 func (_Contract *ContractFilterer) ParseInitialized(log types.Log) (*ContractInitialized, error) {
 	event := new(ContractInitialized)
 	if err := _Contract.contract.UnpackLog(event, "Initialized", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-type ContractOperatorAddedIterator struct {
-	Event *ContractOperatorAdded
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractOperatorAddedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractOperatorAdded)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractOperatorAdded)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractOperatorAddedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractOperatorAddedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractOperatorAdded struct {
-	Operator common.Address
-	Raw      types.Log
-}
-
-func (_Contract *ContractFilterer) FilterOperatorAdded(opts *bind.FilterOpts) (*ContractOperatorAddedIterator, error) {
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "OperatorAdded")
-	if err != nil {
-		return nil, err
-	}
-	return &ContractOperatorAddedIterator{contract: _Contract.contract, event: "OperatorAdded", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchOperatorAdded(opts *bind.WatchOpts, sink chan<- *ContractOperatorAdded) (event.Subscription, error) {
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "OperatorAdded")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractOperatorAdded)
-				if err := _Contract.contract.UnpackLog(event, "OperatorAdded", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseOperatorAdded(log types.Log) (*ContractOperatorAdded, error) {
-	event := new(ContractOperatorAdded)
-	if err := _Contract.contract.UnpackLog(event, "OperatorAdded", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-type ContractOperatorRemovedIterator struct {
-	Event *ContractOperatorRemoved
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractOperatorRemovedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractOperatorRemoved)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractOperatorRemoved)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractOperatorRemovedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractOperatorRemovedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractOperatorRemoved struct {
-	Operator common.Address
-	Raw      types.Log
-}
-
-func (_Contract *ContractFilterer) FilterOperatorRemoved(opts *bind.FilterOpts) (*ContractOperatorRemovedIterator, error) {
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "OperatorRemoved")
-	if err != nil {
-		return nil, err
-	}
-	return &ContractOperatorRemovedIterator{contract: _Contract.contract, event: "OperatorRemoved", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchOperatorRemoved(opts *bind.WatchOpts, sink chan<- *ContractOperatorRemoved) (event.Subscription, error) {
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "OperatorRemoved")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractOperatorRemoved)
-				if err := _Contract.contract.UnpackLog(event, "OperatorRemoved", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseOperatorRemoved(log types.Log) (*ContractOperatorRemoved, error) {
-	event := new(ContractOperatorRemoved)
-	if err := _Contract.contract.UnpackLog(event, "OperatorRemoved", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-type ContractRatioNotUpdatedIterator struct {
-	Event *ContractRatioNotUpdated
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractRatioNotUpdatedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractRatioNotUpdated)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractRatioNotUpdated)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractRatioNotUpdatedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractRatioNotUpdatedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractRatioNotUpdated struct {
-	TokenAddress common.Address
-	FailedRatio  *big.Int
-	Reason       string
-	Raw          types.Log
-}
-
-func (_Contract *ContractFilterer) FilterRatioNotUpdated(opts *bind.FilterOpts, tokenAddress []common.Address) (*ContractRatioNotUpdatedIterator, error) {
-
-	var tokenAddressRule []interface{}
-	for _, tokenAddressItem := range tokenAddress {
-		tokenAddressRule = append(tokenAddressRule, tokenAddressItem)
-	}
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "RatioNotUpdated", tokenAddressRule)
-	if err != nil {
-		return nil, err
-	}
-	return &ContractRatioNotUpdatedIterator{contract: _Contract.contract, event: "RatioNotUpdated", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchRatioNotUpdated(opts *bind.WatchOpts, sink chan<- *ContractRatioNotUpdated, tokenAddress []common.Address) (event.Subscription, error) {
-
-	var tokenAddressRule []interface{}
-	for _, tokenAddressItem := range tokenAddress {
-		tokenAddressRule = append(tokenAddressRule, tokenAddressItem)
-	}
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "RatioNotUpdated", tokenAddressRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractRatioNotUpdated)
-				if err := _Contract.contract.UnpackLog(event, "RatioNotUpdated", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseRatioNotUpdated(log types.Log) (*ContractRatioNotUpdated, error) {
-	event := new(ContractRatioNotUpdated)
-	if err := _Contract.contract.UnpackLog(event, "RatioNotUpdated", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
@@ -1060,12 +697,6 @@ func (_Contract *Contract) ParseLog(log types.Log) (generated.AbigenLog, error) 
 	switch log.Topics[0] {
 	case _Contract.abi.Events["Initialized"].ID:
 		return _Contract.ParseInitialized(log)
-	case _Contract.abi.Events["OperatorAdded"].ID:
-		return _Contract.ParseOperatorAdded(log)
-	case _Contract.abi.Events["OperatorRemoved"].ID:
-		return _Contract.ParseOperatorRemoved(log)
-	case _Contract.abi.Events["RatioNotUpdated"].ID:
-		return _Contract.ParseRatioNotUpdated(log)
 	case _Contract.abi.Events["RatioThresholdChanged"].ID:
 		return _Contract.ParseRatioThresholdChanged(log)
 	case _Contract.abi.Events["RatioUpdated"].ID:
@@ -1078,18 +709,6 @@ func (_Contract *Contract) ParseLog(log types.Log) (generated.AbigenLog, error) 
 
 func (ContractInitialized) Topic() common.Hash {
 	return common.HexToHash("0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498")
-}
-
-func (ContractOperatorAdded) Topic() common.Hash {
-	return common.HexToHash("0xac6fa858e9350a46cec16539926e0fde25b7629f84b5a72bffaae4df888ae86d")
-}
-
-func (ContractOperatorRemoved) Topic() common.Hash {
-	return common.HexToHash("0x80c0b871b97b595b16a7741c1b06fed0c6f6f558639f18ccbce50724325dc40d")
-}
-
-func (ContractRatioNotUpdated) Topic() common.Hash {
-	return common.HexToHash("0x2471a7627ad27128888e46dfc72f5d674c7156d6e99c969a675492a558a0b0e0")
 }
 
 func (ContractRatioThresholdChanged) Topic() common.Hash {
@@ -1107,45 +726,27 @@ func (_Contract *Contract) Address() common.Address {
 type ContractInterface interface {
 	MAXTHRESHOLD(opts *bind.CallOpts) (uint32, error)
 
-	AveragePercentageRate(opts *bind.CallOpts, addr common.Address, day *big.Int) (*big.Int, error)
+	AveragePercentageRate(opts *bind.CallOpts, token common.Address, day uint8) (*big.Int, error)
 
-	GetRatioFor(opts *bind.CallOpts, token common.Address) (*big.Int, error)
-
-	GetRatioThreshold(opts *bind.CallOpts) (*big.Int, error)
+	GetRatio(opts *bind.CallOpts, token common.Address) (*big.Int, error)
 
 	HistoricalRatios(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error)
 
+	RatioThreshold(opts *bind.CallOpts) (*big.Int, error)
+
 	Initialize(opts *bind.TransactOpts, stakingConfig common.Address) (*types.Transaction, error)
 
-	RepairRatioFor(opts *bind.TransactOpts, token common.Address, ratio *big.Int) (*types.Transaction, error)
+	RepairRatio(opts *bind.TransactOpts, token common.Address, newRatio *big.Int) (*types.Transaction, error)
 
 	SetRatioThreshold(opts *bind.TransactOpts, newValue *big.Int) (*types.Transaction, error)
 
-	UpdateRatioBatch(opts *bind.TransactOpts, addresses []common.Address, ratios []*big.Int) (*types.Transaction, error)
+	UpdateRatio(opts *bind.TransactOpts, token common.Address, newRatio *big.Int) (*types.Transaction, error)
 
 	FilterInitialized(opts *bind.FilterOpts) (*ContractInitializedIterator, error)
 
 	WatchInitialized(opts *bind.WatchOpts, sink chan<- *ContractInitialized) (event.Subscription, error)
 
 	ParseInitialized(log types.Log) (*ContractInitialized, error)
-
-	FilterOperatorAdded(opts *bind.FilterOpts) (*ContractOperatorAddedIterator, error)
-
-	WatchOperatorAdded(opts *bind.WatchOpts, sink chan<- *ContractOperatorAdded) (event.Subscription, error)
-
-	ParseOperatorAdded(log types.Log) (*ContractOperatorAdded, error)
-
-	FilterOperatorRemoved(opts *bind.FilterOpts) (*ContractOperatorRemovedIterator, error)
-
-	WatchOperatorRemoved(opts *bind.WatchOpts, sink chan<- *ContractOperatorRemoved) (event.Subscription, error)
-
-	ParseOperatorRemoved(log types.Log) (*ContractOperatorRemoved, error)
-
-	FilterRatioNotUpdated(opts *bind.FilterOpts, tokenAddress []common.Address) (*ContractRatioNotUpdatedIterator, error)
-
-	WatchRatioNotUpdated(opts *bind.WatchOpts, sink chan<- *ContractRatioNotUpdated, tokenAddress []common.Address) (event.Subscription, error)
-
-	ParseRatioNotUpdated(log types.Log) (*ContractRatioNotUpdated, error)
 
 	FilterRatioThresholdChanged(opts *bind.FilterOpts) (*ContractRatioThresholdChangedIterator, error)
 

@@ -1,7 +1,7 @@
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
-package istakingconfig
+package iprotocolconfig
 
 import (
 	"errors"
@@ -31,7 +31,7 @@ var (
 )
 
 var ContractMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[],\"name\":\"OnlyGovernanceAllowed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOperatorAllowed\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractICToken\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractICToken\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"CTokenChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"EigenManagerAddressChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractIEigenPodManager\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractIEigenPodManager\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"EigenManagerChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"GovernanceChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"prevValue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"MinStakeChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"prevValue\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newValue\",\"type\":\"uint256\"}],\"name\":\"MinUnstakeChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"OperatorChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractIRatioFeed\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractIRatioFeed\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"RatioFeedChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractIRestakerDeployer\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractIRestakerDeployer\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"RestakerDeployerChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractIRestakingPool\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractIRestakingPool\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"RestakingPoolChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"TreasuryChanged\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getCToken\",\"outputs\":[{\"internalType\":\"contractICToken\",\"name\":\"token\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCertTokenAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getEigenPodManager\",\"outputs\":[{\"internalType\":\"contractIEigenPodManager\",\"name\":\"manager\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getEigenPodManagerAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getGovernance\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"governance\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMinStake\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMinUnstake\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getOperator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRatioFeed\",\"outputs\":[{\"internalType\":\"contractIRatioFeed\",\"name\":\"feed\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRatioFeedAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRestakerDeployer\",\"outputs\":[{\"internalType\":\"contractIRestakerDeployer\",\"name\":\"deployer\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRestakingPool\",\"outputs\":[{\"internalType\":\"contractIRestakingPool\",\"name\":\"pool\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getStakingPoolAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTreasury\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"treasury\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
+	ABI: "[{\"inputs\":[],\"name\":\"OnlyGovernanceAllowed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OnlyOperatorAllowed\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractICToken\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractICToken\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"CTokenChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractIEigenPodManager\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractIEigenPodManager\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"EigenManagerChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"GovernanceChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"OperatorChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractIRatioFeed\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractIRatioFeed\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"RatioFeedChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractIRestakerDeployer\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractIRestakerDeployer\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"RestakerDeployerChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contractIRestakingPool\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"contractIRestakingPool\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"RestakingPoolChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"prevValue\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"newValue\",\"type\":\"address\"}],\"name\":\"TreasuryChanged\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"getCToken\",\"outputs\":[{\"internalType\":\"contractICToken\",\"name\":\"token\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getEigenPodManager\",\"outputs\":[{\"internalType\":\"contractIEigenPodManager\",\"name\":\"manager\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getGovernance\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"governance\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getOperator\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRatioFeed\",\"outputs\":[{\"internalType\":\"contractIRatioFeed\",\"name\":\"feed\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRestakerDeployer\",\"outputs\":[{\"internalType\":\"contractIRestakerDeployer\",\"name\":\"deployer\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getRestakingPool\",\"outputs\":[{\"internalType\":\"contractIRestakingPool\",\"name\":\"pool\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getTreasury\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"treasury\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]",
 }
 
 var ContractABI = ContractMetaData.ABI
@@ -174,28 +174,6 @@ func (_Contract *ContractCallerSession) GetCToken() (common.Address, error) {
 	return _Contract.Contract.GetCToken(&_Contract.CallOpts)
 }
 
-func (_Contract *ContractCaller) GetCertTokenAddress(opts *bind.CallOpts) (common.Address, error) {
-	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getCertTokenAddress")
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
-
-}
-
-func (_Contract *ContractSession) GetCertTokenAddress() (common.Address, error) {
-	return _Contract.Contract.GetCertTokenAddress(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCallerSession) GetCertTokenAddress() (common.Address, error) {
-	return _Contract.Contract.GetCertTokenAddress(&_Contract.CallOpts)
-}
-
 func (_Contract *ContractCaller) GetEigenPodManager(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _Contract.contract.Call(opts, &out, "getEigenPodManager")
@@ -218,28 +196,6 @@ func (_Contract *ContractCallerSession) GetEigenPodManager() (common.Address, er
 	return _Contract.Contract.GetEigenPodManager(&_Contract.CallOpts)
 }
 
-func (_Contract *ContractCaller) GetEigenPodManagerAddress(opts *bind.CallOpts) (common.Address, error) {
-	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getEigenPodManagerAddress")
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
-
-}
-
-func (_Contract *ContractSession) GetEigenPodManagerAddress() (common.Address, error) {
-	return _Contract.Contract.GetEigenPodManagerAddress(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCallerSession) GetEigenPodManagerAddress() (common.Address, error) {
-	return _Contract.Contract.GetEigenPodManagerAddress(&_Contract.CallOpts)
-}
-
 func (_Contract *ContractCaller) GetGovernance(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _Contract.contract.Call(opts, &out, "getGovernance")
@@ -260,50 +216,6 @@ func (_Contract *ContractSession) GetGovernance() (common.Address, error) {
 
 func (_Contract *ContractCallerSession) GetGovernance() (common.Address, error) {
 	return _Contract.Contract.GetGovernance(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCaller) GetMinStake(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getMinStake")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
-}
-
-func (_Contract *ContractSession) GetMinStake() (*big.Int, error) {
-	return _Contract.Contract.GetMinStake(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCallerSession) GetMinStake() (*big.Int, error) {
-	return _Contract.Contract.GetMinStake(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCaller) GetMinUnstake(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getMinUnstake")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
-}
-
-func (_Contract *ContractSession) GetMinUnstake() (*big.Int, error) {
-	return _Contract.Contract.GetMinUnstake(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCallerSession) GetMinUnstake() (*big.Int, error) {
-	return _Contract.Contract.GetMinUnstake(&_Contract.CallOpts)
 }
 
 func (_Contract *ContractCaller) GetOperator(opts *bind.CallOpts) (common.Address, error) {
@@ -350,28 +262,6 @@ func (_Contract *ContractCallerSession) GetRatioFeed() (common.Address, error) {
 	return _Contract.Contract.GetRatioFeed(&_Contract.CallOpts)
 }
 
-func (_Contract *ContractCaller) GetRatioFeedAddress(opts *bind.CallOpts) (common.Address, error) {
-	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getRatioFeedAddress")
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
-
-}
-
-func (_Contract *ContractSession) GetRatioFeedAddress() (common.Address, error) {
-	return _Contract.Contract.GetRatioFeedAddress(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCallerSession) GetRatioFeedAddress() (common.Address, error) {
-	return _Contract.Contract.GetRatioFeedAddress(&_Contract.CallOpts)
-}
-
 func (_Contract *ContractCaller) GetRestakerDeployer(opts *bind.CallOpts) (common.Address, error) {
 	var out []interface{}
 	err := _Contract.contract.Call(opts, &out, "getRestakerDeployer")
@@ -414,28 +304,6 @@ func (_Contract *ContractSession) GetRestakingPool() (common.Address, error) {
 
 func (_Contract *ContractCallerSession) GetRestakingPool() (common.Address, error) {
 	return _Contract.Contract.GetRestakingPool(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCaller) GetStakingPoolAddress(opts *bind.CallOpts) (common.Address, error) {
-	var out []interface{}
-	err := _Contract.contract.Call(opts, &out, "getStakingPoolAddress")
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
-
-}
-
-func (_Contract *ContractSession) GetStakingPoolAddress() (common.Address, error) {
-	return _Contract.Contract.GetStakingPoolAddress(&_Contract.CallOpts)
-}
-
-func (_Contract *ContractCallerSession) GetStakingPoolAddress() (common.Address, error) {
-	return _Contract.Contract.GetStakingPoolAddress(&_Contract.CallOpts)
 }
 
 func (_Contract *ContractCaller) GetTreasury(opts *bind.CallOpts) (common.Address, error) {
@@ -572,124 +440,6 @@ func (_Contract *ContractFilterer) WatchCTokenChanged(opts *bind.WatchOpts, sink
 func (_Contract *ContractFilterer) ParseCTokenChanged(log types.Log) (*ContractCTokenChanged, error) {
 	event := new(ContractCTokenChanged)
 	if err := _Contract.contract.UnpackLog(event, "CTokenChanged", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-type ContractEigenManagerAddressChangedIterator struct {
-	Event *ContractEigenManagerAddressChanged
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractEigenManagerAddressChangedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractEigenManagerAddressChanged)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractEigenManagerAddressChanged)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractEigenManagerAddressChangedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractEigenManagerAddressChangedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractEigenManagerAddressChanged struct {
-	PrevValue common.Address
-	NewValue  common.Address
-	Raw       types.Log
-}
-
-func (_Contract *ContractFilterer) FilterEigenManagerAddressChanged(opts *bind.FilterOpts) (*ContractEigenManagerAddressChangedIterator, error) {
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "EigenManagerAddressChanged")
-	if err != nil {
-		return nil, err
-	}
-	return &ContractEigenManagerAddressChangedIterator{contract: _Contract.contract, event: "EigenManagerAddressChanged", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchEigenManagerAddressChanged(opts *bind.WatchOpts, sink chan<- *ContractEigenManagerAddressChanged) (event.Subscription, error) {
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "EigenManagerAddressChanged")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractEigenManagerAddressChanged)
-				if err := _Contract.contract.UnpackLog(event, "EigenManagerAddressChanged", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseEigenManagerAddressChanged(log types.Log) (*ContractEigenManagerAddressChanged, error) {
-	event := new(ContractEigenManagerAddressChanged)
-	if err := _Contract.contract.UnpackLog(event, "EigenManagerAddressChanged", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
@@ -926,242 +676,6 @@ func (_Contract *ContractFilterer) WatchGovernanceChanged(opts *bind.WatchOpts, 
 func (_Contract *ContractFilterer) ParseGovernanceChanged(log types.Log) (*ContractGovernanceChanged, error) {
 	event := new(ContractGovernanceChanged)
 	if err := _Contract.contract.UnpackLog(event, "GovernanceChanged", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-type ContractMinStakeChangedIterator struct {
-	Event *ContractMinStakeChanged
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractMinStakeChangedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractMinStakeChanged)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractMinStakeChanged)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractMinStakeChangedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractMinStakeChangedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractMinStakeChanged struct {
-	PrevValue *big.Int
-	NewValue  *big.Int
-	Raw       types.Log
-}
-
-func (_Contract *ContractFilterer) FilterMinStakeChanged(opts *bind.FilterOpts) (*ContractMinStakeChangedIterator, error) {
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "MinStakeChanged")
-	if err != nil {
-		return nil, err
-	}
-	return &ContractMinStakeChangedIterator{contract: _Contract.contract, event: "MinStakeChanged", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchMinStakeChanged(opts *bind.WatchOpts, sink chan<- *ContractMinStakeChanged) (event.Subscription, error) {
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "MinStakeChanged")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractMinStakeChanged)
-				if err := _Contract.contract.UnpackLog(event, "MinStakeChanged", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseMinStakeChanged(log types.Log) (*ContractMinStakeChanged, error) {
-	event := new(ContractMinStakeChanged)
-	if err := _Contract.contract.UnpackLog(event, "MinStakeChanged", log); err != nil {
-		return nil, err
-	}
-	event.Raw = log
-	return event, nil
-}
-
-type ContractMinUnstakeChangedIterator struct {
-	Event *ContractMinUnstakeChanged
-
-	contract *bind.BoundContract
-	event    string
-
-	logs chan types.Log
-	sub  ethereum.Subscription
-	done bool
-	fail error
-}
-
-func (it *ContractMinUnstakeChangedIterator) Next() bool {
-
-	if it.fail != nil {
-		return false
-	}
-
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ContractMinUnstakeChanged)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-
-	select {
-	case log := <-it.logs:
-		it.Event = new(ContractMinUnstakeChanged)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-func (it *ContractMinUnstakeChangedIterator) Error() error {
-	return it.fail
-}
-
-func (it *ContractMinUnstakeChangedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-type ContractMinUnstakeChanged struct {
-	PrevValue *big.Int
-	NewValue  *big.Int
-	Raw       types.Log
-}
-
-func (_Contract *ContractFilterer) FilterMinUnstakeChanged(opts *bind.FilterOpts) (*ContractMinUnstakeChangedIterator, error) {
-
-	logs, sub, err := _Contract.contract.FilterLogs(opts, "MinUnstakeChanged")
-	if err != nil {
-		return nil, err
-	}
-	return &ContractMinUnstakeChangedIterator{contract: _Contract.contract, event: "MinUnstakeChanged", logs: logs, sub: sub}, nil
-}
-
-func (_Contract *ContractFilterer) WatchMinUnstakeChanged(opts *bind.WatchOpts, sink chan<- *ContractMinUnstakeChanged) (event.Subscription, error) {
-
-	logs, sub, err := _Contract.contract.WatchLogs(opts, "MinUnstakeChanged")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-
-				event := new(ContractMinUnstakeChanged)
-				if err := _Contract.contract.UnpackLog(event, "MinUnstakeChanged", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-func (_Contract *ContractFilterer) ParseMinUnstakeChanged(log types.Log) (*ContractMinUnstakeChanged, error) {
-	event := new(ContractMinUnstakeChanged)
-	if err := _Contract.contract.UnpackLog(event, "MinUnstakeChanged", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log
@@ -1762,16 +1276,10 @@ func (_Contract *Contract) ParseLog(log types.Log) (generated.AbigenLog, error) 
 	switch log.Topics[0] {
 	case _Contract.abi.Events["CTokenChanged"].ID:
 		return _Contract.ParseCTokenChanged(log)
-	case _Contract.abi.Events["EigenManagerAddressChanged"].ID:
-		return _Contract.ParseEigenManagerAddressChanged(log)
 	case _Contract.abi.Events["EigenManagerChanged"].ID:
 		return _Contract.ParseEigenManagerChanged(log)
 	case _Contract.abi.Events["GovernanceChanged"].ID:
 		return _Contract.ParseGovernanceChanged(log)
-	case _Contract.abi.Events["MinStakeChanged"].ID:
-		return _Contract.ParseMinStakeChanged(log)
-	case _Contract.abi.Events["MinUnstakeChanged"].ID:
-		return _Contract.ParseMinUnstakeChanged(log)
 	case _Contract.abi.Events["OperatorChanged"].ID:
 		return _Contract.ParseOperatorChanged(log)
 	case _Contract.abi.Events["RatioFeedChanged"].ID:
@@ -1792,24 +1300,12 @@ func (ContractCTokenChanged) Topic() common.Hash {
 	return common.HexToHash("0x604ae4b80bb1d3cb1b6f8fd99500a3203337ec3cdd83cb343ee91f8960f634df")
 }
 
-func (ContractEigenManagerAddressChanged) Topic() common.Hash {
-	return common.HexToHash("0x68d0770ff8eaea943d0b2f2020510cc23bbedaefd94add71cda3b4a4054b11c3")
-}
-
 func (ContractEigenManagerChanged) Topic() common.Hash {
 	return common.HexToHash("0xdce0fb87deaee9a5681d737cdbc7ba6fc10d8fac2e72e52589fff9dbbae06abb")
 }
 
 func (ContractGovernanceChanged) Topic() common.Hash {
 	return common.HexToHash("0x3aaaebeb4821d6a7e5c77ece53cff0afcc56c82add2c978dbbb7f73e84cbcfd2")
-}
-
-func (ContractMinStakeChanged) Topic() common.Hash {
-	return common.HexToHash("0xca11c8a4c461b60c9f485404c272650c2aaae260b2067d72e9924abb68556593")
-}
-
-func (ContractMinUnstakeChanged) Topic() common.Hash {
-	return common.HexToHash("0x984016d328adef81f3cc09f8ea9e3420f85d390635be94215c432e83837aa0a2")
 }
 
 func (ContractOperatorChanged) Topic() common.Hash {
@@ -1839,29 +1335,17 @@ func (_Contract *Contract) Address() common.Address {
 type ContractInterface interface {
 	GetCToken(opts *bind.CallOpts) (common.Address, error)
 
-	GetCertTokenAddress(opts *bind.CallOpts) (common.Address, error)
-
 	GetEigenPodManager(opts *bind.CallOpts) (common.Address, error)
 
-	GetEigenPodManagerAddress(opts *bind.CallOpts) (common.Address, error)
-
 	GetGovernance(opts *bind.CallOpts) (common.Address, error)
-
-	GetMinStake(opts *bind.CallOpts) (*big.Int, error)
-
-	GetMinUnstake(opts *bind.CallOpts) (*big.Int, error)
 
 	GetOperator(opts *bind.CallOpts) (common.Address, error)
 
 	GetRatioFeed(opts *bind.CallOpts) (common.Address, error)
 
-	GetRatioFeedAddress(opts *bind.CallOpts) (common.Address, error)
-
 	GetRestakerDeployer(opts *bind.CallOpts) (common.Address, error)
 
 	GetRestakingPool(opts *bind.CallOpts) (common.Address, error)
-
-	GetStakingPoolAddress(opts *bind.CallOpts) (common.Address, error)
 
 	GetTreasury(opts *bind.CallOpts) (common.Address, error)
 
@@ -1870,12 +1354,6 @@ type ContractInterface interface {
 	WatchCTokenChanged(opts *bind.WatchOpts, sink chan<- *ContractCTokenChanged) (event.Subscription, error)
 
 	ParseCTokenChanged(log types.Log) (*ContractCTokenChanged, error)
-
-	FilterEigenManagerAddressChanged(opts *bind.FilterOpts) (*ContractEigenManagerAddressChangedIterator, error)
-
-	WatchEigenManagerAddressChanged(opts *bind.WatchOpts, sink chan<- *ContractEigenManagerAddressChanged) (event.Subscription, error)
-
-	ParseEigenManagerAddressChanged(log types.Log) (*ContractEigenManagerAddressChanged, error)
 
 	FilterEigenManagerChanged(opts *bind.FilterOpts) (*ContractEigenManagerChangedIterator, error)
 
@@ -1888,18 +1366,6 @@ type ContractInterface interface {
 	WatchGovernanceChanged(opts *bind.WatchOpts, sink chan<- *ContractGovernanceChanged) (event.Subscription, error)
 
 	ParseGovernanceChanged(log types.Log) (*ContractGovernanceChanged, error)
-
-	FilterMinStakeChanged(opts *bind.FilterOpts) (*ContractMinStakeChangedIterator, error)
-
-	WatchMinStakeChanged(opts *bind.WatchOpts, sink chan<- *ContractMinStakeChanged) (event.Subscription, error)
-
-	ParseMinStakeChanged(log types.Log) (*ContractMinStakeChanged, error)
-
-	FilterMinUnstakeChanged(opts *bind.FilterOpts) (*ContractMinUnstakeChangedIterator, error)
-
-	WatchMinUnstakeChanged(opts *bind.WatchOpts, sink chan<- *ContractMinUnstakeChanged) (event.Subscription, error)
-
-	ParseMinUnstakeChanged(log types.Log) (*ContractMinUnstakeChanged, error)
 
 	FilterOperatorChanged(opts *bind.FilterOpts) (*ContractOperatorChangedIterator, error)
 
