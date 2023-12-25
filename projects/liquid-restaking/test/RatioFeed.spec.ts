@@ -155,7 +155,7 @@ describe('RatioFeed', function () {
                     .updateRatio(token1.address, newRatio)
             )
                 .to.be.revertedWithCustomError(ratioFeed, 'RatioNotUpdated')
-                .withArgs('ratio was updated less than 12 hours ago');
+                .withArgs(1n);
             expect(await ratioFeed.getRatio(token1.address)).to.be.eq(
                 ratioBefore
             );
@@ -171,7 +171,7 @@ describe('RatioFeed', function () {
                     .updateRatio(token1.address, newRatio)
             )
                 .to.be.revertedWithCustomError(ratioFeed, 'RatioNotUpdated')
-                .withArgs('new ratio cannot be greater than old');
+                .withArgs(2n);
         });
 
         it('Reverts: when current - new ratio > threshold', async function () {
@@ -186,7 +186,7 @@ describe('RatioFeed', function () {
                     .updateRatio(token1.address, newRatio)
             )
                 .to.be.revertedWithCustomError(ratioFeed, 'RatioNotUpdated')
-                .withArgs('new ratio too low, not in threshold range');
+                .withArgs(3n);
             expect(await ratioFeed.getRatio(token1.address)).to.be.eq(
                 ratioBefore
             );
@@ -240,7 +240,7 @@ describe('RatioFeed', function () {
         it('Reverts: when new ratio = 0', async function () {
             await expect(ratioFeed.repairRatio(token1.address, '0'))
                 .to.be.revertedWithCustomError(ratioFeed, 'RatioNotUpdated')
-                .withArgs('not in range');
+                .withArgs(3n);
         });
 
         it('Reverts: only governance can', async function () {

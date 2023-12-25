@@ -64,21 +64,13 @@ contract RatioFeed is Configurable, IRatioFeed {
         address token,
         uint256 newRatio
     ) public override onlyOperator {
-        if (ratioThreshold == 0) {
-            revert RatioThresholdNotSet();
-        }
-
         uint256 lastUpdate = _ratioUpdates[token];
         uint256 oldRatio = _ratios[token];
 
-        (bool valid, string memory reason) = _checkRatioRules(
-            lastUpdate,
-            newRatio,
-            oldRatio
-        );
+        RatioError err = _checkRatioRules(lastUpdate, newRatio, oldRatio);
 
-        if (!valid) {
-            revert RatioNotUpdated(reason);
+        if (err != RatioError.NoError) {
+            revert RatioNotUpdated(err);
         }
 
         _ratios[token] = newRatio;
@@ -101,26 +93,28 @@ contract RatioFeed is Configurable, IRatioFeed {
         uint256 lastUpdated,
         uint256 newRatio,
         uint256 oldRatio
-    ) internal view returns (bool valid, string memory reason) {
+    ) internal view returns (RatioError) {
         if (oldRatio == 0) {
-            return (valid = true, reason);
+            if (newRatio > INITIAL_RATIO) {
+                return RatioError.GreaterThanInitial;
+            }
+            return RatioError.NoError;
         }
 
         if (block.timestamp - lastUpdated < 12 hours) {
-            return (valid, reason = "ratio was updated less than 12 hours ago");
-        }
-        if (newRatio > oldRatio) {
-            return (valid, reason = "new ratio cannot be greater than old");
-        }
-        uint256 threshold = (oldRatio * ratioThreshold) / MAX_THRESHOLD;
-        if (newRatio < oldRatio - threshold) {
-            return (
-                valid,
-                reason = "new ratio too low, not in threshold range"
-            );
+            return RatioError.TooOften;
         }
 
-        return (valid = true, reason);
+        if (newRatio > oldRatio) {
+            return RatioError.GreaterThanPrevious;
+        }
+
+        uint256 threshold = (oldRatio * ratioThreshold) / MAX_THRESHOLD;
+        if (newRatio < oldRatio - threshold) {
+            return RatioError.NotInThreshold;
+        }
+
+        return RatioError.NoError;
     }
 
     /**
@@ -133,7 +127,7 @@ contract RatioFeed is Configurable, IRatioFeed {
         uint256 newRatio
     ) public onlyGovernance {
         if (newRatio > INITIAL_RATIO || newRatio == 0) {
-            revert RatioNotUpdated("not in range");
+            revert RatioNotUpdated(RatioError.NotInThreshold);
         }
         emit RatioUpdated(token, _ratios[token], newRatio);
         _ratios[token] = newRatio;
