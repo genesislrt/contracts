@@ -45,7 +45,7 @@ contract ProtocolConfig is Initializable, ContextUpgradeable, IProtocolConfig {
 
     modifier onlyGovernance() virtual {
         if (_msgSender() != getGovernance()) {
-            revert OnlyGovernancAllowed();
+            revert OnlyGovernanceAllowed();
         }
         _;
     }
