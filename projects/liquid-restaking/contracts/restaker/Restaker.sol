@@ -16,6 +16,7 @@ import "./IRestakerFacets.sol";
  */
 contract Restaker is OwnableUpgradeable, IRestaker {
     IRestakerFacets internal _facets;
+    address internal _signer;
 
     /*******************************************************************************
                         CONSTRUCTOR
@@ -46,7 +47,7 @@ contract Restaker is OwnableUpgradeable, IRestaker {
      * @notice Claim ETH to owner.
      * @dev __ at begining used to not override selectors accidentally.
      */
-    function __claim() external {
+    function __claim() external override {
         uint256 amount = address(this).balance;
         address recipient = owner();
         if (amount > 0) {

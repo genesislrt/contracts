@@ -7,6 +7,7 @@ import "./Configurable.sol";
 import "./interfaces/IEigenPod.sol";
 import "./restaker/IRestaker.sol";
 import "./restaker/IRestakerDeployer.sol";
+import "./interfaces/ISignatureUtils.sol";
 
 /**
  * @title General contract where stakes and unstakes of genETH happens.
@@ -336,6 +337,7 @@ contract RestakingPool is
     *******************************************************************************/
 
     /**
+     * 
      * @dev will be called only once for each restaker, because it activates restaking.
      */
     function activateRestaking(string memory provider) external onlyOperator {
@@ -381,7 +383,7 @@ contract RestakingPool is
     function withdrawNonBeaconChainETHBalanceWei(
         string memory provider,
         uint256 amountToWithdraw
-    ) external {
+    ) external onlyOperator {
         IEigenPod restaker = IEigenPod(_getRestakerOrRevert(provider));
         restaker.withdrawNonBeaconChainETHBalanceWei(
             address(this),
@@ -393,12 +395,26 @@ contract RestakingPool is
         string memory provider,
         IERC20[] memory tokenList,
         uint256[] memory amountsToWithdraw
-    ) external {
+    ) external onlyOperator {
         IEigenPod restaker = IEigenPod(_getRestakerOrRevert(provider));
         restaker.recoverTokens(
             tokenList,
             amountsToWithdraw,
             config().getOperator()
+        );
+    }
+
+    function delegateTo(
+        string memory provider,
+        address elOperator,
+        SignatureWithExpiry memory approverSignatureAndExpiry,
+        bytes32 approverSalt
+    ) external onlyOperator {
+        IDelegationManager restaker = IDelegationManager(_getRestakerOrRevert(provider));
+        restaker.delegateTo(
+            elOperator,
+            approverSignatureAndExpiry,
+            approverSalt
         );
     }
 
