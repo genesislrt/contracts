@@ -177,7 +177,7 @@ contract RestakingPool is
      * @param to Address for receiving unstaked funds
      * @param shares Amount of cToken to unstake
      */
-    function unstake(address to, uint256 shares) external {
+    function unstake(address to, uint256 shares) external nonReentrant {
         if (shares < getMinUnstake()) {
             revert PoolUnstakeAmLessThanMin();
         }
@@ -216,15 +216,16 @@ contract RestakingPool is
      */
     function distributeUnstakes() external nonReentrant {
         uint256 poolBalance = getPending();
+        uint256 unstakesLength = _pendingUnstakes.length;
 
         Unstake[] memory unstakes = new Unstake[](
-            _pendingUnstakes.length - _pendingGap
+            unstakesLength - _pendingGap
         );
         uint256 j = 0;
         uint256 i = _pendingGap;
 
         while (
-            i < _pendingUnstakes.length &&
+            i < unstakesLength &&
             poolBalance > 0 &&
             gasleft() > _distributeGasLimit
         ) {
