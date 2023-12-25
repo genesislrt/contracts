@@ -67,6 +67,8 @@ interface IRestakingPool {
         uint256 value
     );
 
+    event FeeClaimed(address indexed treasury, uint256 amount);
+
     /* functions */
 
     function getMinStake() external view returns (uint256);

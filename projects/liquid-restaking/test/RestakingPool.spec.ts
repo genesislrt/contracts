@@ -580,7 +580,7 @@ describe('RestakingPool', function () {
         });
 
         it('do not pay gas for recipient', async () => {
-            await expect(pool.distributeUnstakes())
+            await expect(pool.connect(operator).distributeUnstakes('0'))
                 .to.emit(pool, 'UnstakesDistributed')
                 .withArgs([])
                 .and.emit(pool, 'ClaimExpected')
@@ -605,7 +605,7 @@ describe('RestakingPool', function () {
             let res = [];
             res[0] = signer1.address;
             res[1] = _1E18.toString();
-            await expect(pool.distributeUnstakes())
+            await expect(pool.connect(operator).distributeUnstakes('0'))
                 .to.emit(pool, 'UnstakesDistributed')
                 .withArgs(([r]: any) => {
                     return r[0] == signer1.address && r[1] === _1E18;

@@ -210,11 +210,21 @@ contract RestakingPool is
     }
 
     /**
-     * @notice Pay waiting unstakes from {getPending} balance.
+     * @notice Pay waiting unstakes and protocol fee from {getPending} balance.
      * @dev Callable by operator once per 1-3 days if {getPending} enough to pay at least one unstake.
+     * @param fee Fee from collected rewards.
      */
-    function distributeUnstakes() external nonReentrant {
+    function distributeUnstakes(uint256 fee) external onlyOperator nonReentrant {
         uint256 poolBalance = getPending();
+
+        if (poolBalance >= fee) {
+            // send committed by operator fee (deducted from ratio) to multi-sig treasury
+            poolBalance -= fee;
+            address treasury = config().getTreasury();
+            _sendValue(treasury, fee, false);
+            emit FeeClaimed(treasury, fee);
+        }
+
         uint256 unstakesLength = _pendingUnstakes.length;
 
         Unstake[] memory unstakes = new Unstake[](unstakesLength - _pendingGap);
