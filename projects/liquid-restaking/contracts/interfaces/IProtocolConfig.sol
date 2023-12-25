@@ -9,7 +9,7 @@ import "../restaker/IRestakerDeployer.sol";
 
 interface IProtocolConfig {
     /* errors */
-    
+
     error OnlyGovernanceAllowed();
     error ZeroAddress();
 

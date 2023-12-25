@@ -33,7 +33,7 @@ contract RestakingPool is
 
     /**
      * @dev staked ETH to protocol.
-     */ 
+     */
     uint256 internal _totalStaked;
     /**
      * @dev unstaked ETH from protocol
@@ -105,7 +105,7 @@ contract RestakingPool is
     /**
      *
      * @dev need to open incoming transfers to receive ETH from EigenPods
-     */ 
+     */
     receive() external payable {
         emit Received(_msgSender(), msg.value);
     }
@@ -154,7 +154,9 @@ contract RestakingPool is
             revert PoolInsufficientBalance();
         }
 
-        IEigenPodManager restaker = IEigenPodManager(_getRestakerOrRevert(provider));
+        IEigenPodManager restaker = IEigenPodManager(
+            _getRestakerOrRevert(provider)
+        );
 
         for (uint i; i < pubkeysLen; i++) {
             restaker.stake{value: 32 ether}(
@@ -215,9 +217,7 @@ contract RestakingPool is
         uint256 poolBalance = getPending();
         uint256 unstakesLength = _pendingUnstakes.length;
 
-        Unstake[] memory unstakes = new Unstake[](
-            unstakesLength - _pendingGap
-        );
+        Unstake[] memory unstakes = new Unstake[](unstakesLength - _pendingGap);
         uint256 j = 0;
         uint256 i = _pendingGap;
 
@@ -333,7 +333,7 @@ contract RestakingPool is
     *******************************************************************************/
 
     /**
-     * 
+     *
      * @dev will be called only once for each restaker, because it activates restaking.
      */
     function activateRestaking(string memory provider) external onlyOperator {
@@ -403,10 +403,12 @@ contract RestakingPool is
     function delegateTo(
         string memory provider,
         address elOperator,
-        SignatureWithExpiry memory approverSignatureAndExpiry,
+        ISignatureUtils.SignatureWithExpiry memory approverSignatureAndExpiry,
         bytes32 approverSalt
     ) external onlyOperator {
-        IDelegationManager restaker = IDelegationManager(_getRestakerOrRevert(provider));
+        IDelegationManager restaker = IDelegationManager(
+            _getRestakerOrRevert(provider)
+        );
         restaker.delegateTo(
             elOperator,
             approverSignatureAndExpiry,

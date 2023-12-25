@@ -31,11 +31,7 @@ contract RestakerDeployer is IRestakerDeployer {
     function deployRestaker() external override returns (IRestaker restaker) {
         address creator = msg.sender;
         restaker = IRestaker(
-            Create2.deploy(
-                0,
-                bytes32(nonce),
-                _getPreparedBytecode()
-            )
+            Create2.deploy(0, bytes32(nonce), _getPreparedBytecode())
         );
         restaker.initialize(creator, facets);
         emit RestakerDeployed(creator, restaker, nonce++);
@@ -50,16 +46,11 @@ contract RestakerDeployer is IRestakerDeployer {
         return
             Create2.computeAddress(
                 bytes32(id),
-                keccak256(
-                    _getPreparedBytecode()
-                )
+                keccak256(_getPreparedBytecode())
             );
     }
 
     function _getPreparedBytecode() internal view returns (bytes memory) {
-        return abi.encodePacked(
-                        BEACON_PROXY_BYTECODE,
-                        abi.encode(beacon, "")
-                    );
+        return abi.encodePacked(BEACON_PROXY_BYTECODE, abi.encode(beacon, ""));
     }
 }

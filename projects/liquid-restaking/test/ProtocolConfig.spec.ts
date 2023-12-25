@@ -48,7 +48,7 @@ describe('ProtocolConfig', function () {
         it('setOperator(): only governance can', async function () {
             await expect(
                 config.connect(signer1).setOperator(signer2.address)
-            ).to.be.revertedWithCustomError(config, 'OnlyGovernancAllowed');
+            ).to.be.revertedWithCustomError(config, 'OnlyGovernanceAllowed');
         });
 
         it('setOperator(): reverts: when change to zero address', async function () {
@@ -70,7 +70,7 @@ describe('ProtocolConfig', function () {
         it('setGovernance(): only governance can', async function () {
             await expect(
                 config.connect(signer1).setGovernance(signer1.address)
-            ).to.be.revertedWithCustomError(config, 'OnlyGovernancAllowed');
+            ).to.be.revertedWithCustomError(config, 'OnlyGovernanceAllowed');
         });
 
         it('setGovernance(): reverts: when change to zero address', async function () {
@@ -100,7 +100,7 @@ describe('ProtocolConfig', function () {
         it('setRatioFeed(): only governance can', async function () {
             await expect(
                 config.connect(signer1).setRatioFeed(signer2.address)
-            ).to.be.revertedWithCustomError(config, 'OnlyGovernancAllowed');
+            ).to.be.revertedWithCustomError(config, 'OnlyGovernanceAllowed');
         });
 
         it('setRatioFeed(): reverts: when change to zero address', async function () {
@@ -130,7 +130,7 @@ describe('ProtocolConfig', function () {
         it('setTreasury(): only governance can', async function () {
             await expect(
                 config.connect(signer1).setTreasury(signer1.address)
-            ).to.be.revertedWithCustomError(config, 'OnlyGovernancAllowed');
+            ).to.be.revertedWithCustomError(config, 'OnlyGovernanceAllowed');
         });
 
         it('setTreasury(): reverts: when change to zero address', async function () {
@@ -162,7 +162,7 @@ describe('ProtocolConfig', function () {
         it('setRestakingPool(): only governance can', async function () {
             await expect(
                 config.connect(signer1).setRestakingPool(signer2.address)
-            ).to.be.revertedWithCustomError(config, 'OnlyGovernancAllowed');
+            ).to.be.revertedWithCustomError(config, 'OnlyGovernanceAllowed');
         });
 
         it('setRestakingPool(): reverts: when change to zero address', async function () {
@@ -192,7 +192,7 @@ describe('ProtocolConfig', function () {
         it('setCToken(): only governance can', async function () {
             await expect(
                 config.connect(signer1).setCToken(signer2.address)
-            ).to.be.revertedWithCustomError(config, 'OnlyGovernancAllowed');
+            ).to.be.revertedWithCustomError(config, 'OnlyGovernanceAllowed');
         });
 
         it('setCToken(): reverts: when change to zero address', async function () {
