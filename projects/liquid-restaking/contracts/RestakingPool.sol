@@ -154,7 +154,7 @@ contract RestakingPool is
             revert PoolInsufficientBalance();
         }
 
-        IEigenPodManager restaker = _getRestakerOrRevert(provider);
+        IEigenPodManager restaker = IEigenPodManager(_getRestakerOrRevert(provider));
 
         for (uint i; i < pubkeysLen; i++) {
             restaker.stake{value: 32 ether}(
