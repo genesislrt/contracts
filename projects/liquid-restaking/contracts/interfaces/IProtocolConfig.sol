@@ -8,6 +8,11 @@ import "./IEigenPodManager.sol";
 import "../restaker/IRestakerDeployer.sol";
 
 interface IProtocolConfig {
+    /* errors */
+    
+    error OnlyGovernancAllowed();
+    error ZeroAddress();
+
     /* events */
     event OperatorChanged(address prevValue, address newValue);
     event GovernanceChanged(address prevValue, address newValue);
@@ -40,11 +45,6 @@ interface IProtocolConfig {
     function getRatioFeed() external view returns (IRatioFeed feed);
 
     function getRestakingPool() external view returns (IRestakingPool pool);
-
-    function getEigenPodManager()
-        external
-        view
-        returns (IEigenPodManager manager);
 
     function getRestakerDeployer()
         external

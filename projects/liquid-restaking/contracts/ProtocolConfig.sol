@@ -6,7 +6,6 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts/utils/StorageSlot.sol";
 
 import "./interfaces/IProtocolConfig.sol";
-import "./interfaces/IEigenPodManager.sol";
 import "./restaker/IRestakerDeployer.sol";
 
 /**
@@ -15,9 +14,6 @@ import "./restaker/IRestakerDeployer.sol";
  */
 contract ProtocolConfig is Initializable, ContextUpgradeable, IProtocolConfig {
     using StorageSlot for bytes32;
-
-    error OnlyGovernancAllowed();
-    error ZeroAddress();
 
     bytes32 internal constant _GOVERNANCE_SLOT =
         keccak256(
@@ -42,10 +38,6 @@ contract ProtocolConfig is Initializable, ContextUpgradeable, IProtocolConfig {
     bytes32 internal constant _CTOKEN_SLOT =
         keccak256(abi.encode(uint256(keccak256("genesis.config.cToken")) - 1)) &
             ~bytes32(uint256(0xff));
-    bytes32 internal constant _EIGEN_POD_MANAGER_SLOT =
-        keccak256(
-            abi.encode(uint256(keccak256("genesis.config.EigenPodManager")) - 1)
-        ) & ~bytes32(uint256(0xff));
     bytes32 internal constant _RESTAKER_DEPLOYER =
         keccak256(
             abi.encode(uint256(keccak256("genesis.config.RestakerDepoyer")) - 1)
@@ -178,15 +170,6 @@ contract ProtocolConfig is Initializable, ContextUpgradeable, IProtocolConfig {
 
     function getRatioFeed() public view override returns (IRatioFeed) {
         return IRatioFeed(_RATIO_FEED_SLOT.getAddressSlot().value);
-    }
-
-    function getEigenPodManager()
-        external
-        view
-        override
-        returns (IEigenPodManager)
-    {
-        return IEigenPodManager(_EIGEN_POD_MANAGER_SLOT.getAddressSlot().value);
     }
 
     function getCToken() public view override returns (ICToken) {
