@@ -154,13 +154,10 @@ contract RestakingPool is
             revert PoolInsufficientBalance();
         }
 
-        address restaker = _restakers[_getProviderHash(provider)];
-        if (restaker == address(0)) {
-            revert PoolRestakerNotExists();
-        }
+        IEigenPodManager restaker = _getRestakerOrRevert(provider);
 
         for (uint i; i < pubkeysLen; i++) {
-            IEigenPodManager(restaker).stake{value: 32 ether}(
+            restaker.stake{value: 32 ether}(
                 pubkeys[i],
                 signatures[i],
                 deposit_data_roots[i]
