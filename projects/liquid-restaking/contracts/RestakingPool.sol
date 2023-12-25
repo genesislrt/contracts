@@ -573,4 +573,14 @@ contract RestakingPool is
         emit DistributeGasLimitChanged(_distributeGasLimit, newValue);
         _distributeGasLimit = newValue;
     }
+
+    function setMinStake(uint256 newValue) external onlyGovernance {
+        emit MinStakeChanged(_minStakeAmount, newValue);
+        _minStakeAmount = newValue;
+    }
+
+    function setMinUnstake(uint256 newValue) external onlyGovernance {
+        emit MinUntakeChanged(_minUnstakeAmount, newValue);
+        _minUnstakeAmount = newValue;
+    }
 }

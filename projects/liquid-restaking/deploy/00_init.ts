@@ -49,6 +49,20 @@ const func: DeployFunction = async function ({
     };
 
     await execute(
+        'RestakingPool',
+        executeCfg,
+        'setMinStake',
+        '100' // wei
+    );
+
+    await execute(
+        'RestakingPool',
+        executeCfg,
+        'setMinUnstake',
+        '500000000000000000' // 0.5 Ether
+    );
+
+    await execute(
         'ProtocolConfig',
         executeCfg,
         'setRatioFeed',

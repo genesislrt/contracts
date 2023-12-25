@@ -46,6 +46,10 @@ interface IRestakingPool {
 
     event DistributeGasLimitChanged(uint32 prevValue, uint32 newValue);
 
+    event MinStakeChanged(uint256 prevValue, uint256 newValue);
+
+    event MinUntakeChanged(uint256 prevValue, uint256 newValue);
+
     event PendingUnstake(
         address indexed ownerAddress,
         address indexed receiverAddress,
