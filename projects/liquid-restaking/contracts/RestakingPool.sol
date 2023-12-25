@@ -6,7 +6,6 @@ import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol
 import "./Configurable.sol";
 import "./interfaces/IEigenPod.sol";
 import "./restaker/IRestaker.sol";
-import "./restaker/IRestakerDeployer.sol";
 import "./interfaces/ISignatureUtils.sol";
 
 /**
