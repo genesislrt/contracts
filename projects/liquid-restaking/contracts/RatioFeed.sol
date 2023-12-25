@@ -143,7 +143,7 @@ contract RatioFeed is Configurable, IRatioFeed {
     }
 
     function _setRatioThreshold(uint256 value) internal {
-        if (value >= MAX_THRESHOLD || value == 0) {
+        if (value > MAX_THRESHOLD || value == 0) {
             revert RatioThresholdNotInRange();
         }
         emit RatioThresholdChanged(ratioThreshold, value);

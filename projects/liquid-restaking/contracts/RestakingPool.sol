@@ -581,7 +581,7 @@ contract RestakingPool is
     }
 
     function _setDistributeGasLimit(uint32 newValue) internal {
-        if (newValue >= MAX_GAS_LIMIT || newValue == 0) {
+        if (newValue > MAX_GAS_LIMIT || newValue == 0) {
             revert PoolDistributeGasLimitNotInRange(MAX_GAS_LIMIT);
         }
         emit DistributeGasLimitChanged(_distributeGasLimit, newValue);

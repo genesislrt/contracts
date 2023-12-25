@@ -68,9 +68,11 @@ describe('RatioFeed', function () {
             ).to.be.revertedWithCustomError(ratioFeed, 'OnlyGovernanceAllowed');
         });
 
-        it('Reverts: when threshold >= MAX_THRESHOLD', async function () {
+        it('Reverts: when threshold > MAX_THRESHOLD', async function () {
             await expect(
-                ratioFeed.setRatioThreshold(await ratioFeed.MAX_THRESHOLD())
+                ratioFeed.setRatioThreshold(
+                    (await ratioFeed.MAX_THRESHOLD()) + 1n
+                )
             ).to.be.revertedWithCustomError(
                 ratioFeed,
                 'RatioThresholdNotInRange'
