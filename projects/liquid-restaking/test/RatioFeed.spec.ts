@@ -268,7 +268,7 @@ describe('RatioFeed', function () {
                 const ratioBefore = await ratioFeed.getRatio(token1.address);
                 // const newRatio = ratioBefore.sub(randomBNbyMax(toBN(1000000)));
                 const newRatio = ratioBefore - 27396509684666n * i;
-                console.log(`${i}. Ratio:\t${ts}\t${ratioBefore}`);
+                console.log(`${i}. Ratio:\t${ts?.timestamp}\t${ratioBefore}`);
                 await ratioFeed
                     .connect(operator)
                     .updateRatio(token1.address, newRatio);

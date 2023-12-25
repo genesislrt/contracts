@@ -1,22 +1,17 @@
-import '@nomicfoundation/hardhat-toolbox'
-import '@openzeppelin/hardhat-upgrades'
-import 'hardhat-deploy'
+import '@nomicfoundation/hardhat-toolbox';
+import '@openzeppelin/hardhat-upgrades';
+import 'hardhat-deploy';
 
 const accounts = process.env.DEPLOYER_PRIVATE_KEY
     ? [process.env.DEPLOYER_PRIVATE_KEY]
-    : ['1495992B2A5CC4DD53E231157BBF401329BD1B7EE355CEAB55A791398921CA17']
+    : ['1495992B2A5CC4DD53E231157BBF401329BD1B7EE355CEAB55A791398921CA17'];
 const gasPrice = process.env.GAS_PRICE
     ? parseInt(process.env.GAS_PRICE)
-    : 'auto'
+    : 'auto';
 
-require('dotenv').config()
+require('dotenv').config();
 
 module.exports = {
-    hardhat: {
-        gas: 8000000,
-        gasPrice,
-        allowUnlimitedContractSize: false,
-    },
     networks: {
         // Ethereum
         mainnet: {
@@ -39,6 +34,11 @@ module.exports = {
             gasPrice: 20000000000,
             gas: 6721975,
         },
+        hardhat: {
+            gas: 8000000,
+            gasPrice,
+            allowUnlimitedContractSize: false,
+        },
     },
     solidity: {
         version: '0.8.20',
@@ -56,4 +56,34 @@ module.exports = {
     gasReporter: {
         enabled: true,
     },
-}
+    namedAccounts: {
+        deployer: {
+            default: 0,
+        },
+        treasury: {
+            goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
+            mainnet: '',
+        },
+        operator: {
+            goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
+            mainnet: '0x078dc682083132b4E86731062FCF95A729Bac067',
+        },
+        governance: {
+            goerli: '0x05e0e5198820fb62cbf7684c4d920b6d7f92ff67',
+            mainnet: '',
+        },
+        eigenPodManager: {
+            goerli: '0xa286b84C96aF280a49Fe1F40B9627C2A2827df41',
+            mainnet: '',
+        },
+        delegationManager: {
+            goerli: '0x1b7b8F6b258f95Cf9596EabB9aa18B62940Eb0a8',
+            mainnet: '',
+        },
+    },
+    verify: {
+        etherscan: {
+            apiKey: process.env.ETHERSCAN_API_KEY,
+        },
+    },
+};

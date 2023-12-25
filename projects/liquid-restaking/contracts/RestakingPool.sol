@@ -583,6 +583,7 @@ contract RestakingPool is
         _restakers[providerHash] = address(
             config().getRestakerDeployer().deployRestaker()
         );
+        emit RestakerAdded(provider, restaker);
     }
 
     /**

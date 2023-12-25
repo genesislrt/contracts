@@ -67,7 +67,11 @@ contract RatioFeed is Configurable, IRatioFeed {
         uint256 lastUpdate = _ratioUpdates[token];
         uint256 oldRatio = _ratios[token];
 
-        RatioError err = _checkRatioRules(lastUpdate, newRatio, oldRatio);
+        RatioError err = _checkRatioRules(
+            lastUpdate,
+            newRatio,
+            oldRatio
+        );
 
         if (err != RatioError.NoError) {
             revert RatioNotUpdated(err);
@@ -172,7 +176,7 @@ contract RatioFeed is Configurable, IRatioFeed {
             ((latestOffset - day) % 8) + 1
         ];
         uint256 newestRatio = hisRatio.historicalRatios[
-            ((latestOffset) % 8) + 1
+            (latestOffset % 8) + 1
         ];
 
         if (oldestRatio < newestRatio) {
