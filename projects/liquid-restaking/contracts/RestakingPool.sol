@@ -434,8 +434,8 @@ contract RestakingPool is
             token.convertToAmount(1)
         );
         return
-            _minStakeAmount > minConvertableShare
-                ? _minStakeAmount
+            _minUnstakeAmount > minConvertableShare
+                ? _minUnstakeAmount
                 : minConvertableShare;
     }
 
