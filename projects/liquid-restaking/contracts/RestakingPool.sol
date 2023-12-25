@@ -214,7 +214,9 @@ contract RestakingPool is
      * @dev Callable by operator once per 1-3 days if {getPending} enough to pay at least one unstake.
      * @param fee Fee from collected rewards.
      */
-    function distributeUnstakes(uint256 fee) external onlyOperator nonReentrant {
+    function distributeUnstakes(
+        uint256 fee
+    ) external onlyOperator nonReentrant {
         uint256 poolBalance = getPending();
 
         if (poolBalance >= fee) {
