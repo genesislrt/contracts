@@ -13,6 +13,7 @@ import "./interfaces/IProtocolConfig.sol";
  */
 contract RatioFeed is Configurable, IRatioFeed {
     uint32 public constant MAX_THRESHOLD = uint32(1e8); // 100000000
+    uint256 public constant INITIAL_RATIO = 1e18; // 1.0
 
     mapping(address => uint256) internal _ratios;
     mapping(address => HistoricalRatios) public historicalRatios;
@@ -131,7 +132,7 @@ contract RatioFeed is Configurable, IRatioFeed {
         address token,
         uint256 newRatio
     ) public onlyGovernance {
-        if (newRatio > 1e18 || newRatio == 0) {
+        if (newRatio > INITIAL_RATIO || newRatio == 0) {
             revert RatioNotUpdated("not in range");
         }
         emit RatioUpdated(token, _ratios[token], newRatio);
