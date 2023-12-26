@@ -8,6 +8,7 @@ import "./interfaces/ICToken.sol";
 import "./interfaces/IEigenPodManager.sol";
 import "./interfaces/IStakingConfig.sol";
 import "./interfaces/IStakingPool.sol";
+import "./interfaces/ISignatureUtils.sol";
 
 import "hardhat/console.sol";
 
@@ -348,6 +349,22 @@ contract StakingPool is
             tokenList,
             amountsToWithdraw,
             _stakingConfig.getOperator()
+        );
+    }
+
+    function delegateTo(
+        string memory provider,
+        address elOperator,
+        ISignatureUtils.SignatureWithExpiry memory approverSignatureAndExpiry,
+        bytes32 approverSalt
+    ) external onlyOperator {
+        IDelegationManager restaker = IDelegationManager(
+            _getRestakerOrRevert(provider)
+        );
+        restaker.delegateTo(
+            elOperator,
+            approverSignatureAndExpiry,
+            approverSalt
         );
     }
 
