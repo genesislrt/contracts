@@ -34,8 +34,6 @@ interface IRestakingPool {
 
     event Received(address indexed sender, uint256 amount);
 
-    event RestakerAdded(string indexed provider, address restaker);
-
     event Staked(address indexed staker, uint256 amount, uint256 shares);
 
     event Unstaked(
