@@ -23,25 +23,25 @@ const func: DeployFunction = async function ({
     ]);
 
     const ratioFeed = await ozDeploy(deployments, 'RatioFeed', [
-        await config.getAddress(),
+        config.address,
         '40000',
     ]);
 
     const cToken = await ozDeploy(deployments, 'cToken', [
-        await config.getAddress(),
+        config.address,
         'Genesis ETH',
         'genETH',
     ]);
 
     const restakingPool = await ozDeploy(deployments, 'RestakingPool', [
-        await config.getAddress(),
+        config.address,
         '200000',
         '200000000000000000000', // 200 ETH
     ]);
 
     await ozDeploy(deployments, 'FeeCollector', [
-        await config.getAddress(),
-        '1500',
+        config.address,
+        '1500', // 15%
     ]);
 
     const executeCfg = {
@@ -49,7 +49,7 @@ const func: DeployFunction = async function ({
         log: true,
     };
 
-    await execute(
+    const res = await execute(
         'RestakingPool',
         executeCfg,
         'setMinStake',
@@ -67,22 +67,17 @@ const func: DeployFunction = async function ({
         'ProtocolConfig',
         executeCfg,
         'setRatioFeed',
-        await ratioFeed.getAddress()
+        ratioFeed.address
     );
 
     await execute(
         'ProtocolConfig',
         executeCfg,
         'setRestakingPool',
-        await restakingPool.getAddress()
+        restakingPool.address
     );
 
-    await execute(
-        'ProtocolConfig',
-        executeCfg,
-        'setCToken',
-        await cToken.getAddress()
-    );
+    await execute('ProtocolConfig', executeCfg, 'setCToken', cToken.address);
 
     // deploy restaker sub-protocol
 
@@ -100,7 +95,7 @@ const func: DeployFunction = async function ({
     const restakerDeployer = await deploy('RestakerDeployer', {
         log: true,
         from: deployer,
-        args: [await beacon.getAddress(), await restakerFacets.getAddress()],
+        args: [await beacon.getAddress(), restakerFacets.address],
     });
 
     await execute(

@@ -27,12 +27,14 @@ export async function ozDeploy(
     args: unknown[],
     forceDeploy = false
 ) {
-    // if (!forceDeploy) {
-    //     const existing = await get(contractName);
-    //     if (existing) {
-    //         return existing;
-    //     }
-    // }
+    if (!forceDeploy) {
+        try {
+            const existing = await get(contractName);
+            return existing;
+        } catch (e: any) {
+            console.log(`No deployment found for ${contractName}`);
+        }
+    }
 
     const contractFactory = await ethers.getContractFactory(contractName);
 
@@ -55,5 +57,5 @@ export async function ozDeploy(
         deployedBytecode: (await contract.getDeployedCode()) || undefined,
     });
 
-    return contract;
+    return get(contractName);
 }

@@ -69,8 +69,8 @@ module.exports = {
             mainnet: '0x078dc682083132b4E86731062FCF95A729Bac067',
         },
         governance: {
-            goerli: '0x05e0e5198820fb62cbf7684c4d920b6d7f92ff67',
-            mainnet: '',
+            goerli: 0,
+            mainnet: '0x03D7aaa453D9e7048101d425e73848e16c534DFD',
         },
         elPodManager: {
             goerli: '0xa286b84C96aF280a49Fe1F40B9627C2A2827df41',
