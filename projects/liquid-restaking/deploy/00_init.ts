@@ -36,7 +36,7 @@ const func: DeployFunction = async function ({
     const restakingPool = await ozDeploy(deployments, 'RestakingPool', [
         await config.getAddress(),
         '200000',
-        '200000000000000000000' // 200 ETH
+        '200000000000000000000', // 200 ETH
     ]);
 
     await ozDeploy(deployments, 'FeeCollector', [

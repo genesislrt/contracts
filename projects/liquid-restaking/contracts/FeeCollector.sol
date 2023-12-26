@@ -24,6 +24,12 @@ contract FeeCollector is
                         CONSTRUCTOR
     *******************************************************************************/
 
+    /// @dev https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#initializing_the_implementation_contract
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         IProtocolConfig config,
         uint16 commission_
