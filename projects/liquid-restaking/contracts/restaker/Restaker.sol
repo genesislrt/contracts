@@ -15,6 +15,7 @@ import "./IRestakerFacets.sol";
  */
 contract Restaker is OwnableUpgradeable, IRestaker {
     IRestakerFacets internal _facets;
+    address internal _signer;
 
     /*******************************************************************************
                         CONSTRUCTOR
@@ -30,9 +31,8 @@ contract Restaker is OwnableUpgradeable, IRestaker {
         address owner,
         IRestakerFacets facets
     ) public override initializer {
-        __Ownable_init();
+        __Ownable_init(owner);
         __Restaker_init(facets);
-        transferOwnership(owner);
     }
 
     function __Restaker_init(IRestakerFacets facets) internal onlyInitializing {
@@ -42,7 +42,11 @@ contract Restaker is OwnableUpgradeable, IRestaker {
         facets.getEigenPodManager().createPod();
     }
 
-    function __claim() external {
+    /**
+     * @notice Claim ETH to owner.
+     * @dev __ at begining used to not override selectors accidentally.
+     */
+    function __claim() external override {
         uint256 amount = address(this).balance;
         address recipient = owner();
         if (amount > 0) {
@@ -54,7 +58,10 @@ contract Restaker is OwnableUpgradeable, IRestaker {
         }
     }
 
-    // @dev Mix of OpenZeppelin proxy {_delegate()} method and ERC-2535 with {call} instead of {delegatecall}.
+    /**
+     *
+     * @dev Mix of OpenZeppelin proxy {_delegate()} method and ERC-2535 with {call} instead of {delegatecall}.
+     */
     fallback() external payable virtual onlyOwner {
         address target = _facets.selectorToTarget(msg.sig);
         require(target != address(0));

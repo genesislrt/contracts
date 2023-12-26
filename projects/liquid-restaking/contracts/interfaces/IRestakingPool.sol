@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.7;
 
 interface IRestakingPool {
     /* structs */
@@ -10,9 +10,6 @@ interface IRestakingPool {
     }
 
     /* errors */
-
-    error OnlyGovernanceAllowed();
-    error OnlyOperatorAllowed();
 
     error PoolZeroAmount();
     error PoolZeroAddress();
@@ -30,13 +27,12 @@ interface IRestakingPool {
     error PoolDistributeGasLimitNotSet();
 
     error PoolStakeAmLessThanMin();
+    error PoolStakeAmGreaterThanAvailable();
     error PoolUnstakeAmLessThanMin();
 
     /* events */
 
     event Received(address indexed sender, uint256 amount);
-
-    event RestakerAdded(string indexed provider, address restaker);
 
     event Staked(address indexed staker, uint256 amount, uint256 shares);
 
@@ -51,17 +47,18 @@ interface IRestakingPool {
 
     event DistributeGasLimitChanged(uint32 prevValue, uint32 newValue);
 
+    event MinStakeChanged(uint256 prevValue, uint256 newValue);
+
+    event MinUntakeChanged(uint256 prevValue, uint256 newValue);
+
+    event MaxTVLChanged(uint256 prevValue, uint256 newValue);
+
     event PendingUnstake(
         address indexed ownerAddress,
         address indexed receiverAddress,
         uint256 amount,
         uint256 shares
     );
-
-    /**
-     * @dev Deprecated.
-     */
-    event RewardsDistributed(address[] claimers, uint256[] amounts);
 
     event UnstakesDistributed(Unstake[] unstakes);
 
@@ -72,6 +69,10 @@ interface IRestakingPool {
         address indexed caller,
         uint256 value
     );
+
+    event FeeClaimed(address indexed treasury, uint256 amount);
+
+    event RestakerAdded(string indexed provider, address restaker);
 
     /* functions */
 

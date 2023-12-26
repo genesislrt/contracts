@@ -9,3 +9,12 @@ typechain-types
 artifacts
 cache
 .idea
+
+# Let ignore all deployements except target networks
+.openzeppelin
+deployements
+
+! .openzeppelin/goerli.json
+! deployements/goerli
+! deployements/mainnet
+! deployements/holesky

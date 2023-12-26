@@ -9,8 +9,9 @@ import "./IRestaker.sol";
 import "./IRestakerFacets.sol";
 
 /**
- * @title create2 deployer of beacon proxy
+ * @title create2 deployer of {Restaker}
  * @author GenesisLRT
+ * @notice Not upgradeable contracts makes possible to everyone deploy new instance of Restaker.
  */
 contract RestakerDeployer is IRestakerDeployer {
     bytes public constant BEACON_PROXY_BYTECODE =
@@ -30,11 +31,7 @@ contract RestakerDeployer is IRestakerDeployer {
     function deployRestaker() external override returns (IRestaker restaker) {
         address creator = msg.sender;
         restaker = IRestaker(
-            Create2.deploy(
-                0,
-                bytes32(nonce),
-                abi.encodePacked(BEACON_PROXY_BYTECODE, abi.encode(beacon, ""))
-            )
+            Create2.deploy(0, bytes32(nonce), _getPreparedBytecode())
         );
         restaker.initialize(creator, facets);
         emit RestakerDeployed(creator, restaker, nonce++);
@@ -49,12 +46,11 @@ contract RestakerDeployer is IRestakerDeployer {
         return
             Create2.computeAddress(
                 bytes32(id),
-                keccak256(
-                    abi.encodePacked(
-                        BEACON_PROXY_BYTECODE,
-                        abi.encode(beacon, "")
-                    )
-                )
+                keccak256(_getPreparedBytecode())
             );
+    }
+
+    function _getPreparedBytecode() internal view returns (bytes memory) {
+        return abi.encodePacked(BEACON_PROXY_BYTECODE, abi.encode(beacon, ""));
     }
 }

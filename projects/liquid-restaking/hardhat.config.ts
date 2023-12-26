@@ -11,14 +11,7 @@ const gasPrice = process.env.GAS_PRICE
     ? parseInt(process.env.GAS_PRICE)
     : 'auto';
 
-require('dotenv').config();
-
 module.exports = {
-    hardhat: {
-        gas: 8000000,
-        gasPrice,
-        allowUnlimitedContractSize: false,
-    },
     networks: {
         // Ethereum
         mainnet: {
@@ -40,6 +33,11 @@ module.exports = {
             chainId: 1337,
             gasPrice: 20000000000,
             gas: 6721975,
+        },
+        hardhat: {
+            gas: 8000000,
+            gasPrice,
+            allowUnlimitedContractSize: false,
         },
     },
     solidity: {
@@ -64,28 +62,28 @@ module.exports = {
         },
         treasury: {
             goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
-            mainnet: '',
+            mainnet: '0x00Fd4edEd5BB37d19F98Ab49722Ef51E84745928',
         },
         operator: {
             goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
-            mainnet: '',
+            mainnet: '0x078dc682083132b4E86731062FCF95A729Bac067',
         },
         governance: {
-            goerli: '0x05e0e5198820fb62cbf7684c4d920b6d7f92ff67',
-            mainnet: '',
+            goerli: 0,
+            mainnet: '0x03D7aaa453D9e7048101d425e73848e16c534DFD',
         },
-        eigenPodManager: {
+        elPodManager: {
             goerli: '0xa286b84C96aF280a49Fe1F40B9627C2A2827df41',
-            mainnet: '',
+            mainnet: '0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338',
         },
-        delegationManager: {
+        elDelegationManager: {
             goerli: '0x1b7b8F6b258f95Cf9596EabB9aa18B62940Eb0a8',
-            mainnet: '',
+            mainnet: '0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A',
         },
     },
     verify: {
         etherscan: {
-          apiKey: process.env.ETHERSCAN_API_KEY
-        }
-      }
+            apiKey: process.env.ETHERSCAN_API_KEY,
+        },
+    },
 };

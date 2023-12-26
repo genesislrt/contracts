@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
+import "../Configurable.sol";
 import "../interfaces/IEigenPodManager.sol";
 import "./IRestaker.sol";
 import "./IRestakerFacets.sol";
@@ -33,9 +34,8 @@ contract RestakerFacets is OwnableUpgradeable, IRestakerFacets {
         IEigenPodManager podManager,
         IDelegationManager delegationManager
     ) external initializer {
-        __Ownable_init();
+        __Ownable_init(owner);
         __RestakerFacets_init(podManager, delegationManager);
-        transferOwnership(owner);
     }
 
     function __RestakerFacets_init(
@@ -70,6 +70,10 @@ contract RestakerFacets is OwnableUpgradeable, IRestakerFacets {
         }
     }
 
+    /**
+     *
+     * @notice Define the target of given signature.
+     */
     function selectorToTarget(
         bytes4 sig
     ) external view override returns (address) {
@@ -85,6 +89,10 @@ contract RestakerFacets is OwnableUpgradeable, IRestakerFacets {
         return address(_podManager.getPod(_msgSender()));
     }
 
+    /**
+     *
+     * @notice Set the `target` for `signature`.
+     */
     function _addSignature(
         FuncTarget target,
         string memory signature

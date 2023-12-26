@@ -4,9 +4,6 @@ pragma solidity ^0.8.20;
 interface IFeeCollector {
     /* errors */
 
-    error OnlyGovernanceAllowed();
-    error OnlyOperatorAllowed();
-
     error FeeCollectorTransferFailed(address to);
 
     error CommissionNotInRange();

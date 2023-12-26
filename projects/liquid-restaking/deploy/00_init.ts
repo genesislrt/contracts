@@ -1,137 +1,109 @@
+import { ethers, upgrades } from 'hardhat';
 import { DeployFunction } from 'hardhat-deploy/types';
-
-const { constants } = require('@openzeppelin/test-helpers');
+import { ozDeploy } from '../scripts/deploy-helpers';
 
 const func: DeployFunction = async function ({
     getNamedAccounts,
-    network,
     deployments,
 }) {
     const { deploy, execute } = deployments;
-    const { deployer, operator, governance, treasury, eigenPodManager } =
-        await getNamedAccounts();
+    const {
+        deployer,
+        operator,
+        governance,
+        treasury,
+        elPodManager,
+        elDelegationManager,
+    } = await getNamedAccounts();
 
-    const config = await deploy('StakingConfig', {
+    const config = await ozDeploy(deployments, 'ProtocolConfig', [
+        deployer,
+        operator,
+        treasury,
+    ]);
+
+    const ratioFeed = await ozDeploy(deployments, 'RatioFeed', [
+        config.address,
+        '40000',
+    ]);
+
+    const cToken = await ozDeploy(deployments, 'cToken', [
+        config.address,
+        'Genesis ETH',
+        'genETH',
+    ]);
+
+    const restakingPool = await ozDeploy(deployments, 'RestakingPool', [
+        config.address,
+        '200000',
+        '200000000000000000000', // 200 ETH
+    ]);
+
+    await ozDeploy(deployments, 'FeeCollector', [
+        config.address,
+        '1500', // 15%
+    ]);
+
+    const executeCfg = {
         from: deployer,
         log: true,
-        args: [],
-        skipIfAlreadyDeployed: true,
-        proxy: {
-            upgradeIndex: 0,
-            proxyContract: 'OpenZeppelinTransparentProxy',
-            execute: {
-                methodName: 'initialize',
-                args: [
-                    0,
-                    0,
-                    operator,
-                    governance,
-                    treasury,
-                    constants.ZERO_ADDRESS,
-                    constants.ZERO_ADDRESS,
-                    constants.ZERO_ADDRESS,
-                    eigenPodManager,
-                ],
-            },
-        },
-    });
+    };
 
-    const feed = await deploy('RatioFeed', {
-        from: deployer,
+    const res = await execute(
+        'RestakingPool',
+        executeCfg,
+        'setMinStake',
+        '100' // wei
+    );
+
+    await execute(
+        'RestakingPool',
+        executeCfg,
+        'setMinUnstake',
+        '500000000000000000' // 0.5 Ether
+    );
+
+    await execute(
+        'ProtocolConfig',
+        executeCfg,
+        'setRatioFeed',
+        ratioFeed.address
+    );
+
+    await execute(
+        'ProtocolConfig',
+        executeCfg,
+        'setRestakingPool',
+        restakingPool.address
+    );
+
+    await execute('ProtocolConfig', executeCfg, 'setCToken', cToken.address);
+
+    // deploy restaker sub-protocol
+
+    const restakerFacets = await ozDeploy(deployments, 'RestakerFacets', [
+        governance,
+        elPodManager,
+        elDelegationManager,
+    ]);
+
+    const beacon = await upgrades.deployBeacon(
+        await ethers.getContractFactory('Restaker')
+    );
+    await beacon.waitForDeployment();
+
+    const restakerDeployer = await deploy('RestakerDeployer', {
         log: true,
-        args: [],
-        skipIfAlreadyDeployed: true,
-        proxy: {
-            upgradeIndex: 0,
-            proxyContract: 'OpenZeppelinTransparentProxy',
-            execute: {
-                methodName: 'initialize',
-                args: [config.address],
-            },
-        },
-    });
-
-    const certToken = await deploy('CertificateToken', {
         from: deployer,
-        log: true,
-        args: [],
-        skipIfAlreadyDeployed: true,
-        proxy: {
-            upgradeIndex: 0,
-            proxyContract: 'OpenZeppelinTransparentProxy',
-            execute: {
-                methodName: 'initialize',
-                args: [config.address, 'Genesis ETH', 'genETH'],
-            },
-        },
+        args: [await beacon.getAddress(), restakerFacets.address],
     });
 
-    if (certToken.newlyDeployed) {
-        await execute(
-            'RatioFeed',
-            {
-                from: deployer,
-                log: true,
-            },
-            'setRatioThreshold',
-            1
-        );
-        await execute(
-            'RatioFeed',
-            {
-                from: deployer,
-                log: true,
-            },
-            'updateRatioBatch',
-            [certToken.address],
-            ['1000000000000000000']
-        );
-    }
-
-    const stakingPool = await deploy('StakingPool', {
-        from: deployer,
-        log: true,
-        args: [],
-        skipIfAlreadyDeployed: true,
-        proxy: {
-            upgradeIndex: 0,
-            proxyContract: 'OpenZeppelinTransparentProxy',
-            execute: {
-                methodName: 'initialize',
-                args: [config.address, 0],
-            },
-        },
-    });
-
-    if (config.newlyDeployed) {
-        await execute(
-            'StakingConfig',
-            {
-                from: deployer,
-                log: true,
-            },
-            'setRatioFeedAddress',
-            feed.address
-        );
-        await execute(
-            'StakingConfig',
-            {
-                from: deployer,
-                log: true,
-            },
-            'setStakingPoolAddress',
-            stakingPool.address
-        );
-        await execute(
-            'StakingConfig',
-            {
-                from: deployer,
-                log: true,
-            },
-            'setCertTokenAddress',
-            certToken.address
-        );
-    }
+    await execute(
+        'ProtocolConfig',
+        executeCfg,
+        'setRestakerDeployer',
+        restakerDeployer.address
+    );
 
     return true;
 };
@@ -139,5 +111,5 @@ const func: DeployFunction = async function ({
 module.exports = func;
 module.exports.tags = ['00_init'];
 module.exports.dependencies = [];
-module.exports.skip = async () => (true);
+module.exports.skip = false;
 module.exports.id = '00';
