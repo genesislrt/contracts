@@ -2,14 +2,14 @@ import '@nomicfoundation/hardhat-toolbox';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-deploy';
 
+require('dotenv').config();
+
 const accounts = process.env.DEPLOYER_PRIVATE_KEY
     ? [process.env.DEPLOYER_PRIVATE_KEY]
     : ['1495992B2A5CC4DD53E231157BBF401329BD1B7EE355CEAB55A791398921CA17'];
 const gasPrice = process.env.GAS_PRICE
     ? parseInt(process.env.GAS_PRICE)
     : 'auto';
-
-require('dotenv').config();
 
 module.exports = {
     networks: {
@@ -62,7 +62,7 @@ module.exports = {
         },
         treasury: {
             goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
-            mainnet: '',
+            mainnet: '0x00Fd4edEd5BB37d19F98Ab49722Ef51E84745928',
         },
         operator: {
             goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
@@ -72,13 +72,13 @@ module.exports = {
             goerli: '0x05e0e5198820fb62cbf7684c4d920b6d7f92ff67',
             mainnet: '',
         },
-        eigenPodManager: {
+        elPodManager: {
             goerli: '0xa286b84C96aF280a49Fe1F40B9627C2A2827df41',
-            mainnet: '',
+            mainnet: '0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338',
         },
-        delegationManager: {
+        elDelegationManager: {
             goerli: '0x1b7b8F6b258f95Cf9596EabB9aa18B62940Eb0a8',
-            mainnet: '',
+            mainnet: '0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A',
         },
     },
     verify: {

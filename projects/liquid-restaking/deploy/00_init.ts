@@ -12,12 +12,12 @@ const func: DeployFunction = async function ({
         operator,
         governance,
         treasury,
-        eigenPodManager,
-        eigenDelegationManager,
+        elPodManager,
+        elDelegationManager,
     } = await getNamedAccounts();
 
     const config = await ozDeploy(deployments, 'ProtocolConfig', [
-        governance,
+        deployer,
         operator,
         treasury,
     ]);
@@ -88,13 +88,14 @@ const func: DeployFunction = async function ({
 
     const restakerFacets = await ozDeploy(deployments, 'RestakerFacets', [
         governance,
-        eigenPodManager,
-        eigenDelegationManager,
+        elPodManager,
+        elDelegationManager,
     ]);
 
     const beacon = await upgrades.deployBeacon(
         await ethers.getContractFactory('Restaker')
     );
+    await beacon.waitForDeployment();
 
     const restakerDeployer = await deploy('RestakerDeployer', {
         log: true,

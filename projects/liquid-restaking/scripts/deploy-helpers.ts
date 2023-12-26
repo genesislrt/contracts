@@ -22,10 +22,18 @@ const TxResultToReceipt = async (
 };
 
 export async function ozDeploy(
-    { save }: DeploymentsExtension,
+    { save, get }: DeploymentsExtension,
     contractName: string,
-    args: unknown[]
+    args: unknown[],
+    forceDeploy = false
 ) {
+    // if (!forceDeploy) {
+    //     const existing = await get(contractName);
+    //     if (existing) {
+    //         return existing;
+    //     }
+    // }
+
     const contractFactory = await ethers.getContractFactory(contractName);
 
     console.log(`deploying ${contractName}...`);
