@@ -112,7 +112,7 @@ contract cToken is Configurable, ERC20PausableUpgradeable, ICToken {
      * @dev Returns the total amount of the ETH that is “managed” by Genesis.
      * @return totalManagedEth Total ETH amount into Genesis protocol.
      */
-    function totalAssets() external view returns (uint256 totalManagedEth) {
+    function totalAssets() external view override returns (uint256 totalManagedEth) {
         return convertToAmount(totalSupply());
     }
 

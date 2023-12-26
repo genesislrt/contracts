@@ -24,4 +24,6 @@ interface ICToken is IERC20 {
     function burn(address account, uint256 amount) external;
 
     function ratio() external view returns (uint256);
+
+    function totalAssets() external view returns (uint256 totalManagedEth);
 }

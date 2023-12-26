@@ -25,7 +25,10 @@ const TOKEN_NAME = 'Token Name',
     TEST_PROVIDER = 'TEST_PROVIDER',
     DISTRIBUTE_GAS_LIMIT = 250000n,
     MIN_UNSTAKE = 10000000000n,
-    MIN_STAKE = 1000000000n;
+    MIN_STAKE = 1000000000n,
+    MAX_TVL = 32_000_000_000_000_000_000n;
+
+const ceilN = (n: bigint, d: bigint) => n / d + (n % d ? 1n : 0n)
 
 let governance: HardhatEthersSigner,
     operator: HardhatEthersSigner,
@@ -55,6 +58,7 @@ const init = async () => {
         tokenName: TOKEN_NAME,
         tokenSymbol: TOKEN_SYMBOL,
         distributeGasLimit: DISTRIBUTE_GAS_LIMIT,
+        maxTVL: MAX_TVL,
     });
 
     const expensiveStaker = await ethers.deployContract('ExpensiveStakerMock');
@@ -111,6 +115,14 @@ describe('RestakingPool', function () {
             [config, pool, cToken, feed] = await loadFixture(init);
         });
 
+        it('Reverts: when amount > available', async () => {
+            const available = await pool.availableToStake();
+            expect(available).to.be.eq(MAX_TVL);
+            await expect(
+                pool.connect(signer1).stake({ value: available + 1n })
+            ).to.be.revertedWithCustomError(pool, 'PoolStakeAmGreaterThanAvailable');
+        });
+
         const amounts = [
             { name: 'Random value', amount: async (x) => randomBN(19) },
             {
@@ -161,6 +173,8 @@ describe('RestakingPool', function () {
                     signer1.address
                 );
                 const totalSupplyBefore = await cToken.totalSupply();
+                const available = await pool.availableToStake();
+                expect(available).to.be.eq(MAX_TVL - (ceilN(totalSupplyBefore * _1E18, ratio)));
 
                 // Stake
                 const amount = await param.amount(pool);
@@ -196,6 +210,17 @@ describe('RestakingPool', function () {
             ).to.be.revertedWithCustomError(pool, 'PoolStakeAmLessThanMin');
         });
 
+        it('Reverts: when amount > available', async () => {
+            await expect(
+                pool.connect(signer1).stake({ value: (await pool.availableToStake()) + 1n })
+            ).to.be.revertedWithCustomError(pool, 'PoolStakeAmGreaterThanAvailable');
+        });
+
+        it('Increase max tvl', async () => {
+            const newMax = 2_000_000_000_000_000n * _1E18
+            await expect(pool.setMaxTVL(newMax)).to.emit(pool, 'MaxTVLChanged').withArgs(32n * _1E18, newMax);
+        })
+
         //Stake many times with different ratio values
         it('Stake many times with different signers and ratio', async function () {
             [config, pool, cToken, feed] = await loadFixture(init);
@@ -207,8 +232,9 @@ describe('RestakingPool', function () {
             let ratio,
                 expectedTotalSupply = 0n,
                 expectedPoolBalance = 0n;
-
+            
             const iterations = 50;
+            await pool.setMaxTVL(BigInt(iterations) * 10n * _1E18);
             for (let i = 0; i < iterations; i++) {
                 ratio = (await cToken.ratio()) - randomBN(15);
                 await updateRatio(feed, cToken, ratio);
@@ -250,6 +276,7 @@ describe('RestakingPool', function () {
     describe('unstake()', function () {
         before(async function () {
             [config, pool, cToken, feed] = await loadFixture(init);
+            await pool.setMaxTVL(200n * _1E18);
         });
 
         const amounts = [
@@ -450,6 +477,7 @@ describe('RestakingPool', function () {
         before(async function () {
             [config, pool, cToken, feed] = await loadFixture(init);
             await pool.addRestaker(TEST_PROVIDER);
+            await pool.setMaxTVL(200n * _1E18);
         });
 
         it('Cannot add one provider twice', async () => {
@@ -570,6 +598,7 @@ describe('RestakingPool', function () {
         before(async function () {
             [config, pool, cToken, feed, deployer, expensiveStaker] =
                 await loadFixture(init);
+                await pool.setMaxTVL(200n * _1E18);
         });
 
         it('unstake from contract', async () => {

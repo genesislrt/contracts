@@ -134,12 +134,14 @@ export async function deployLiquidRestaking({
     tokenSymbol,
     distributeGasLimit,
     ratioThreshold,
+    maxTVL,
 }: {
     protocolConfig: ProtocolConfig;
     tokenName: string;
     tokenSymbol: string;
-    distributeGasLimit: bigint;
-    ratioThreshold?: bigint;
+    distributeGasLimit?: bigint;
+    ratioThreshold?: bigint,
+    maxTVL?: bigint;
 }) {
     // cToken
     const cToken = await upgrades.deployProxy(
@@ -153,7 +155,7 @@ export async function deployLiquidRestaking({
     // Pool
     const restakingPool = await upgrades.deployProxy(
         await ethers.getContractFactory('RestakingPool'),
-        [await protocolConfig.getAddress(), distributeGasLimit],
+        [await protocolConfig.getAddress(), distributeGasLimit || 250000n, maxTVL || 32_000_000_000_000_000_000n],
         { redeployImplementation: 'always' }
     );
     await restakingPool.waitForDeployment();

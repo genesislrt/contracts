@@ -27,6 +27,7 @@ interface IRestakingPool {
     error PoolDistributeGasLimitNotSet();
 
     error PoolStakeAmLessThanMin();
+    error PoolStakeAmGreaterThanAvailable();
     error PoolUnstakeAmLessThanMin();
 
     /* events */
@@ -49,6 +50,8 @@ interface IRestakingPool {
     event MinStakeChanged(uint256 prevValue, uint256 newValue);
 
     event MinUntakeChanged(uint256 prevValue, uint256 newValue);
+
+    event MaxTVLChanged(uint256 prevValue, uint256 newValue);
 
     event PendingUnstake(
         address indexed ownerAddress,

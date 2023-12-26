@@ -67,11 +67,16 @@ contract RestakingPool is
     mapping(bytes32 => address) internal _restakers;
 
     /**
+     * @dev max accepted TVL of protocol
+     */
+    uint256 _maxTVL;
+
+    /**
      * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
-    uint256[50 - 12] private __gap;
+    uint256[50 - 13] private __gap;
 
     /*******************************************************************************
                         CONSTRUCTOR
@@ -85,17 +90,20 @@ contract RestakingPool is
 
     function initialize(
         IProtocolConfig config,
-        uint32 distributeGasLimit
+        uint32 distributeGasLimit,
+        uint256 maxTVL
     ) external initializer {
         __ReentrancyGuard_init();
         __Configurable_init(config);
-        __RestakingPool_init(distributeGasLimit);
+        __RestakingPool_init(distributeGasLimit, maxTVL);
     }
 
     function __RestakingPool_init(
-        uint32 distributeGasLimit
+        uint32 distributeGasLimit,
+        uint256 maxTVL
     ) internal onlyInitializing {
         _setDistributeGasLimit(distributeGasLimit);
+        _setMaxTVL(maxTVL);
     }
 
     /*******************************************************************************
@@ -118,6 +126,10 @@ contract RestakingPool is
 
         if (amount < getMinStake()) {
             revert PoolStakeAmLessThanMin();
+        }
+
+        if (amount > availableToStake()) {
+            revert PoolStakeAmGreaterThanAvailable();
         }
 
         ICToken token = config().getCToken();
@@ -433,6 +445,18 @@ contract RestakingPool is
     *******************************************************************************/
 
     /**
+     * 
+     * @notice Get ETH amount available to stake before protocol reach max TVL.
+     */
+    function availableToStake() public view virtual returns (uint256) {
+        uint256 totalAssets = config().getCToken().totalAssets();
+        if (totalAssets > _maxTVL) {
+            return 0;
+        }
+        return _maxTVL - totalAssets;
+    }
+
+    /**
      * @notice Get minimal available amount to stake.
      */
     function getMinStake() public view virtual returns (uint256 amount) {
@@ -609,5 +633,17 @@ contract RestakingPool is
     function setMinUnstake(uint256 newValue) external onlyGovernance {
         emit MinUntakeChanged(_minUnstakeAmount, newValue);
         _minUnstakeAmount = newValue;
+    }
+
+    function setMaxTVL(uint256 newValue) external onlyGovernance {
+        _setMaxTVL(newValue);
+    }
+
+    function _setMaxTVL(uint256 newValue) internal {
+        if (newValue == 0) {
+            revert PoolZeroAmount();
+        }
+        emit MaxTVLChanged(_maxTVL, newValue);
+        _maxTVL = newValue;
     }
 }
