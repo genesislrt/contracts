@@ -445,7 +445,7 @@ contract RestakingPool is
     *******************************************************************************/
 
     /**
-     * 
+     *
      * @notice Get ETH amount available to stake before protocol reach max TVL.
      */
     function availableToStake() public view virtual returns (uint256) {
