@@ -1,5 +1,6 @@
 import '@nomicfoundation/hardhat-toolbox';
 import '@openzeppelin/hardhat-upgrades';
+// import '@nomiclabs/hardhat-etherscan';
 import 'hardhat-deploy';
 
 require('dotenv').config();
@@ -85,5 +86,8 @@ module.exports = {
         etherscan: {
             apiKey: process.env.ETHERSCAN_API_KEY,
         },
+    },
+    etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY,
     },
 };
