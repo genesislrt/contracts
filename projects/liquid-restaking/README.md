@@ -23,6 +23,7 @@ graph TD
 * **RatioFeed** - contract stores ratio between ETH and genETH.
 * **ProtocolConfig** - contract stores general variables of liquid restaking protocol.
 * **FeeCollector** - contract receives Tips & Mev rewards for produced blocks. Must be set as --fee-recipient in validator client.
+* **RestakerBeacon** - beacon of Restaker.
 * **Restaker** - owner and deployer of EigenPod; Restaker features transferable ownership.
 * **RestakerFacets** - contract stores dependencies between method signature and target contract. See [Diamond](https://eips.ethereum.org/EIPS/eip-253).
 * **RestakerDeployer** - a contract that deploys instances of the `Restaker` contract.
@@ -43,6 +44,15 @@ Goerli V1:
 * RestakerDeployer: 0x4df3C590B25299B7dc0588F7D316fc3D137D562C
 * FeeCollector: 0x7C478ad33773E4A4Fa307e007448f21b7d99E4d6
 * CertificateToken: 0x51046E9a40E217Fb63f27440e8E7949bbAcF9309
+Mainnet V1:
+* Restaker Beacon: https://etherscan.io/address/0x82d87f4c7171cabb9ac55ae3f60f7d15f595a46a
+* ProtocolConfig: https://etherscan.io/address/0x81b98D3a51d4aC35e0ae132b0CF6b50EA1Da2603
+* RatioFeed: https://etherscan.io/address/0x122ee24Cb3Cc1b6B987800D3B54A68FC16910Dbf
+* cToken: https://etherscan.io/address/0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C
+* RestakingPool: https://etherscan.io/address/0x46199cAa0e453971cedf97f926368d9E5415831a
+* FeeCollector: https://etherscan.io/address/0xf403eb7B69F6c7Ab73BBaeF42AFE87c0a61a15D0
+* RestakerFacets: https://etherscan.io/address/0x161Cd8fD2694D220e246854E177B726D8E36971d
+* RestakerDeployer: https://etherscan.io/address/0x10ccB7aFb5C2C20fffA38eAf1FbC99db571Bf57A
 
 ## Installation
 

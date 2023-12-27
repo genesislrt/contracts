@@ -7,6 +7,8 @@ import {
     CToken,
     RatioFeed,
     FeeCollector,
+    RestakerDeployer,
+    RestakerFacets,
 } from '../../typechain-types';
 import {
     HardhatEthersSigner,
@@ -14,21 +16,25 @@ import {
 } from '@nomicfoundation/hardhat-ethers/signers';
 import { _1E18 } from './constants';
 
-export async function deployEigenMocks({
-    protocolConfig,
-}: {
-    protocolConfig: ProtocolConfig;
-}) {
-    const beacon = await upgrades.deployBeacon(
-        await ethers.getContractFactory('EigenPodMock'),
-        {
-            redeployImplementation: 'always',
-        }
-    );
-    await beacon.waitForDeployment();
+export async function deployEigenMocks() {
+    const podImpl = await ethers.deployContract('EigenPodMock', [
+        ethers.ZeroAddress,
+        ethers.ZeroAddress,
+        ethers.ZeroAddress,
+        0,
+    ]);
+    await podImpl.waitForDeployment();
+
+    const simpleBeacon = await ethers.deployContract('SimpleBeacon', [
+        await podImpl.getAddress(),
+    ]);
+    await simpleBeacon.waitForDeployment();
 
     const eigenPodManager = await ethers.deployContract('EigenPodManagerMock', [
-        await beacon.getAddress(),
+        ethers.ZeroAddress,
+        await simpleBeacon.getAddress(),
+        ethers.ZeroAddress,
+        ethers.ZeroAddress,
     ]);
     await eigenPodManager.waitForDeployment();
 
@@ -37,7 +43,11 @@ export async function deployEigenMocks({
     );
     await delegationManager.waitForDeployment();
 
-    return { eigenPodManager, delegationManager };
+    return {
+        eigenPodManager: eigenPodManager as unknown as EigenPodManagerMock,
+        delegationManager:
+            delegationManager as unknown as DelegationManagerMock,
+    };
 }
 
 export async function deployRestakerContacts({
@@ -49,7 +59,7 @@ export async function deployRestakerContacts({
     eigenPodManager: EigenPodManagerMock;
     delegationManager: DelegationManagerMock;
     owner: string;
-    protocolConfig: ProtocolConfig;
+    protocolConfig?: ProtocolConfig;
 }) {
     // deploy facets
     const restakerFacets = await upgrades.deployProxy(
@@ -76,13 +86,14 @@ export async function deployRestakerContacts({
         await restakerFacets.getAddress(),
     ]);
     await restakerDeployer.waitForDeployment();
-    await protocolConfig.setRestakerDeployer(
-        await restakerDeployer.getAddress()
-    );
+    protocolConfig &&
+        (await protocolConfig.setRestakerDeployer(
+            await restakerDeployer.getAddress()
+        ));
 
     return {
-        restakerDeployer,
-        restakerFacets,
+        restakerDeployer: restakerDeployer as unknown as RestakerDeployer,
+        restakerFacets: restakerFacets as unknown as RestakerFacets,
         beacon,
     };
 }

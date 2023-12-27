@@ -43,7 +43,10 @@ interface IEigenPodManager {
      * @dev Function will revert if the `msg.sender` already has an EigenPod.
      * @dev Returns EigenPod address
      */
-    function createPod() external returns (address);
+    function createPod() external;
+
+    /// replace {createPod} for testnet
+    /// function createPod() external returns (address);
 
     /**
      * @notice Stakes for a new beacon chain validator on the sender's EigenPod.

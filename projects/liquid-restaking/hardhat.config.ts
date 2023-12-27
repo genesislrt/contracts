@@ -36,9 +36,10 @@ module.exports = {
             gas: 6721975,
         },
         hardhat: {
-            gas: 8000000,
-            gasPrice,
-            allowUnlimitedContractSize: false,
+            // forking: {
+            //     url: process.env.MAINNET_RPC,
+            //     blockNumber: 18871509,
+            // },
         },
     },
     solidity: {

@@ -14,15 +14,11 @@ const init = async () => {
 
     const protocolConfig = await deployConfig([owner, owner, owner]);
 
-    const { eigenPodManager, delegationManager } = await deployEigenMocks({
-        protocolConfig,
-    });
+    const { eigenPodManager, delegationManager } = await deployEigenMocks();
 
     const ERC20 = await ethers.getContractFactory('ERC20Mock');
     const erc20 = await ERC20.deploy();
     await erc20.waitForDeployment();
-
-    console.log('before facets');
 
     const restakerFacets = await upgrades.deployProxy(
         await ethers.getContractFactory('RestakerFacets'),
@@ -34,21 +30,18 @@ const init = async () => {
         { redeployImplementation: 'always' }
     );
     await restakerFacets.waitForDeployment();
-    console.log('facets deployed');
 
     const Restaker = await ethers.getContractFactory('Restaker');
     const beacon = await upgrades.deployBeacon(Restaker, {
         redeployImplementation: 'always',
     });
     await beacon.waitForDeployment();
-    console.log('beacon deployed');
 
     const restaker = await upgrades.deployBeaconProxy(beacon, Restaker, [
         owner.address,
         await restakerFacets.getAddress(),
     ]);
     await restaker.waitForDeployment();
-    console.log('beacon proxy deployed');
 
     await eigenPodManager.test_addPod(
         await restaker.getAddress(),

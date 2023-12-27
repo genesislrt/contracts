@@ -59,3 +59,16 @@ export async function ozDeploy(
 
     return get(contractName);
 }
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export async function transferAdminOwnership(
+    { get }: DeploymentsExtension,
+    contractName: string,
+    to: string
+) {
+    const contract = await get(contractName);
+    await upgrades.admin.transferProxyAdminOwnership(contract.address, to);
+    console.log(`ProxyAdmin ownership of ${contractName} transferred to ${to}`);
+    await sleep(24_000);
+}
