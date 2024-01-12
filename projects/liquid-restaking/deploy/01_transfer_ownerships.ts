@@ -1,18 +1,5 @@
-import { ethers, upgrades } from 'hardhat';
-import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types';
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-const transferAdminOwnership = async (
-    { get }: DeploymentsExtension,
-    contractName: string,
-    to: string
-) => {
-    const contract = await get(contractName);
-    await upgrades.admin.transferProxyAdminOwnership(contract.address, to);
-    console.log(`ProxyAdmin ownership of ${contractName} transferred to ${to}`);
-    await sleep(12_000);
-};
+import { DeployFunction } from 'hardhat-deploy/types';
+import { transferAdminOwnership } from '../scripts/deploy-helpers';
 
 const func: DeployFunction = async function ({
     getNamedAccounts,
@@ -33,6 +20,7 @@ const func: DeployFunction = async function ({
     await transferAdminOwnership(deployments, 'FeeCollector', governance);
     await transferAdminOwnership(deployments, 'RatioFeed', governance);
     await transferAdminOwnership(deployments, 'RestakingPool', governance);
+    await transferAdminOwnership(deployments, 'RestakerFacets', governance);
 
     return true;
 };
