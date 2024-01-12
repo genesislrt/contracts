@@ -70,6 +70,10 @@ export const CONFIG = {
             goerli: '0x1b7b8F6b258f95Cf9596EabB9aa18B62940Eb0a8',
             mainnet: '0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A',
         },
+        proxyAdminTimelock: {
+            goerli: 0,
+            mainnet: 'fill',
+        },
     },
     verify: {
         etherscan: {
