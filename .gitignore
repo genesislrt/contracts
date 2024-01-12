@@ -5,10 +5,15 @@ package-lock.json
 vendor
 .env
 node_modules
+typechain
 typechain-types
 artifacts
 cache
 .idea
+
+# solidity-coverage files
+/coverage
+/coverage.json
 
 # Let ignore all deployments except target networks
 deployments/*
