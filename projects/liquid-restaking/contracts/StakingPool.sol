@@ -171,19 +171,24 @@ contract StakingPool is
         emit PendingUnstake(owner, claimer, amount, shares);
     }
 
-    function distributeUnstakes() external nonReentrant {
+    function distributeUnstakes(
+        uint256 fee
+    ) external onlyOperator nonReentrant {
         require(
             _distributeGasLimit > 0,
             "StakingPool: DISTRIBUTE_GAS_LIMIT is not set"
         );
+
         uint256 poolBalance = getPending();
-        address[] memory claimers = new address[](
-            _pendingClaimers.length - _pendingGap
-        );
-        uint256[] memory amounts = new uint256[](
-            _pendingClaimers.length - _pendingGap
-        );
-        uint256 j = 0;
+
+        if (poolBalance >= fee) {
+            // send committed by operator fee (deducted from ratio) to multi-sig treasury
+            poolBalance -= fee;
+            address treasury = _stakingConfig.getTreasury();
+            _sendValue(treasury, fee, false);
+            emit FeeClaimed(treasury, fee);
+        }
+
         uint256 i = _pendingGap;
 
         while (
@@ -209,28 +214,9 @@ contract StakingPool is
             delete _pendingRequests[i];
             ++i;
 
-            bool success = _sendValue(claimer, toDistribute, true);
-            if (!success) {
-                _addClaimable(claimer, toDistribute);
-                continue;
-            }
-            claimers[j] = claimer;
-            amounts[j] = toDistribute;
-            ++j;
+            _addClaimable(claimer, toDistribute);
         }
         _pendingGap = i;
-        /* decrease arrays */
-        uint256 removeCells = claimers.length - j;
-        if (removeCells > 0) {
-            assembly {
-                mstore(claimers, j)
-            }
-            assembly {
-                mstore(amounts, j)
-            }
-        }
-
-        emit RewardsDistributed(claimers, amounts);
     }
 
     function _sendValue(

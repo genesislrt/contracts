@@ -1,5 +1,6 @@
 const { ethers, network, upgrades } = require('hardhat');
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
+const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require('chai');
 const toBN = ethers.BigNumber.from;
 
@@ -578,90 +579,53 @@ describe('Staking pool', function () {
         });
 
         it('distributeUnstakes(): when gas is not enough', async function () {
+            await stakingPool.setDistributeGasLimit(1_000_000);
+
             const totalPendingUnstakesBefore =
                 await stakingPool.getTotalPendingUnstakes();
-            console.log(
-                `Pending unstakes before: ${totalPendingUnstakesBefore}`
-            );
-            await stakingPool.distributeUnstakes({ gasLimit: 500_000 });
+            await stakingPool.connect(operator).distributeUnstakes(0, {gasLimit: 370_000});
             const totalPendingUnstakesAfter =
                 await stakingPool.getTotalPendingUnstakes();
-            console.log(`Pending unstakes after: ${totalPendingUnstakesAfter}`);
+            expect(totalPendingUnstakesBefore).to.be.eq(totalPendingUnstakesAfter);
         });
 
-        it('distributeUnstakes()', async function () {
-            console.log(`Ratio: ${await certificateToken.ratio()}`);
-            const poolBalanceBefore = await stakingPool.getFreeBalance();
-            console.log(`Pool free balance before: ${poolBalanceBefore}`);
-            const signer1BalanceBefore = await ethers.provider.getBalance(
-                signer1.address
-            );
-            const signer2BalanceBefore = await ethers.provider.getBalance(
-                signer2.address
-            );
+        it('distributeUnstakes() must change claimable', async function () {
+            await stakingPool.setDistributeGasLimit(100_000);
             const signer1PendingUnstakesBefore =
                 await stakingPool.getPendingUnstakesOf(signer1.address);
-            console.log(
-                `Signer1 pending unstakes before: ${signer1PendingUnstakesBefore}`
-            );
             const signer2PendingUnstakesBefore =
                 await stakingPool.getPendingUnstakesOf(signer2.address);
-            console.log(
-                `Signer2 pending unstakes before: ${signer2PendingUnstakesBefore}`
-            );
-            const totalPendingUnstakesBefore =
-                await stakingPool.getTotalPendingUnstakes();
+
+            expect(await stakingPool.getTotalPendingUnstakes()).to.be.eq(signer1PendingUnstakesBefore.add(signer2PendingUnstakesBefore));
 
             //Distribute
-            await stakingPool.connect(signer3).distributeUnstakes();
+            await stakingPool.connect(operator).distributeUnstakes('0');
 
-            const signer1BalanceAfter = await ethers.provider.getBalance(
+            expect(await stakingPool.hasClaimable(signer1.address)).to.be.true;
+            expect(await stakingPool.claimableOf(signer2.address)).to.be.eq(signer2PendingUnstakesBefore);
+
+            expect(await stakingPool.getPendingUnstakesOf(signer1.address)).to.be.eq(0);
+            expect(await stakingPool.getPendingUnstakesOf(signer2.address)).to.be.eq(0);
+            expect(await stakingPool.getTotalPendingUnstakes()).to.be.eq(0);
+            expect(await stakingPool.getFreeBalance()).to.be.eq('0');
+
+        });
+
+        it('signer must claim unstakes', async () => {
+
+            const signer1Balance = await ethers.provider.getBalance(
                 signer1.address
             );
-            const signer2BalanceAfter = await ethers.provider.getBalance(
+            const signer2Balance = await ethers.provider.getBalance(
                 signer2.address
             );
-            const totalPendingUnstakesAfter =
-                await stakingPool.getTotalPendingUnstakes();
-            const signer1PendingUnstakesAfter =
-                await stakingPool.getPendingUnstakesOf(signer1.address);
-            console.log(
-                `Signer1 pending unstakes after: ${signer1PendingUnstakesAfter}`
-            );
-            const signer2PendingUnstakesAfter =
-                await stakingPool.getPendingUnstakesOf(signer2.address);
-            console.log(
-                `Signer2 pending unstakes after: ${signer2PendingUnstakesAfter}`
-            );
-            console.log(
-                `Signer1 balance diff: ${signer1BalanceAfter.sub(
-                    signer1BalanceBefore
-                )}`
-            );
-            console.log(
-                `Signer2 balance diff: ${signer2BalanceAfter.sub(
-                    signer2BalanceBefore
-                )}`
-            );
-            const poolBalanceAfter = await stakingPool.getFreeBalance();
-            console.log(
-                `Pool free balance after: ${await stakingPool.getFreeBalance()}`
-            );
 
-            expect(signer1PendingUnstakesBefore).to.be.closeTo(
-                signer1BalanceAfter.sub(signer1BalanceBefore),
-                1
-            );
-            expect(signer2PendingUnstakesBefore).to.be.closeTo(
-                signer2BalanceAfter.sub(signer2BalanceBefore),
-                1
-            );
-            expect(signer1PendingUnstakesAfter).to.be.eq(0);
-            expect(signer2PendingUnstakesAfter).to.be.eq(0);
-            expect(totalPendingUnstakesAfter).to.be.eq(0);
-            expect(poolBalanceBefore.sub(poolBalanceAfter)).to.be.eq(
-                totalPendingUnstakesBefore
-            );
+            await expect(stakingPool.claimUnstake(signer1.address)).to.emit(stakingPool, 'UnstakeClaimed').withArgs(signer1.address, governance.address, anyValue);
+            await expect(stakingPool.claimUnstake(signer2.address)).to.emit(stakingPool, 'UnstakeClaimed').withArgs(signer2.address, governance.address, anyValue);
+
+            expect(await ethers.provider.getBalance(signer1.address)).to.be.greaterThan(signer1Balance);
+            expect(await ethers.provider.getBalance(signer2.address)).to.be.greaterThan(signer1Balance);
+            expect(await stakingPool.getTotalClaimable()).to.be.eq('0');
         });
     });
 
