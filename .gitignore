@@ -4,9 +4,14 @@ package-lock.json
 *.DS_Store
 vendor
 .env
-deployments
 node_modules
 typechain-types
 artifacts
 cache
 .idea
+
+# Let ignore all deployments except target networks
+deployments/*
+!deployments/goerli/
+!deployments/mainnet/
+!deployments/holesky/
