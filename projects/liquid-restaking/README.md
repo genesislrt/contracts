@@ -33,26 +33,22 @@ graph TD
 * **DelegationManager** — a contract that manages delegations to one of EigenLayer Node Operators, where the operators are legal entities who offer to run actively validated services software modules on the stakers' behalf
 
 ## Deployments
-### Goerli
-* StakingPool: https://goerli.etherscan.io/address/0x98870b62aac7503383048be97299286c23dd3f52
-* CertificateToken: https://goerli.etherscan.io/token/0x51046e9a40e217fb63f27440e8e7949bbacf9309
-* StakingConfig: https://goerli.etherscan.io/address/0x4dec37ba2750f4af8739fd6aceb829ea352d0bec
-Goerli V1:
-* StakingPool: 0x98870b62Aac7503383048BE97299286c23dD3F52
-* StakingConfig: 0x4dEC37ba2750F4Af8739Fd6aCeB829eA352D0bEc
+### Goerli V1:
+* StakingPool: [0x98870b62Aac7503383048BE97299286c23dD3F52](https://goerli.etherscan.io/address/0x98870b62aac7503383048be97299286c23dd3f52)
+* StakingConfig: [0x4dEC37ba2750F4Af8739Fd6aCeB829eA352D0bEc](https://goerli.etherscan.io/address/0x4dec37ba2750f4af8739fd6aceb829ea352d0bec)
 * RestakerFacets: 0xd226a5359235F3DF49E1f1483d3d65BC084b4527
 * RestakerDeployer: 0x4df3C590B25299B7dc0588F7D316fc3D137D562C
 * FeeCollector: 0x7C478ad33773E4A4Fa307e007448f21b7d99E4d6
-* CertificateToken: 0x51046E9a40E217Fb63f27440e8E7949bbAcF9309
-Mainnet V1:
-* Restaker Beacon: https://etherscan.io/address/0x82d87f4c7171cabb9ac55ae3f60f7d15f595a46a
-* ProtocolConfig: https://etherscan.io/address/0x81b98D3a51d4aC35e0ae132b0CF6b50EA1Da2603
-* RatioFeed: https://etherscan.io/address/0x122ee24Cb3Cc1b6B987800D3B54A68FC16910Dbf
-* cToken: https://etherscan.io/address/0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C
-* RestakingPool: https://etherscan.io/address/0x46199cAa0e453971cedf97f926368d9E5415831a
-* FeeCollector: https://etherscan.io/address/0xf403eb7B69F6c7Ab73BBaeF42AFE87c0a61a15D0
-* RestakerFacets: https://etherscan.io/address/0x161Cd8fD2694D220e246854E177B726D8E36971d
-* RestakerDeployer: https://etherscan.io/address/0x10ccB7aFb5C2C20fffA38eAf1FbC99db571Bf57A
+* CertificateToken: [0x51046E9a40E217Fb63f27440e8E7949bbAcF9309](https://goerli.etherscan.io/token/0x51046e9a40e217fb63f27440e8e7949bbacf9309)
+### Mainnet V1:
+* Restaker Beacon: [0x82d87f4c7171cabb9ac55ae3f60f7d15f595a46a](https://etherscan.io/address/0x82d87f4c7171cabb9ac55ae3f60f7d15f595a46a)
+* ProtocolConfig: [0x81b98D3a51d4aC35e0ae132b0CF6b50EA1Da2603](https://etherscan.io/address/0x81b98D3a51d4aC35e0ae132b0CF6b50EA1Da2603)
+* RatioFeed: [0x122ee24Cb3Cc1b6B987800D3B54A68FC16910Dbf](https://etherscan.io/address/0x122ee24Cb3Cc1b6B987800D3B54A68FC16910Dbf)
+* cToken: [0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C](https://etherscan.io/address/0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C)
+* RestakingPool: [0x46199cAa0e453971cedf97f926368d9E5415831a](https://etherscan.io/address/0x46199cAa0e453971cedf97f926368d9E5415831a)
+* FeeCollector: [0xf403eb7B69F6c7Ab73BBaeF42AFE87c0a61a15D0](https://etherscan.io/address/0xf403eb7B69F6c7Ab73BBaeF42AFE87c0a61a15D0)
+* RestakerFacets: [0x161Cd8fD2694D220e246854E177B726D8E36971d](https://etherscan.io/address/0x161Cd8fD2694D220e246854E177B726D8E36971d)
+* RestakerDeployer: [0x10ccB7aFb5C2C20fffA38eAf1FbC99db571Bf57A](https://etherscan.io/address/0x10ccB7aFb5C2C20fffA38eAf1FbC99db571Bf57A)
 
 ## Installation
 
@@ -66,3 +62,9 @@ Mainnet V1:
 `yarn hardhat test`
 #### Deploy
 `yarn hardhat deploy`
+
+### Verification
+Verification of deployed by RestakerDeployer BeaconProxy
+```bash
+yarn hardhat verify <BeaconProxy> <beacon> 0x --network mainnet --contract @openzeppelin/contracts/proxy/beacon/BeaconProxy.sol:BeaconProxy
+```
