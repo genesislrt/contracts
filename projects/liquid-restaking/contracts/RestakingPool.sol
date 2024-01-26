@@ -221,30 +221,38 @@ contract RestakingPool is
         _pendingUnstakes.push(Unstake(recipient, amount));
     }
 
-    /**
-     * @notice Pay waiting unstakes and protocol fee from {getPending} balance.
-     * @dev Callable by operator once per 1-3 days if {getPending} enough to pay at least one unstake.
-     * @param fee Fee from collected rewards.
-     */
-    function distributeUnstakes(
+    function claimRestaker(
+        string calldata provider,
         uint256 fee
-    ) external onlyOperator nonReentrant {
+    ) external onlyOperator {
+        IRestaker restaker = IRestaker(_getRestakerOrRevert(provider));
+        uint256 balanceBefore = address(this).balance;
+        restaker.__claim();
+        uint256 claimed = address(this).balance - balanceBefore;
+
+        if (fee > claimed) {
+            revert AmbiguousFee(claimed, fee);
+        }
+
+        address treasury = config().getTreasury();
+        if (fee > 0) {
+            // send committed by operator fee (deducted from ratio) to multi-sig treasury
+            _sendValue(treasury, fee, false);
+        }
+
+        // from {provider} fee claimed to {treasury}
+        emit FeeClaimed(address(restaker), treasury, fee, claimed);
+    }
+
+    /**
+     * @notice Pay unstakes from {getPending} balance.
+     * @dev Callable by operator once per 1-3 days if {getPending} enough to pay at least one unstake.
+     */
+    function distributeUnstakes() external onlyOperator nonReentrant {
         /// no need to check for {_distributeGasLimit} because it's never be 0
         /// TODO: claim from Restakers and spent fee from this sum
 
         uint256 poolBalance = getPending();
-
-        if (fee > poolBalance) {
-            /// it's not possible to withdraw this amount of fee
-            revert AmbiguousFee();
-        }
-        if (fee > 0) {
-            // send committed by operator fee (deducted from ratio) to multi-sig treasury
-            poolBalance -= fee;
-            address treasury = config().getTreasury();
-            _sendValue(treasury, fee, false);
-            emit FeeClaimed(treasury, fee);
-        }
 
         uint256 unstakesLength = _pendingUnstakes.length;
         uint256 i = _pendingGap;
@@ -556,6 +564,12 @@ contract RestakingPool is
      */
     function claimableOf(address claimer) public view returns (uint256) {
         return _claimable[claimer];
+    }
+
+    function getRestaker(
+        string calldata provider
+    ) public view returns (address) {
+        return _restakers[_getProviderHash(provider)];
     }
 
     function _getRestakerOrRevert(

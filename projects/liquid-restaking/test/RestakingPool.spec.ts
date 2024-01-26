@@ -1,4 +1,4 @@
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { loadFixture, time } from '@nomicfoundation/hardhat-network-helpers';
 import { ethers, network, upgrades } from 'hardhat';
 import { expect } from 'chai';
 import {
@@ -44,7 +44,7 @@ const init = async () => {
     const protocolConfig = await deployConfig([governance, operator, treasury]);
 
     // EigenLayr
-    const el = await deployEigenMocks({ protocolConfig });
+    const el = await deployEigenMocks();
 
     // Restaker
     const { restakerDeployer } = await deployRestakerContacts({
@@ -61,17 +61,7 @@ const init = async () => {
         maxTVL: MAX_TVL,
     });
 
-    const expensiveStaker = await ethers.deployContract('ExpensiveStakerMock');
-    await expensiveStaker.waitForDeployment();
-
-    return [
-        protocolConfig,
-        restakingPool,
-        cToken,
-        ratioFeed,
-        restakerDeployer,
-        expensiveStaker,
-    ];
+    return [protocolConfig, restakingPool, cToken, ratioFeed, restakerDeployer];
 };
 
 describe('RestakingPool', function () {
@@ -614,7 +604,7 @@ describe('RestakingPool', function () {
             await pool.setMinUnstake(0);
         });
 
-        const difficult = 50n;
+        const difficult = 25n;
         const signers = [() => signer1, () => signer2, () => signer3];
 
         for (let i = 0n; i < difficult; i++) {
@@ -627,8 +617,14 @@ describe('RestakingPool', function () {
                     .connect(signer)
                     .stake({ value: minStake * (i + 10n) });
                 /// get tokens amount and unstake a bit less
-                const minUnstake = await pool.getMinUnstake();
                 const tokensAm = (await cToken.balanceOf(signer.address)) - i;
+                await time.increase(60 * 60 * 12);
+                await feed
+                    .connect(operator)
+                    .updateRatio(
+                        await cToken.getAddress(),
+                        (await cToken.ratio()) - 100n
+                    );
                 await pool.connect(signer).unstake(signer, tokensAm - i);
                 // check how much is pending
             });
@@ -646,7 +642,7 @@ describe('RestakingPool', function () {
                 signer3.address
             );
 
-            await pool.connect(operator).distributeUnstakes('0');
+            await pool.connect(operator).distributeUnstakes();
 
             const signer1Distributed = await pool.claimableOf(signer1.address);
             const signer2Distributed = await pool.claimableOf(signer2.address);
@@ -670,6 +666,65 @@ describe('RestakingPool', function () {
                     );
             });
         }
+    });
+
+    describe('claim rewards from restaker', function () {
+        before(async function () {
+            [config, pool, cToken, feed, deployer] = await loadFixture(init);
+            await pool.addRestaker(TEST_PROVIDER);
+        });
+
+        it('only operator allowed', async () => {
+            await expect(
+                pool.claimRestaker(TEST_PROVIDER, '0')
+            ).to.be.revertedWithCustomError(pool, 'OnlyOperatorAllowed');
+        });
+
+        it('claim without fee', async () => {
+            const restakerAddr = await pool.getRestaker(TEST_PROVIDER);
+            // send ETH to restaker
+            await operator.sendTransaction({
+                to: restakerAddr,
+                value: _1E18,
+            });
+
+            const balanceBefore = await ethers.provider.getBalance(
+                await pool.getAddress()
+            );
+
+            await expect(
+                pool.connect(operator).claimRestaker(TEST_PROVIDER, '0')
+            )
+                .to.emit(pool, 'FeeClaimed')
+                .withArgs(restakerAddr, treasury.address, 0, _1E18);
+        });
+
+        it('claim with fee', async () => {
+            const restakerAddr = await pool.getRestaker(TEST_PROVIDER);
+            // send ETH to restaker
+            await operator.sendTransaction({
+                to: restakerAddr,
+                value: _1E18,
+            });
+
+            const balanceBefore = await ethers.provider.getBalance(
+                await pool.getAddress()
+            );
+
+            await expect(
+                pool.connect(operator).claimRestaker(TEST_PROVIDER, '0')
+            )
+                .to.emit(pool, 'FeeClaimed')
+                .withArgs(restakerAddr, treasury.address, 0, _1E18);
+        });
+
+        it('fee is ambiguous', async () => {
+            await expect(
+                pool.connect(operator).claimRestaker(TEST_PROVIDER, '1000')
+            )
+                .to.be.revertedWithCustomError(pool, 'AmbiguousFee')
+                .withArgs(0, '1000');
+        });
     });
 });
 

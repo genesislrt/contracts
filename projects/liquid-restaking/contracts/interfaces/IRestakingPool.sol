@@ -17,7 +17,7 @@ interface IRestakingPool {
     error PoolRestakerNotExists();
     error PoolInsufficientBalance();
     error PoolWrongInputLength();
-    error AmbiguousFee();
+    error AmbiguousFee(uint256 claimed, uint256 fee);
 
     /**
      * @dev A call to an address target failed. The target may have reverted.
@@ -74,7 +74,12 @@ interface IRestakingPool {
         uint256 value
     );
 
-    event FeeClaimed(address indexed treasury, uint256 amount);
+    event FeeClaimed(
+        address indexed restaker,
+        address indexed treasury,
+        uint256 fee,
+        uint256 totalClaimed
+    );
 
     event RestakerAdded(string indexed provider, address restaker);
 
