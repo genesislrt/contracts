@@ -60,6 +60,10 @@ interface IRestakingPool {
         uint256 shares
     );
 
+    /**
+     *
+     * @dev Deprecated.
+     */
     event UnstakesDistributed(Unstake[] unstakes);
 
     event ClaimExpected(address indexed claimer, uint256 value);

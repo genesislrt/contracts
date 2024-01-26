@@ -229,6 +229,9 @@ contract RestakingPool is
     function distributeUnstakes(
         uint256 fee
     ) external onlyOperator nonReentrant {
+        /// no need to check for {_distributeGasLimit} because it's never be 0
+        /// TODO: claim from Restakers and spent fee from this sum
+
         uint256 poolBalance = getPending();
 
         if (poolBalance >= fee) {
@@ -241,8 +244,8 @@ contract RestakingPool is
 
         uint256 unstakesLength = _pendingUnstakes.length;
 
-        Unstake[] memory unstakes = new Unstake[](unstakesLength - _pendingGap);
-        uint256 j = 0;
+        // Unstake[] memory unstakes = new Unstake[](unstakesLength - _pendingGap);
+        // uint256 j = 0;
         uint256 i = _pendingGap;
 
         while (
@@ -266,31 +269,22 @@ contract RestakingPool is
             poolBalance -= unstake_.amount;
             delete _pendingUnstakes[i];
             ++i;
+            _addClaimable(unstake_.recipient, unstake_.amount);
 
-            bool success = _sendValue(
-                unstake_.recipient,
-                unstake_.amount,
-                true
-            );
-            if (!success) {
-                _addClaimable(unstake_.recipient, unstake_.amount);
-                continue;
-            }
-
-            unstakes[j] = unstake_;
-            ++j;
+            // unstakes[j] = unstake_;
+            // ++j;
         }
         _pendingGap = i;
 
         /* decrease arrays */
-        uint256 removeCells = unstakes.length - j;
-        if (removeCells > 0) {
-            assembly {
-                mstore(unstakes, j)
-            }
-        }
+        // uint256 removeCells = unstakes.length - j;
+        // if (removeCells > 0) {
+        //     assembly {
+        //         mstore(unstakes, j)
+        //     }
+        // }
 
-        emit UnstakesDistributed(unstakes);
+        // emit UnstakesDistributed(unstakes);
     }
 
     function _sendValue(
@@ -604,9 +598,7 @@ contract RestakingPool is
         if (restaker != address(0)) {
             revert PoolRestakerExists();
         }
-        restaker = address(
-            _stakingConfig.getRestakerDeployer().deployRestaker()
-        );
+        restaker = address(config().getRestakerDeployer().deployRestaker());
         _restakers[providerHash] = restaker;
         emit RestakerAdded(provider, restaker);
     }

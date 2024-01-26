@@ -608,51 +608,68 @@ describe('RestakingPool', function () {
 
     describe('distribute unstakes and claims', function () {
         before(async function () {
-            [config, pool, cToken, feed, deployer, expensiveStaker] =
-                await loadFixture(init);
-            await pool.setMaxTVL(200n * _1E18);
+            [config, pool, cToken, feed, deployer] = await loadFixture(init);
+            await pool.setMaxTVL(_1E18 * _1E18);
+            await pool.setMinStake(0);
+            await pool.setMinUnstake(0);
         });
 
-        it('unstake from contract', async () => {
-            await pool.connect(signer1).stake({ value: 50n * _1E18 });
-            await pool
-                .connect(signer1)
-                .unstake(await expensiveStaker.getAddress(), _1E18);
+        const difficult = 50n;
+        const signers = [() => signer1, () => signer2, () => signer3];
+
+        for (let i = 0n; i < difficult; i++) {
+            const signerIndex = Number(i) % signers.length;
+
+            it(`unstake from contract (${i}/${difficult})`, async () => {
+                const minStake = await pool.getMinStake();
+                const signer = signers[signerIndex]();
+                await pool
+                    .connect(signer)
+                    .stake({ value: minStake * (i + 10n) });
+                /// get tokens amount and unstake a bit less
+                const minUnstake = await pool.getMinUnstake();
+                const tokensAm = (await cToken.balanceOf(signer.address)) - i;
+                await pool.connect(signer).unstake(signer, tokensAm - i);
+                // check how much is pending
+            });
+        }
+
+        it('distributeUnstakes', async () => {
+            /// get current amounts
+            const signer1Expected = await pool.getTotalUnstakesOf(
+                signer1.address
+            );
+            const signer2Expected = await pool.getTotalUnstakesOf(
+                signer2.address
+            );
+            const signer3Expected = await pool.getTotalUnstakesOf(
+                signer3.address
+            );
+
+            await pool.connect(operator).distributeUnstakes('0');
+
+            const signer1Distributed = await pool.claimableOf(signer1.address);
+            const signer2Distributed = await pool.claimableOf(signer2.address);
+            const signer3Distributed = await pool.claimableOf(signer3.address);
+
+            expect(signer1Distributed).to.be.eq(signer1Expected);
+            expect(signer2Distributed).to.be.eq(signer2Expected);
+            expect(signer3Distributed).to.be.eq(signer3Expected);
         });
 
-        it('do not pay gas for recipient', async () => {
-            await expect(pool.connect(operator).distributeUnstakes('0'))
-                .to.emit(pool, 'UnstakesDistributed')
-                .withArgs([])
-                .and.emit(pool, 'ClaimExpected')
-                .withArgs(await expensiveStaker.getAddress(), _1E18);
-        });
-
-        it('unstake as usual', async () => {
-            await pool.connect(signer1).unstake(signer1.address, _1E18);
-        });
-
-        it('claim unstake', async () => {
-            await expect(pool.claimUnstake(expensiveStaker))
-                .to.emit(pool, 'UnstakeClaimed')
-                .withArgs(
-                    await expensiveStaker.getAddress(),
-                    governance.address,
-                    _1E18
-                );
-        });
-
-        it('pay unstake', async () => {
-            let res = [];
-            res[0] = signer1.address;
-            res[1] = _1E18.toString();
-            await expect(pool.connect(operator).distributeUnstakes('0'))
-                .to.emit(pool, 'UnstakesDistributed')
-                .withArgs(([r]: any) => {
-                    return r[0] == signer1.address && r[1] === _1E18;
-                })
-                .and.not.emit(pool, 'ClaimExpected');
-        });
+        for (let i = 0; i < signers.length; i++) {
+            it(`claim unstake of signer${i}`, async () => {
+                const claimable = await pool.claimableOf(signers[i]().address);
+                // get how much expected
+                await expect(pool.claimUnstake(signers[i]()))
+                    .to.emit(pool, 'UnstakeClaimed')
+                    .withArgs(
+                        signers[i]().address,
+                        governance.address,
+                        claimable
+                    );
+            });
+        }
     });
 });
 
