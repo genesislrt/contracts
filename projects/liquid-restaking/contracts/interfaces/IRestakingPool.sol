@@ -17,6 +17,7 @@ interface IRestakingPool {
     error PoolRestakerNotExists();
     error PoolInsufficientBalance();
     error PoolWrongInputLength();
+    error AmbiguousFee(uint256 claimed, uint256 fee);
 
     /**
      * @dev A call to an address target failed. The target may have reverted.
@@ -24,7 +25,6 @@ interface IRestakingPool {
     error PoolFailedInnerCall();
 
     error PoolDistributeGasLimitNotInRange(uint64 max);
-    error PoolDistributeGasLimitNotSet();
 
     error PoolStakeAmLessThanMin();
     error PoolStakeAmGreaterThanAvailable();
@@ -60,6 +60,10 @@ interface IRestakingPool {
         uint256 shares
     );
 
+    /**
+     *
+     * @dev Deprecated.
+     */
     event UnstakesDistributed(Unstake[] unstakes);
 
     event ClaimExpected(address indexed claimer, uint256 value);
@@ -70,7 +74,12 @@ interface IRestakingPool {
         uint256 value
     );
 
-    event FeeClaimed(address indexed treasury, uint256 amount);
+    event FeeClaimed(
+        address indexed restaker,
+        address indexed treasury,
+        uint256 fee,
+        uint256 totalClaimed
+    );
 
     event RestakerAdded(string indexed provider, address restaker);
 

@@ -4,13 +4,13 @@ import { RestakerDeployer } from '../typechain-types';
 import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
 import { _1E18 } from './helpers/constants';
 
-console.log('skip');
-process.exit(0);
-
 describe('RestakerDeployer forked', function () {
     let deployer: RestakerDeployer,
         caller: HardhatEthersSigner,
         upgrader: HardhatEthersSigner;
+
+    console.log('skip');
+    return;
 
     describe('deploy', function () {
         before(async function () {
