@@ -234,7 +234,11 @@ contract RestakingPool is
 
         uint256 poolBalance = getPending();
 
-        if (poolBalance >= fee) {
+        if (fee > poolBalance) {
+            /// it's not possible to withdraw this amount of fee
+            revert AmbiguousFee();
+        }
+        if (fee > 0) {
             // send committed by operator fee (deducted from ratio) to multi-sig treasury
             poolBalance -= fee;
             address treasury = config().getTreasury();
@@ -243,9 +247,6 @@ contract RestakingPool is
         }
 
         uint256 unstakesLength = _pendingUnstakes.length;
-
-        // Unstake[] memory unstakes = new Unstake[](unstakesLength - _pendingGap);
-        // uint256 j = 0;
         uint256 i = _pendingGap;
 
         while (
@@ -270,21 +271,8 @@ contract RestakingPool is
             delete _pendingUnstakes[i];
             ++i;
             _addClaimable(unstake_.recipient, unstake_.amount);
-
-            // unstakes[j] = unstake_;
-            // ++j;
         }
         _pendingGap = i;
-
-        /* decrease arrays */
-        // uint256 removeCells = unstakes.length - j;
-        // if (removeCells > 0) {
-        //     assembly {
-        //         mstore(unstakes, j)
-        //     }
-        // }
-
-        // emit UnstakesDistributed(unstakes);
     }
 
     function _sendValue(

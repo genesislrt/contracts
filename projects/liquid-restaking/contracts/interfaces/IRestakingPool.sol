@@ -17,6 +17,7 @@ interface IRestakingPool {
     error PoolRestakerNotExists();
     error PoolInsufficientBalance();
     error PoolWrongInputLength();
+    error AmbiguousFee();
 
     /**
      * @dev A call to an address target failed. The target may have reverted.
@@ -24,7 +25,6 @@ interface IRestakingPool {
     error PoolFailedInnerCall();
 
     error PoolDistributeGasLimitNotInRange(uint64 max);
-    error PoolDistributeGasLimitNotSet();
 
     error PoolStakeAmLessThanMin();
     error PoolStakeAmGreaterThanAvailable();
