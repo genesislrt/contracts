@@ -2,8 +2,10 @@ import { ethers, upgrades } from 'hardhat';
 import { DeployFunction } from 'hardhat-deploy/types';
 
 const func: DeployFunction = async function ({ deployments }) {
+    const { get } = deployments;
+    const RestakingPool = await get('RestakingPool');
     const result = await upgrades.prepareUpgrade(
-        'RestakingPool',
+        RestakingPool.address,
         await ethers.getContractFactory('RestakingPool')
     );
     console.log(result);
