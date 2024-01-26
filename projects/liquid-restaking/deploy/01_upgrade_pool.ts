@@ -14,13 +14,11 @@ const func: DeployFunction = async function ({
         from: deployer,
         log: true,
         args: [],
-        skipIfAlreadyDeployed: true,
+        // skipIfAlreadyDeployed: true,
         proxy: {
-            implementationName: 'StakingPool_V1',
             proxyContract: 'OpenZeppelinTransparentProxy',
-            upgradeIndex: 1,
         },
     });
 };
 export default func;
-func.tags = ['upgrade_pool'];
+func.tags = ['upgrade_pool_01'];

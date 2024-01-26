@@ -58,4 +58,9 @@ module.exports = {
     gasReporter: {
         enabled: true,
     },
+    etherscan: {
+        apiKey: {
+            goerli: process.env.ETHERSCAN_API_KEY,
+        },
+    },
 };
