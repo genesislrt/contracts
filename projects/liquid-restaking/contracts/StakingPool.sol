@@ -337,6 +337,22 @@ contract StakingPool is
         );
     }
 
+    function delegateTo(
+        string memory provider,
+        address elOperator,
+        ISignatureUtils.SignatureWithExpiry memory approverSignatureAndExpiry,
+        bytes32 approverSalt
+    ) external onlyOperator {
+        IDelegationManager restaker = IDelegationManager(
+            _getRestakerOrRevert(provider)
+        );
+        restaker.delegateTo(
+            elOperator,
+            approverSignatureAndExpiry,
+            approverSalt
+        );
+    }
+
     /*******************************************************************************
                         VIEW FUNCTIONS
     *******************************************************************************/
@@ -371,6 +387,7 @@ contract StakingPool is
     }
 
     /**
+     * @notice Use {getPending} instead.
      * @dev Deprecated.
      */
     function getFreeBalance() external view virtual returns (uint256) {
@@ -378,12 +395,16 @@ contract StakingPool is
     }
 
     /**
-     * @return Certificate token address
+     * @dev Deprecated.
+     * @return Certificate token address.
      */
     function getCert() external view virtual returns (address) {
         return _stakingConfig.getCertTokenAddress();
     }
 
+    /**
+     * @dev Deprecated.
+     */
     function getEigenPodManager() external view virtual returns (address) {
         return _stakingConfig.getEigenPodManagerAddress();
     }
@@ -453,9 +474,11 @@ contract StakingPool is
         if (restaker != address(0)) {
             revert PoolRestakerExists();
         }
-        _restakers[providerHash] = address(
+        restaker = address(
             _stakingConfig.getRestakerDeployer().deployRestaker()
         );
+        _restakers[providerHash] = restaker;
+        emit RestakerAdded(provider, restaker);
     }
 
     function setDistributeGasLimit(uint256 newValue) public onlyGovernance {
