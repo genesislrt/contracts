@@ -604,9 +604,10 @@ contract RestakingPool is
         if (restaker != address(0)) {
             revert PoolRestakerExists();
         }
-        _restakers[providerHash] = address(
-            config().getRestakerDeployer().deployRestaker()
+        restaker = address(
+            _stakingConfig.getRestakerDeployer().deployRestaker()
         );
+        _restakers[providerHash] = restaker;
         emit RestakerAdded(provider, restaker);
     }
 
