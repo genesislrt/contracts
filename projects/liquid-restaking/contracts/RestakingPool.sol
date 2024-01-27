@@ -354,8 +354,6 @@ contract RestakingPool is
         address restaker = _getRestakerOrRevert(provider);
         // it withdraw ETH to restaker
         IEigenPod(restaker).activateRestaking();
-        // claim withdrawn ETH to pool
-        IRestaker(restaker).__claim();
     }
 
     /**
@@ -368,8 +366,6 @@ contract RestakingPool is
         address restaker = _getRestakerOrRevert(provider);
         // it withdraw ETH to restaker
         IEigenPod(restaker).withdrawBeforeRestaking();
-        // claim withdrawn ETH to pool
-        IRestaker(restaker).__claim();
     }
 
     function verifyWithdrawalCredentials(

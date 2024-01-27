@@ -472,7 +472,7 @@
             "label": "_config",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(IProtocolConfig)8300",
+            "type": "t_contract(IProtocolConfig)8298",
             "contract": "Configurable",
             "src": "contracts/Configurable.sol:17"
           },
@@ -528,7 +528,7 @@
             "label": "_pendingUnstakes",
             "offset": 0,
             "slot": "55",
-            "type": "t_array(t_struct(Unstake)8358_storage)dyn_storage",
+            "type": "t_array(t_struct(Unstake)8356_storage)dyn_storage",
             "contract": "RestakingPool",
             "src": "contracts/RestakingPool.sol:50"
           },
@@ -644,7 +644,7 @@
             "label": "address",
             "numberOfBytes": "20"
           },
-          "t_array(t_struct(Unstake)8358_storage)dyn_storage": {
+          "t_array(t_struct(Unstake)8356_storage)dyn_storage": {
             "label": "struct IRestakingPool.Unstake[]",
             "numberOfBytes": "32"
           },
@@ -660,7 +660,7 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(IProtocolConfig)8300": {
+          "t_contract(IProtocolConfig)8298": {
             "label": "contract IProtocolConfig",
             "numberOfBytes": "20"
           },
@@ -672,7 +672,7 @@
             "label": "mapping(bytes32 => address)",
             "numberOfBytes": "32"
           },
-          "t_struct(Unstake)8358_storage": {
+          "t_struct(Unstake)8356_storage": {
             "label": "struct IRestakingPool.Unstake",
             "members": [
               {
