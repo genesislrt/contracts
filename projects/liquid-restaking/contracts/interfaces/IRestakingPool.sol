@@ -73,6 +73,8 @@ interface IRestakingPool {
 
     event FeeClaimed(address indexed treasury, uint256 amount);
 
+    event ReferralStake(bytes32 indexed code);
+
     /* functions */
 
     function getMinStake() external view returns (uint256);

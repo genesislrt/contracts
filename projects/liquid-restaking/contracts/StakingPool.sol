@@ -75,14 +75,7 @@ contract StakingPool is
         setDistributeGasLimit(distributeGasLimit);
     }
 
-    function stake() external payable {
-        stakeCerts();
-    }
-
-    /**
-     * @dev Deprecated.
-     */
-    function stakeCerts() public payable override {
+    function stake() public payable {
         uint256 amount = msg.value;
         require(
             amount >= _stakingConfig.getMinStake(),
@@ -92,6 +85,18 @@ contract StakingPool is
         uint256 shares = certificateToken.convertToShares(amount);
         certificateToken.mint(msg.sender, shares);
         emit Staked(msg.sender, amount, shares);
+    }
+
+    function stake(bytes32 code) external payable {
+        stake();
+        emit ReferralStake(code);
+    }
+
+    /**
+     * @dev Deprecated.
+     */
+    function stakeCerts() external payable override {
+        stake();
     }
 
     function unstake(address to, uint256 shares) external {
