@@ -83,6 +83,8 @@ interface IRestakingPool {
 
     event RestakerAdded(string indexed provider, address restaker);
 
+    event ReferralStake(bytes32 indexed code);
+
     /* functions */
 
     function getMinStake() external view returns (uint256);
