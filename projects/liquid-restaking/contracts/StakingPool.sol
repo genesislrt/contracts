@@ -176,24 +176,36 @@ contract StakingPool is
         emit PendingUnstake(owner, claimer, amount, shares);
     }
 
-    function distributeUnstakes(
+    function claimRestaker(
+        string calldata provider,
         uint256 fee
-    ) external onlyOperator nonReentrant {
+    ) external onlyOperator {
+        IRestaker restaker = IRestaker(_getRestakerOrRevert(provider));
+        uint256 balanceBefore = address(this).balance;
+        restaker.__claim();
+        uint256 claimed = address(this).balance - balanceBefore;
+
+        if (fee > claimed) {
+            revert AmbiguousFee(claimed, fee);
+        }
+
+        address treasury = _stakingConfig.getTreasury();
+        if (fee > 0) {
+            // send committed by operator fee (deducted from ratio) to multi-sig treasury
+            _sendValue(treasury, fee, false);
+        }
+
+        // from {provider} fee claimed to {treasury}
+        emit FeeClaimed(address(restaker), treasury, fee, claimed);
+    }
+
+    function distributeUnstakes() external onlyOperator nonReentrant {
         require(
             _distributeGasLimit > 0,
             "StakingPool: DISTRIBUTE_GAS_LIMIT is not set"
         );
 
         uint256 poolBalance = getPending();
-
-        if (poolBalance >= fee) {
-            // send committed by operator fee (deducted from ratio) to multi-sig treasury
-            poolBalance -= fee;
-            address treasury = _stakingConfig.getTreasury();
-            _sendValue(treasury, fee, false);
-            emit FeeClaimed(treasury, fee);
-        }
-
         uint256 i = _pendingGap;
 
         while (
