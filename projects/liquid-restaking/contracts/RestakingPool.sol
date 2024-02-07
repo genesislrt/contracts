@@ -118,10 +118,15 @@ contract RestakingPool is
         emit Received(_msgSender(), msg.value);
     }
 
+    function stake(bytes32 code) external payable {
+        stake();
+        emit ReferralStake(code);
+    }
+
     /**
      * @notice Exchange `msg.value` ETH for genETH by ratio.
      */
-    function stake() external payable {
+    function stake() public payable {
         uint256 amount = msg.value;
 
         if (amount < getMinStake()) {
