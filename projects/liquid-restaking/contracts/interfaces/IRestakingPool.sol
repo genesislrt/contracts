@@ -31,6 +31,7 @@ interface IRestakingPool {
 
     error PoolStakeAmLessThanMin();
     error PoolUnstakeAmLessThanMin();
+    error AmbiguousFee(uint256 claimed, uint256 fee);
 
     /* events */
 
@@ -71,7 +72,14 @@ interface IRestakingPool {
         uint256 value
     );
 
-    event FeeClaimed(address indexed treasury, uint256 amount);
+    event FeeClaimed(
+        address indexed restaker,
+        address indexed treasury,
+        uint256 fee,
+        uint256 totalClaimed
+    );
+
+    event ReferralStake(bytes32 indexed code);
 
     /* functions */
 
