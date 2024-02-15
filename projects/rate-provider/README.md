@@ -13,7 +13,7 @@ npx hardhat run scripts/deploy.ts
 ## Deployemnts
 
 ### Mainnet
-* GenEthRateProvider: [TBD](https://etherscan.io/address/0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C)
+* GenEthRateProvider: [0xC29783738A475112Cafe58433Dd9D19F3a406619](https://etherscan.io/address/0xC29783738A475112Cafe58433Dd9D19F3a406619)
   
 ### Goerli
 * GenEthRateProvider: [0xb5107AB8927D3e1B8B470C5c2424C46e8A580558](https://goerli.etherscan.io/address/0xb5107AB8927D3e1B8B470C5c2424C46e8A580558)
