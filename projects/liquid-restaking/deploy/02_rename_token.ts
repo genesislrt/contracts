@@ -18,23 +18,23 @@ const transferAdminOwnership = async (
 const func: DeployFunction = async function ({
     getNamedAccounts,
     deployments,
+    network,
 }) {
     const { execute, get } = deployments;
     const { deployer, governance, treasury } = await getNamedAccounts();
 
+    if (network.name !== 'mainnet') {
+        return true;
+    }
+
     const config = await get('ProtocolConfig');
 
-    const cToken = await ozDeploy(
+    await ozDeploy(
         deployments,
         'cToken',
         [config.address, 'GenesisLRT restaked ETH', 'genETH'],
         true
     );
-
-    const executeCfg = {
-        from: deployer,
-        log: true,
-    };
 
     await transferAdminOwnership(deployments, 'cToken', governance);
 

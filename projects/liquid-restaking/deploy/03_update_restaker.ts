@@ -1,8 +1,12 @@
 import { ethers, upgrades } from 'hardhat';
 import { DeployFunction, DeploymentsExtension } from 'hardhat-deploy/types';
 
-const func: DeployFunction = async function ({ deployments }) {
+const func: DeployFunction = async function ({ deployments, network }) {
     const { get } = deployments;
+
+    if (network.name !== 'mainnet') {
+        return true;
+    }
 
     const restakerDeployer = await get('RestakerDeployer');
 

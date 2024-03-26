@@ -4,9 +4,14 @@ import { transferAdminOwnership } from '../scripts/deploy-helpers';
 const func: DeployFunction = async function ({
     getNamedAccounts,
     deployments,
+    network,
 }) {
     const { execute, get } = deployments;
     const { deployer, governance, treasury } = await getNamedAccounts();
+
+    if (network.name !== 'mainnet') {
+        return true;
+    }
 
     const executeCfg = {
         from: deployer,

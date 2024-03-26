@@ -35,7 +35,11 @@ const schedule = async ({
     console.log(res.hash);
 };
 
-const func: DeployFunction = async function ({ deployments }) {
+const func: DeployFunction = async function ({ deployments, network }) {
+    if (network.name !== 'mainnet') {
+        return true;
+    }
+
     const { get } = deployments;
     const RestakingPool = await get('RestakingPool');
     const restakinPoolAdmin = await upgrades.erc1967.getAdminAddress(
