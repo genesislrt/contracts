@@ -36,13 +36,13 @@ contract EigenPodManagerMock is Initializable, IEigenPodManager {
         ownerToPod[owner] = pod;
     }
 
-    function createPod() external override {
+    function createPod() external override returns (address) {
         require(
             !hasPod(msg.sender),
             "EigenPodManager.createPod: Sender already has a pod"
         );
         // deploy a pod if the sender doesn't have one already
-        _deployPod();
+        return address(_deployPod());
     }
 
     function _deployPod() internal returns (IEigenPod) {

@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test": "npx truffle test",
-    "generatesdk": "./generategosdkv2.sh"
+    "generatesdk": "./generategosdkv2.sh",
+    "deploy:holesky": "hardhat deploy --network holesky",
+    "deploy:mainnet": "hardhat deploy --network mainnet"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +19,7 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.0.1",
+    "@nomicfoundation/hardhat-verify": "^2.0.5",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@openzeppelin/contracts": "^5.0.0",
     "@openzeppelin/contracts-upgradeable": "^5.0.0",
@@ -36,7 +38,6 @@
     "hardhat-gas-reporter": "^1.0.9",
     "hardhat-tracer": "^2.7.0",
     "solidity-coverage": "^0.8.4",
-    "truffle-plugin-verify": "^0.6.5",
     "ts-node": "^10.9.1",
     "typechain": "^8.3.2",
     "typescript": "^5.2.2"
