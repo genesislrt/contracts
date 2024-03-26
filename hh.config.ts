@@ -16,12 +16,18 @@ export const CONFIG = {
             gasPrice,
             accounts,
         },
-        goerli: {
+        holesky: {
             url: process.env.HOLESKY_RPC || 'https://rpc.ankr.com/eth_holesky',
             chainId: 17000,
             gasPrice,
             gas: 8000000,
             accounts,
+            verify: {
+                etherscan: {
+                    apiKey: process.env.ETHERSCAN_API_KEY,
+                    apiUrl: 'https://api-holesky.etherscan.io',
+                },
+            },
         },
         local: {
             url: process.env.LOCAL_RPC || 'http://127.0.0.1:8545',
@@ -77,16 +83,21 @@ export const CONFIG = {
             mainnet: 'fill',
         },
     },
-    verify: {
-        etherscan: {
-            apiKey: process.env.ETHERSCAN_API_KEY,
-        },
-        sourcify: {
-            enabled: false,
-        },
-    },
     etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY,
+        apiKey: {
+            holesky: 'PP5CDPZBG6AF6FBGE9CJNYGCRYXYN549M1',
+            mainnet: process.env.ETHERSCAN_API_KEY,
+        },
+        customChains: [
+            {
+                network: 'holesky',
+                chainId: 17000,
+                urls: {
+                    apiURL: 'https://api-holesky.etherscan.io/api',
+                    browserURL: 'https://holesky.etherscan.io',
+                },
+            },
+        ],
     },
     sourcify: {
         enabled: false,
