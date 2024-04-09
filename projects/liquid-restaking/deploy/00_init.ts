@@ -29,7 +29,7 @@ const func: DeployFunction = async function ({
 
     const cToken = await ozDeploy(deployments, 'cToken', [
         config.address,
-        'Genesis ETH',
+        'GenesisLRT restaked ETH',
         'genETH',
     ]);
 

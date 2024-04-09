@@ -16,12 +16,18 @@ export const CONFIG = {
             gasPrice,
             accounts,
         },
-        goerli: {
-            url: process.env.GOERLI_RPC || 'https://rpc.ankr.com/eth_goerli',
-            chainId: 5,
+        holesky: {
+            url: process.env.HOLESKY_RPC || 'https://rpc.ankr.com/eth_holesky',
+            chainId: 17000,
             gasPrice,
             gas: 8000000,
             accounts,
+            verify: {
+                etherscan: {
+                    apiKey: process.env.ETHERSCAN_API_KEY,
+                    apiUrl: 'https://api-holesky.etherscan.io',
+                },
+            },
         },
         local: {
             url: process.env.LOCAL_RPC || 'http://127.0.0.1:8545',
@@ -51,40 +57,47 @@ export const CONFIG = {
             default: 0,
         },
         treasury: {
-            goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
+            default: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
             mainnet: '0x00Fd4edEd5BB37d19F98Ab49722Ef51E84745928',
         },
         operator: {
-            goerli: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
+            default: '0x064B9a8cd35ad4dB117617A3773F8129E9515967',
             mainnet: '0x078dc682083132b4E86731062FCF95A729Bac067',
         },
         governance: {
-            goerli: 0,
+            default: 0,
             mainnet: '0x03D7aaa453D9e7048101d425e73848e16c534DFD',
         },
         elPodManager: {
             goerli: '0xa286b84C96aF280a49Fe1F40B9627C2A2827df41',
+            holesky: '0x30770d7E3e71112d7A6b7259542D1f680a70e315',
             mainnet: '0x91E677b07F7AF907ec9a428aafA9fc14a0d3A338',
         },
         elDelegationManager: {
             goerli: '0x1b7b8F6b258f95Cf9596EabB9aa18B62940Eb0a8',
+            holesky: '0xdfB5f6CE42aAA7830E94ECFCcAd411beF4d4D5b6',
             mainnet: '0x39053D51B77DC0d36036Fc1fCc8Cb819df8Ef37A',
         },
         proxyAdminTimelock: {
-            goerli: 0,
+            default: 0,
             mainnet: 'fill',
         },
     },
-    verify: {
-        etherscan: {
-            apiKey: process.env.ETHERSCAN_API_KEY,
-        },
-        sourcify: {
-            enabled: false,
-        },
-    },
     etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY,
+        apiKey: {
+            holesky: 'PP5CDPZBG6AF6FBGE9CJNYGCRYXYN549M1',
+            mainnet: process.env.ETHERSCAN_API_KEY,
+        },
+        customChains: [
+            {
+                network: 'holesky',
+                chainId: 17000,
+                urls: {
+                    apiURL: 'https://api-holesky.etherscan.io/api',
+                    browserURL: 'https://holesky.etherscan.io',
+                },
+            },
+        ],
     },
     sourcify: {
         enabled: false,
