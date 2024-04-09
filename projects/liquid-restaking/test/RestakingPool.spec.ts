@@ -109,7 +109,7 @@ describe('RestakingPool', function () {
             const available = await pool.availableToStake();
             expect(available).to.be.eq(MAX_TVL);
             await expect(
-                pool.connect(signer1).stake({ value: available + 1n })
+                pool.connect(signer1)['stake()']({ value: available + 1n })
             ).to.be.revertedWithCustomError(
                 pool,
                 'PoolStakeAmGreaterThanAvailable'
@@ -174,7 +174,9 @@ describe('RestakingPool', function () {
                 // Stake
                 const amount = await param.amount(pool);
                 const expectedShares = (amount * ratio) / _1E18;
-                await expect(pool.connect(signer1).stake({ value: amount }))
+                await expect(
+                    pool.connect(signer1)['stake()']({ value: amount })
+                )
                     .to.emit(pool, 'Staked')
                     .withArgs(
                         signer1.address,
@@ -201,7 +203,7 @@ describe('RestakingPool', function () {
         it('Reverts: when amount < min', async function () {
             const amount = (await pool.getMinStake()) - 1n;
             await expect(
-                pool.connect(signer1).stake({ value: amount })
+                pool.connect(signer1)['stake()']({ value: amount })
             ).to.be.revertedWithCustomError(pool, 'PoolStakeAmLessThanMin');
         });
 
@@ -209,7 +211,7 @@ describe('RestakingPool', function () {
             await expect(
                 pool
                     .connect(signer1)
-                    .stake({ value: (await pool.availableToStake()) + 1n })
+                    ['stake()']({ value: (await pool.availableToStake()) + 1n })
             ).to.be.revertedWithCustomError(
                 pool,
                 'PoolStakeAmGreaterThanAvailable'
@@ -246,7 +248,7 @@ describe('RestakingPool', function () {
                         10n ** 18n - MIN_STAKE + MIN_UNSTAKE
                     );
                     expectedPoolBalance = expectedPoolBalance + amount;
-                    await pool.connect(signer).stake({ value: amount });
+                    await pool.connect(signer)['stake()']({ value: amount });
                     const shares = (amount * ratio) / _1E18;
                     const currentShares = signersShares.get(signer.address);
                     signersShares.set(signer.address, currentShares + shares);
@@ -344,7 +346,9 @@ describe('RestakingPool', function () {
             it(`Unstake: ${param.name}`, async function () {
                 // Stake once
                 if ((await cToken.balanceOf(signer1.address)) === 0n) {
-                    await pool.connect(signer1).stake({ value: 50n * _1E18 });
+                    await pool
+                        .connect(signer1)
+                        ['stake()']({ value: 50n * _1E18 });
                 }
                 //Update ratio
                 const ratio = (await cToken.ratio()) - 1000n;
@@ -429,7 +433,7 @@ describe('RestakingPool', function () {
         });
 
         it('Reverts: when exceed user balance', async function () {
-            await pool.connect(signer1).stake({ value: 10n ** 18n });
+            await pool.connect(signer1)['stake()']({ value: 10n ** 18n });
             const shares = (await cToken.balanceOf(signer1.address)) + 1n;
             await expect(
                 pool.connect(signer1).unstake(signer1.address, shares)
@@ -437,7 +441,7 @@ describe('RestakingPool', function () {
         });
 
         it('Reverts: receiver is zero address', async function () {
-            await pool.connect(signer1).stake({ value: 10n ** 18n });
+            await pool.connect(signer1)['stake()']({ value: 10n ** 18n });
             const shares = await cToken.convertToShares(10n ** 18n);
             await expect(
                 pool.connect(signer1).unstake(ethers.ZeroAddress, shares)
@@ -508,7 +512,7 @@ describe('RestakingPool', function () {
         });
 
         it('batchDeposit()', async function () {
-            await pool.connect(signer1).stake({ value: _1E18 * 33n });
+            await pool.connect(signer1)['stake()']({ value: _1E18 * 33n });
 
             const pubkey =
                 '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25b';
@@ -531,7 +535,7 @@ describe('RestakingPool', function () {
         });
 
         it('batchDeposit()', async function () {
-            await pool.connect(signer2).stake({ value: _1E18 * 65n });
+            await pool.connect(signer2)['stake()']({ value: _1E18 * 65n });
             const pubkeys = [
                 '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25b',
                 '0xb8ed0276c4c631f3901bafa668916720f2606f58e0befab541f0cf9e0ec67a8066577e9a01ce58d4e47fba56c516f25a',
@@ -576,7 +580,7 @@ describe('RestakingPool', function () {
         });
 
         it('batchDeposit(): provider not exists', async function () {
-            await pool.connect(signer2).stake({ value: _1E18 * 32n });
+            await pool.connect(signer2)['stake()']({ value: _1E18 * 32n });
             await expect(
                 pool
                     .connect(operator)
@@ -615,7 +619,7 @@ describe('RestakingPool', function () {
                 const signer = signers[signerIndex]();
                 await pool
                     .connect(signer)
-                    .stake({ value: minStake * (i + 10n) });
+                    ['stake()']({ value: minStake * (i + 10n) });
                 /// get tokens amount and unstake a bit less
                 const tokensAm = (await cToken.balanceOf(signer.address)) - i;
                 await time.increase(60 * 60 * 12);
