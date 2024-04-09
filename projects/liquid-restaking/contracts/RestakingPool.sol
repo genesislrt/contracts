@@ -353,7 +353,8 @@ contract RestakingPool is
 
     /**
      *
-     * @dev will be called only once for each restaker, because it activates restaking.
+     * @notice Will be called only once for each restaker, because it activates restaking.
+     * @dev deprecated. Remove after EigenPod activation
      */
     function activateRestaking(string memory provider) external onlyOperator {
         address restaker = _getRestakerOrRevert(provider);
@@ -363,7 +364,8 @@ contract RestakingPool is
 
     /**
      *
-     * @dev withdraw not restaked ETH
+     * @notice withdraw not restaked ETH
+     * @dev deprecated. Remove after EigenPod activation
      */
     function withdrawBeforeRestaking(
         string memory provider
@@ -373,6 +375,9 @@ contract RestakingPool is
         IEigenPod(restaker).withdrawBeforeRestaking();
     }
 
+    /**
+     * @notice Verify that validators has withdrawal credentials pointed to EigenPod
+     */
     function verifyWithdrawalCredentials(
         string memory provider,
         uint64 oracleTimestamp,
@@ -429,6 +434,13 @@ contract RestakingPool is
             approverSignatureAndExpiry,
             approverSalt
         );
+    }
+
+    function undelegate(string memory provider) external onlyOperator {
+        IDelegationManager restaker = IDelegationManager(
+            _getRestakerOrRevert(provider)
+        );
+        restaker.undelegate(address(restaker));
     }
 
     /*******************************************************************************

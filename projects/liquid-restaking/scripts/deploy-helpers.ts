@@ -1,6 +1,11 @@
 import { ethers, upgrades } from 'hardhat';
 import { DeploymentsExtension, Receipt } from 'hardhat-deploy/types';
-import { ContractTransactionReceipt } from 'ethers';
+import {
+    BigNumberish,
+    BytesLike,
+    ContractTransaction,
+    ContractTransactionReceipt,
+} from 'ethers';
 
 const TxResultToReceipt = async (
     result: undefined | null | ContractTransactionReceipt
@@ -71,4 +76,36 @@ export async function transferAdminOwnership(
     await upgrades.admin.transferProxyAdminOwnership(contract.address, to);
     console.log(`ProxyAdmin ownership of ${contractName} transferred to ${to}`);
     await sleep(24_000);
+}
+
+export async function schedule({
+    transaction,
+    predecessor,
+    salt,
+    delay,
+}: {
+    transaction: ContractTransaction;
+    predecessor?: BytesLike;
+    salt?: BytesLike;
+    delay?: BigNumberish;
+}) {
+    const timelock = await ethers.getContractAt(
+        'ITimelockController',
+        '0xc70470Cdc428d6A3966cd25F476F84D898158638'
+    );
+
+    if (!delay) {
+        delay = await timelock.getMinDelay();
+    }
+
+    const res = await timelock.schedule(
+        transaction.to,
+        transaction.value || '0',
+        transaction.data,
+        predecessor || ethers.ZeroHash,
+        salt || ethers.ZeroHash,
+        delay
+    );
+    await res.wait();
+    console.log(res.hash);
 }

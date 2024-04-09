@@ -61,7 +61,7 @@ describe('RestakerDeployer', function () {
 
         it('restaker address calculated', async () => {
             expect(await deployer.getRestaker(0)).to.be.eq(
-                '0x38a3D0863c050CcEb3e78A93a2FFf5Ddb0d0cF31' // TODO: calculate in test
+                '0xB3f38232Befaf34Eaa8048F96C5c2BC4DE2E9C44' // TODO: calculate in test
             );
         });
 

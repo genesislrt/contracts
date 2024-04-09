@@ -116,4 +116,32 @@ contract EigenPodManagerMock is Initializable, IEigenPodManager {
     {
         return IStrategy(address(0));
     }
+
+    function recordBeaconChainETHBalanceUpdate(
+        address podOwner,
+        int256 sharesDelta
+    ) external override {}
+
+    function updateBeaconChainOracle(
+        IBeaconChainOracle newBeaconChainOracle
+    ) external override {}
+
+    function removeShares(address podOwner, uint256 shares) external override {}
+
+    function addShares(
+        address podOwner,
+        uint256 shares
+    ) external override returns (uint256) {}
+
+    function withdrawSharesAsTokens(
+        address podOwner,
+        address destination,
+        uint256 shares
+    ) external override {}
+
+    function denebForkTimestamp() external view override returns (uint64) {}
+
+    function setDenebForkTimestamp(
+        uint64 newDenebForkTimestamp
+    ) external override {}
 }
