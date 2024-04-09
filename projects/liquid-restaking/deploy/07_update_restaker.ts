@@ -22,7 +22,10 @@ const func: DeployFunction = async function ({ deployments, network }) {
 
     const newImpl = await upgrades.prepareUpgrade(
         beaconAddr,
-        await ethers.getContractFactory('Restaker')
+        await ethers.getContractFactory('Restaker'),
+        {
+            redeployImplementation: 'always',
+        }
     );
 
     console.log(`changing implementation from ${currentImpl} to ${newImpl}`);

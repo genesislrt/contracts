@@ -467,7 +467,7 @@
             "label": "_config",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(IProtocolConfig)7775",
+            "type": "t_contract(IProtocolConfig)7943",
             "contract": "Configurable",
             "src": "contracts/Configurable.sol:17"
           },
@@ -523,7 +523,7 @@
             "label": "_pendingUnstakes",
             "offset": 0,
             "slot": "55",
-            "type": "t_array(t_struct(Unstake)7833_storage)dyn_storage",
+            "type": "t_array(t_struct(Unstake)8001_storage)dyn_storage",
             "contract": "RestakingPool",
             "src": "contracts/RestakingPool.sol:50"
           },
@@ -639,7 +639,7 @@
             "label": "address",
             "numberOfBytes": "20"
           },
-          "t_array(t_struct(Unstake)7833_storage)dyn_storage": {
+          "t_array(t_struct(Unstake)8001_storage)dyn_storage": {
             "label": "struct IRestakingPool.Unstake[]",
             "numberOfBytes": "32"
           },
@@ -655,7 +655,7 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(IProtocolConfig)7775": {
+          "t_contract(IProtocolConfig)7943": {
             "label": "contract IProtocolConfig",
             "numberOfBytes": "20"
           },
@@ -667,7 +667,7 @@
             "label": "mapping(bytes32 => address)",
             "numberOfBytes": "32"
           },
-          "t_struct(Unstake)7833_storage": {
+          "t_struct(Unstake)8001_storage": {
             "label": "struct IRestakingPool.Unstake",
             "members": [
               {
@@ -851,7 +851,7 @@
             "label": "_selectorToTarget",
             "offset": 0,
             "slot": "0",
-            "type": "t_mapping(t_bytes4,t_enum(FuncTarget)10719)",
+            "type": "t_mapping(t_bytes4,t_enum(FuncTarget)11084)",
             "contract": "RestakerFacets",
             "src": "contracts/restaker/RestakerFacets.sol:18"
           },
@@ -859,7 +859,7 @@
             "label": "_podManager",
             "offset": 0,
             "slot": "1",
-            "type": "t_contract(IEigenPodManager)7632",
+            "type": "t_contract(IEigenPodManager)7800",
             "contract": "RestakerFacets",
             "src": "contracts/restaker/RestakerFacets.sol:19"
           },
@@ -867,7 +867,7 @@
             "label": "_delegationManager",
             "offset": 0,
             "slot": "2",
-            "type": "t_contract(IDelegationManager)7162",
+            "type": "t_contract(IDelegationManager)7241",
             "contract": "RestakerFacets",
             "src": "contracts/restaker/RestakerFacets.sol:20"
           }
@@ -919,15 +919,15 @@
             "label": "bytes4",
             "numberOfBytes": "4"
           },
-          "t_contract(IDelegationManager)7162": {
+          "t_contract(IDelegationManager)7241": {
             "label": "contract IDelegationManager",
             "numberOfBytes": "20"
           },
-          "t_contract(IEigenPodManager)7632": {
+          "t_contract(IEigenPodManager)7800": {
             "label": "contract IEigenPodManager",
             "numberOfBytes": "20"
           },
-          "t_enum(FuncTarget)10719": {
+          "t_enum(FuncTarget)11084": {
             "label": "enum IRestakerFacets.FuncTarget",
             "members": [
               "POD",
@@ -936,7 +936,7 @@
             ],
             "numberOfBytes": "1"
           },
-          "t_mapping(t_bytes4,t_enum(FuncTarget)10719)": {
+          "t_mapping(t_bytes4,t_enum(FuncTarget)11084)": {
             "label": "mapping(bytes4 => enum IRestakerFacets.FuncTarget)",
             "numberOfBytes": "32"
           }
@@ -983,7 +983,7 @@
             "label": "_facets",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(IRestakerFacets)10733",
+            "type": "t_contract(IRestakerFacets)10123",
             "contract": "Restaker",
             "src": "contracts/restaker/Restaker.sol:17"
           },
@@ -1039,9 +1039,406 @@
             "label": "uint64",
             "numberOfBytes": "8"
           },
-          "t_contract(IRestakerFacets)10733": {
+          "t_contract(IRestakerFacets)10123": {
             "label": "contract IRestakerFacets",
             "numberOfBytes": "20"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "29f9e02cb8bda0ba6a19f761e929466f36e4ca0b5cf6133e06f4ce250ac53e96": {
+      "address": "0x5d2DdAD50869e9f80b676bd5c0348e8a324a6265",
+      "txHash": "0x2da0bfba1eae7981eb35bc9948ff7e5970dab154ffd3e8afb76046f7b19b9eac",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [
+          {
+            "label": "_config",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IProtocolConfig)7970",
+            "contract": "Configurable",
+            "src": "contracts/Configurable.sol:17"
+          },
+          {
+            "label": "__reserved",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "Configurable",
+            "src": "contracts/Configurable.sol:18"
+          },
+          {
+            "label": "_minStakeAmount",
+            "offset": 0,
+            "slot": "50",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:31"
+          },
+          {
+            "label": "_minUnstakeAmount",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:32"
+          },
+          {
+            "label": "_totalStaked",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:37"
+          },
+          {
+            "label": "_totalUnstaked",
+            "offset": 0,
+            "slot": "53",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:41"
+          },
+          {
+            "label": "_pendingGap",
+            "offset": 0,
+            "slot": "54",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:46"
+          },
+          {
+            "label": "_pendingUnstakes",
+            "offset": 0,
+            "slot": "55",
+            "type": "t_array(t_struct(Unstake)8028_storage)dyn_storage",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:50"
+          },
+          {
+            "label": "_totalPendingUnstakes",
+            "offset": 0,
+            "slot": "56",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:54"
+          },
+          {
+            "label": "_totalUnstakesOf",
+            "offset": 0,
+            "slot": "57",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:55"
+          },
+          {
+            "label": "_distributeGasLimit",
+            "offset": 0,
+            "slot": "58",
+            "type": "t_uint32",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:59"
+          },
+          {
+            "label": "_totalClaimable",
+            "offset": 0,
+            "slot": "59",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:61"
+          },
+          {
+            "label": "_claimable",
+            "offset": 0,
+            "slot": "60",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:62"
+          },
+          {
+            "label": "_restakers",
+            "offset": 0,
+            "slot": "61",
+            "type": "t_mapping(t_bytes32,t_address)",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:67"
+          },
+          {
+            "label": "_maxTVL",
+            "offset": 0,
+            "slot": "62",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:72"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "63",
+            "type": "t_array(t_uint256)37_storage",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:79"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)320_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_struct(Unstake)8028_storage)dyn_storage": {
+            "label": "struct IRestakingPool.Unstake[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)37_storage": {
+            "label": "uint256[37]",
+            "numberOfBytes": "1184"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IProtocolConfig)7970": {
+            "label": "contract IProtocolConfig",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_address)": {
+            "label": "mapping(bytes32 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Unstake)8028_storage": {
+            "label": "struct IRestakingPool.Unstake",
+            "members": [
+              {
+                "label": "recipient",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "affdaec18cf9db0d6f42d6167a62d16fcdd0a085239b9ebd7beb8d492630e178": {
+      "address": "0xaf10Aa96fECeAF6309EDc4357a4bbC94773312fE",
+      "txHash": "0x957b03739d9f3e92f82b615d09e0a0f5a9bee19bdeb850c352b9ccd40aa60132",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [
+          {
+            "label": "_selectorToTarget",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_bytes4,t_enum(FuncTarget)10103)",
+            "contract": "RestakerFacets",
+            "src": "contracts/restaker/RestakerFacets.sol:18"
+          },
+          {
+            "label": "_podManager",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IEigenPodManager)7827",
+            "contract": "RestakerFacets",
+            "src": "contracts/restaker/RestakerFacets.sol:19"
+          },
+          {
+            "label": "_delegationManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IDelegationManager)7268",
+            "contract": "RestakerFacets",
+            "src": "contracts/restaker/RestakerFacets.sol:20"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_bytes4": {
+            "label": "bytes4",
+            "numberOfBytes": "4"
+          },
+          "t_contract(IDelegationManager)7268": {
+            "label": "contract IDelegationManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IEigenPodManager)7827": {
+            "label": "contract IEigenPodManager",
+            "numberOfBytes": "20"
+          },
+          "t_enum(FuncTarget)10103": {
+            "label": "enum IRestakerFacets.FuncTarget",
+            "members": [
+              "POD",
+              "POD_MANAGER",
+              "DELEGATION_MANAGER"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_bytes4,t_enum(FuncTarget)10103)": {
+            "label": "mapping(bytes4 => enum IRestakerFacets.FuncTarget)",
+            "numberOfBytes": "32"
           }
         },
         "namespaces": {
