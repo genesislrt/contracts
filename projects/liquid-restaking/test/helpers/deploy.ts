@@ -155,13 +155,7 @@ export async function deployLiquidRestaking({
     maxTVL?: bigint;
 }) {
     // cToken
-    const cToken = await upgrades.deployProxy(
-        await ethers.getContractFactory('cToken'),
-        [await protocolConfig.getAddress(), tokenName, tokenSymbol],
-        { redeployImplementation: 'always' }
-    );
-    await cToken.waitForDeployment();
-    await protocolConfig.setCToken(await cToken.getAddress());
+    const cToken = await deployCToken(protocolConfig, tokenName, tokenSymbol)
 
     // Pool
     const restakingPool = await upgrades.deployProxy(
@@ -185,3 +179,19 @@ export async function deployLiquidRestaking({
         ratioFeed,
     };
 }
+
+export async function deployCToken(
+    protocolConfig: ProtocolConfig,
+    tokenName: string,
+    tokenSymbol: string,
+) {
+    const cToken = await upgrades.deployProxy(
+        await ethers.getContractFactory('cToken'),
+        [await protocolConfig.getAddress(), tokenName, tokenSymbol],
+        { redeployImplementation: 'always' }
+    );
+    await cToken.waitForDeployment();
+    await protocolConfig.setCToken(await cToken.getAddress());
+    return cToken as unknown as CToken;
+}
+

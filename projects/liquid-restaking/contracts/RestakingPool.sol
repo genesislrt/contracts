@@ -9,7 +9,7 @@ import "./restaker/IRestaker.sol";
 import "./interfaces/ISignatureUtils.sol";
 
 /**
- * @title General contract where stakes and unstakes of genETH happens.
+ * @title General contract where stakes and unstakes of inETH happens.
  * @author GenesisLRT
  */
 contract RestakingPool is
@@ -124,7 +124,7 @@ contract RestakingPool is
     }
 
     /**
-     * @notice Exchange `msg.value` ETH for genETH by ratio.
+     * @notice Exchange `msg.value` ETH for inETH by ratio.
      */
     function stake() public payable {
         uint256 amount = msg.value;
@@ -654,4 +654,5 @@ contract RestakingPool is
         emit MaxTVLChanged(_maxTVL, newValue);
         _maxTVL = newValue;
     }
+
 }
