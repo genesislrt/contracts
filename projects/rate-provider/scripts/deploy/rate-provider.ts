@@ -6,7 +6,7 @@ async function main() {
   const args = ["0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C"]; // InETH
 
   const rateProvider = await ethers.deployContract(
-    "GenEthRateProvider",
+    "InEthRateProvider",
     args,
   );
   await rateProvider.waitForDeployment();

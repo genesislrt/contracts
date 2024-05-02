@@ -16,7 +16,7 @@ interface IRateProvider {
  * @author GenesisLRT
  * @notice Redemption rate provider for balancer.
  */
-contract GenEthRateProvider is IRateProvider {
+contract InEthRateProvider is IRateProvider {
     ICToken public token;
 
     constructor(ICToken token_) {
