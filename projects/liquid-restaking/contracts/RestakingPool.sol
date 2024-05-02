@@ -654,5 +654,4 @@ contract RestakingPool is
         emit MaxTVLChanged(_maxTVL, newValue);
         _maxTVL = newValue;
     }
-
 }
