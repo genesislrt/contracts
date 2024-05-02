@@ -8,7 +8,7 @@ import "./interfaces/IRatioFeed.sol";
 import "./interfaces/IProtocolConfig.sol";
 
 /**
- * @title Stores ratio of genETH
+ * @title Stores ratio of inETH
  * @author GenesisLRT
  */
 contract RatioFeed is Configurable, IRatioFeed {

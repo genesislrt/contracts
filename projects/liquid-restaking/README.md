@@ -7,8 +7,8 @@ Genesis liquid restaking supports ETH as the input asset to stake it to Beacon C
 
 ```mermaid
 graph TD
-    users(Users) <-- ETH/genETH --> RestakingPool
-    RestakingPool -- genETH --> cToken
+    users(Users) <-- ETH/inETH --> RestakingPool
+    RestakingPool -- inETH --> cToken
     RestakingPool -- ETH --> Restakers
     Restakers --> elPod{{EigenPod}}
     Restakers --> elPodManager{{EigenPodManager}}
@@ -18,9 +18,9 @@ graph TD
 
 ### Contracts
 #### Genesis
-* **cToken** - implementation of genETH token; not rebased.
-* **RestakingPool** - the pool that implements such features as exchange ETH to genETH and vice versa; owner of Restakers assigned to different providers.
-* **RatioFeed** - contract stores ratio between ETH and genETH.
+* **cToken** - implementation of inETH token; not rebased.
+* **RestakingPool** - the pool that implements such features as exchange ETH to inETH and vice versa; owner of Restakers assigned to different providers.
+* **RatioFeed** - contract stores ratio between ETH and inETH.
 * **ProtocolConfig** - contract stores general variables of liquid restaking protocol.
 * **FeeCollector** - contract receives Tips & Mev rewards for produced blocks. Must be set as --fee-recipient in validator client.
 * **RestakerBeacon** - beacon of Restaker.
