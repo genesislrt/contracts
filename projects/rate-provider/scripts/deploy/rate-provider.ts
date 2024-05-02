@@ -20,7 +20,7 @@ async function main() {
   await run("verify:verify", {
     address: await rateProvider.getAddress(),
     constructorArguments: args,
-    contract: "contracts/RateProvider.sol:GenEthRateProvider",
+    contract: "contracts/RateProvider.sol:InEthRateProvider",
   });
 }
 

@@ -27,7 +27,14 @@ contract cToken is Configurable, ERC20PausableUpgradeable, ICToken {
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
-    uint256[50] private __gap;
+    uint256[48] private __gap;
+
+    /*******************************************************************************
+                        EVENTS
+    *******************************************************************************/
+
+    event NameChanged(string newName);
+    event SymbolChanged(string newSymbol);
 
     /*******************************************************************************
                         CONSTRUCTOR
@@ -52,8 +59,8 @@ contract cToken is Configurable, ERC20PausableUpgradeable, ICToken {
     }
 
     function __cToken_init(string memory name, string memory symbol) internal {
-        _name = name;
-        _symbol = symbol;
+        _changeName(name);
+        _changeSymbol(symbol);
     }
 
     /*******************************************************************************
@@ -170,6 +177,7 @@ contract cToken is Configurable, ERC20PausableUpgradeable, ICToken {
      */
     function _changeName(string memory newName) internal {
         _name = newName;
+        emit NameChanged(newName);
     }
 
     /**
@@ -177,6 +185,7 @@ contract cToken is Configurable, ERC20PausableUpgradeable, ICToken {
      */
     function _changeSymbol(string memory newSymbol) internal {
         _symbol = newSymbol;
+        emit SymbolChanged(newSymbol);
     }
 
     /*******************************************************************************

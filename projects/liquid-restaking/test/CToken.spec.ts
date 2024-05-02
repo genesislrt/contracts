@@ -1,37 +1,39 @@
-import { HardhatEthersSigner } from '@nomicfoundation/hardhat-ethers/signers';
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { ethers } from "hardhat";
-import { deployCToken, deployConfig } from './helpers/deploy';
+import { deployConfig, deployCToken } from "./helpers/deploy";
 import { expect } from "chai";
 import { CToken } from "../typechain-types";
-
 
 describe("cToken", function () {
   let cToken: CToken;
 
-  let initialName = "initialName"
-  let initialSymbol = "InitSYMBOL"
+  let initialName = "initialName";
+  let initialSymbol = "InitSYMBOL";
 
   let governance: HardhatEthersSigner,
-      operator: HardhatEthersSigner,
-      treasury: HardhatEthersSigner;
+    operator: HardhatEthersSigner,
+    treasury: HardhatEthersSigner;
 
   beforeEach(async function () {
     [governance, operator, treasury] = await ethers.getSigners();
 
     const protocolConfig = await deployConfig([governance, operator, treasury]);
     cToken = await deployCToken(protocolConfig, initialName, initialSymbol);
-
   });
 
   it("should change symbol", async function () {
     const newSymbol = "NEWSYM";
-    await cToken.connect(governance).changeSymbol(newSymbol);
+    await expect(cToken.connect(governance).changeSymbol(newSymbol))
+      .to.emit(cToken, "SymbolChanged")
+      .withArgs(newSymbol);
     expect(await cToken.symbol()).to.equal(newSymbol);
   });
 
   it("should change name", async function () {
     const newName = "NewName";
-    await cToken.connect(governance).changeName(newName);
+    await expect(cToken.connect(governance).changeName(newName))
+      .to.emit(cToken, "NameChanged")
+      .withArgs(newName);
     expect(await cToken.name()).to.equal(newName);
   });
 
