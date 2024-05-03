@@ -856,7 +856,7 @@
             "label": "_selectorToTarget",
             "offset": 0,
             "slot": "0",
-            "type": "t_mapping(t_bytes4,t_enum(FuncTarget)11272)",
+            "type": "t_mapping(t_bytes4,t_enum(FuncTarget)9373)",
             "contract": "RestakerFacets",
             "src": "contracts/restaker/RestakerFacets.sol:18"
           },
@@ -864,7 +864,7 @@
             "label": "_podManager",
             "offset": 0,
             "slot": "1",
-            "type": "t_contract(IEigenPodManager)8157",
+            "type": "t_contract(IEigenPodManager)7130",
             "contract": "RestakerFacets",
             "src": "contracts/restaker/RestakerFacets.sol:19"
           },
@@ -872,7 +872,7 @@
             "label": "_delegationManager",
             "offset": 0,
             "slot": "2",
-            "type": "t_contract(IDelegationManager)7687",
+            "type": "t_contract(IDelegationManager)6662",
             "contract": "RestakerFacets",
             "src": "contracts/restaker/RestakerFacets.sol:20"
           }
@@ -924,15 +924,15 @@
             "label": "bytes4",
             "numberOfBytes": "4"
           },
-          "t_contract(IDelegationManager)7687": {
+          "t_contract(IDelegationManager)6662": {
             "label": "contract IDelegationManager",
             "numberOfBytes": "20"
           },
-          "t_contract(IEigenPodManager)8157": {
+          "t_contract(IEigenPodManager)7130": {
             "label": "contract IEigenPodManager",
             "numberOfBytes": "20"
           },
-          "t_enum(FuncTarget)11272": {
+          "t_enum(FuncTarget)9373": {
             "label": "enum IRestakerFacets.FuncTarget",
             "members": [
               "POD",
@@ -941,7 +941,7 @@
             ],
             "numberOfBytes": "1"
           },
-          "t_mapping(t_bytes4,t_enum(FuncTarget)11272)": {
+          "t_mapping(t_bytes4,t_enum(FuncTarget)9373)": {
             "label": "mapping(bytes4 => enum IRestakerFacets.FuncTarget)",
             "numberOfBytes": "32"
           }
@@ -1079,7 +1079,11 @@
             }
           ]
         }
-      }
+      },
+      "allAddresses": [
+        "0xAB110ea38ABf7929A2CEBf1184f905865E1C51dA",
+        "0x74a39592218548c2204E25e82592403B21844f2b"
+      ]
     },
     "54157c9e27f02691028e764e8587955da75c5e3da98025e4a5f28dcbc77053e0": {
       "address": "0x4B21A1ee9268f4cF259E228388E1f3EC0C67D665",
@@ -1689,6 +1693,403 @@
               "label": "_status",
               "type": "t_uint256",
               "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "29f9e02cb8bda0ba6a19f761e929466f36e4ca0b5cf6133e06f4ce250ac53e96": {
+      "address": "0x65B13B6133e928366C0a9664123De7ef3D63a614",
+      "txHash": "0x2edfff89888b8b0052a72547aef4a750a203151b51de8ce796a291d5c83fc76d",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [
+          {
+            "label": "_config",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(IProtocolConfig)7970",
+            "contract": "Configurable",
+            "src": "contracts/Configurable.sol:17"
+          },
+          {
+            "label": "__reserved",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "Configurable",
+            "src": "contracts/Configurable.sol:18"
+          },
+          {
+            "label": "_minStakeAmount",
+            "offset": 0,
+            "slot": "50",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:31"
+          },
+          {
+            "label": "_minUnstakeAmount",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:32"
+          },
+          {
+            "label": "_totalStaked",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:37"
+          },
+          {
+            "label": "_totalUnstaked",
+            "offset": 0,
+            "slot": "53",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:41"
+          },
+          {
+            "label": "_pendingGap",
+            "offset": 0,
+            "slot": "54",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:46"
+          },
+          {
+            "label": "_pendingUnstakes",
+            "offset": 0,
+            "slot": "55",
+            "type": "t_array(t_struct(Unstake)8028_storage)dyn_storage",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:50"
+          },
+          {
+            "label": "_totalPendingUnstakes",
+            "offset": 0,
+            "slot": "56",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:54"
+          },
+          {
+            "label": "_totalUnstakesOf",
+            "offset": 0,
+            "slot": "57",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:55"
+          },
+          {
+            "label": "_distributeGasLimit",
+            "offset": 0,
+            "slot": "58",
+            "type": "t_uint32",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:59"
+          },
+          {
+            "label": "_totalClaimable",
+            "offset": 0,
+            "slot": "59",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:61"
+          },
+          {
+            "label": "_claimable",
+            "offset": 0,
+            "slot": "60",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:62"
+          },
+          {
+            "label": "_restakers",
+            "offset": 0,
+            "slot": "61",
+            "type": "t_mapping(t_bytes32,t_address)",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:67"
+          },
+          {
+            "label": "_maxTVL",
+            "offset": 0,
+            "slot": "62",
+            "type": "t_uint256",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:72"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "63",
+            "type": "t_array(t_uint256)37_storage",
+            "contract": "RestakingPool",
+            "src": "contracts/RestakingPool.sol:79"
+          }
+        ],
+        "types": {
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ReentrancyGuardStorage)320_storage": {
+            "label": "struct ReentrancyGuardUpgradeable.ReentrancyGuardStorage",
+            "members": [
+              {
+                "label": "_status",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_struct(Unstake)8028_storage)dyn_storage": {
+            "label": "struct IRestakingPool.Unstake[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)37_storage": {
+            "label": "uint256[37]",
+            "numberOfBytes": "1184"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IProtocolConfig)7970": {
+            "label": "contract IProtocolConfig",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_address)": {
+            "label": "mapping(bytes32 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Unstake)8028_storage": {
+            "label": "struct IRestakingPool.Unstake",
+            "members": [
+              {
+                "label": "recipient",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.ReentrancyGuard": [
+            {
+              "contract": "ReentrancyGuardUpgradeable",
+              "label": "_status",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol:40",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "affdaec18cf9db0d6f42d6167a62d16fcdd0a085239b9ebd7beb8d492630e178": {
+      "address": "0x3b621aCCEB6628d85dDAcBfB57572433458b54E4",
+      "txHash": "0x7a376724078ad0711dc33af059b05dead0363cd5aaa63feb8b12e37468be350d",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [
+          {
+            "label": "_selectorToTarget",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_bytes4,t_enum(FuncTarget)11132)",
+            "contract": "RestakerFacets",
+            "src": "contracts/restaker/RestakerFacets.sol:18"
+          },
+          {
+            "label": "_podManager",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(IEigenPodManager)7827",
+            "contract": "RestakerFacets",
+            "src": "contracts/restaker/RestakerFacets.sol:19"
+          },
+          {
+            "label": "_delegationManager",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_contract(IDelegationManager)7268",
+            "contract": "RestakerFacets",
+            "src": "contracts/restaker/RestakerFacets.sol:20"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)64_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)14_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_bytes4": {
+            "label": "bytes4",
+            "numberOfBytes": "4"
+          },
+          "t_contract(IDelegationManager)7268": {
+            "label": "contract IDelegationManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IEigenPodManager)7827": {
+            "label": "contract IEigenPodManager",
+            "numberOfBytes": "20"
+          },
+          "t_enum(FuncTarget)11132": {
+            "label": "enum IRestakerFacets.FuncTarget",
+            "members": [
+              "POD",
+              "POD_MANAGER",
+              "DELEGATION_MANAGER"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_bytes4,t_enum(FuncTarget)11132)": {
+            "label": "mapping(bytes4 => enum IRestakerFacets.FuncTarget)",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
               "offset": 0,
               "slot": "0"
             }

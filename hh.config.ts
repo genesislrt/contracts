@@ -80,7 +80,7 @@ export const CONFIG = {
         },
         proxyAdminTimelock: {
             default: 0,
-            mainnet: 'fill',
+            mainnet: '0xc70470Cdc428d6A3966cd25F476F84D898158638',
         },
     },
     etherscan: {

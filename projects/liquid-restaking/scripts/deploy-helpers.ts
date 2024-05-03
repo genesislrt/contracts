@@ -106,6 +106,6 @@ export async function schedule({
         salt || ethers.ZeroHash,
         delay
     );
-    await res.wait();
+    await res.wait(2);
     console.log(res.hash);
 }
