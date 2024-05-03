@@ -19,12 +19,22 @@ import "./interfaces/ICToken.sol";
 contract cToken is Configurable, ERC20PausableUpgradeable, ICToken {
     using Math for uint256;
 
+    string private _name;
+    string private _symbol;
+
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
-    uint256[50] private __gap;
+    uint256[48] private __gap;
+
+    /*******************************************************************************
+                        EVENTS
+    *******************************************************************************/
+
+    event NameChanged(string newName);
+    event SymbolChanged(string newSymbol);
 
     /*******************************************************************************
                         CONSTRUCTOR
@@ -45,10 +55,13 @@ contract cToken is Configurable, ERC20PausableUpgradeable, ICToken {
         __ERC20_init(name, symbol);
         __Pausable_init();
         __ERC20Pausable_init();
-        __cToken_init();
+        __cToken_init(name, symbol);
     }
 
-    function __cToken_init() internal {}
+    function __cToken_init(string memory name, string memory symbol) internal {
+        _changeName(name);
+        _changeSymbol(symbol);
+    }
 
     /*******************************************************************************
                         WRITE FUNCTIONS
@@ -137,5 +150,59 @@ contract cToken is Configurable, ERC20PausableUpgradeable, ICToken {
      */
     function unpause() external virtual onlyGovernance {
         _unpause();
+    }
+
+    /**
+     * @dev Change the name of the token.
+     * Can only be called by the governance.
+     */
+    function changeName(string memory newName) external onlyGovernance {
+        _changeName(newName);
+    }
+
+    /**
+     * @dev Change the symbol of the token.
+     * Can only be called by the governance.
+     */
+    function changeSymbol(string memory newSymbol) external onlyGovernance {
+        _changeSymbol(newSymbol);
+    }
+
+    /*******************************************************************************
+                        INTERNAL FUNCTIONS
+    *******************************************************************************/
+
+    /**
+     * @dev Internal function to change the name of the token.
+     */
+    function _changeName(string memory newName) internal {
+        _name = newName;
+        emit NameChanged(newName);
+    }
+
+    /**
+     * @dev Internal function to change the symbol of the token.
+     */
+    function _changeSymbol(string memory newSymbol) internal {
+        _symbol = newSymbol;
+        emit SymbolChanged(newSymbol);
+    }
+
+    /*******************************************************************************
+                        OVERRIDE FUNCTIONS
+    *******************************************************************************/
+
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() public view virtual override returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Returns the symbol of the token.
+     */
+    function symbol() public view virtual override returns (string memory) {
+        return _symbol;
     }
 }

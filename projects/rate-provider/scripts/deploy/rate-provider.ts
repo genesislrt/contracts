@@ -3,12 +3,9 @@ import { ethers, run } from 'hardhat';
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
-    const args = ['0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C']; // genETH
+    const args = ['0xf073bAC22DAb7FaF4a3Dd6c6189a70D54110525C']; // InETH
 
-    const rateProvider = await ethers.deployContract(
-        'GenEthRateProvider',
-        args
-    );
+    const rateProvider = await ethers.deployContract('InEthRateProvider', args);
     await rateProvider.waitForDeployment();
 
     const block = await ethers.provider.getBlockNumber();
@@ -20,7 +17,7 @@ async function main() {
     await run('verify:verify', {
         address: await rateProvider.getAddress(),
         constructorArguments: args,
-        contract: 'contracts/RateProvider.sol:GenEthRateProvider',
+        contract: 'contracts/RateProvider.sol:InEthRateProvider',
     });
 }
 
