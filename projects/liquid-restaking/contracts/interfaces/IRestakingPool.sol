@@ -113,6 +113,8 @@ interface IRestakingPool {
 
     event ProtocolFeeChanged(uint256 prevValue, uint256 newValue);
 
+    event TargetCapacityChanged(uint256 prevValue, uint256 newValue);
+
     /* functions */
 
     function getMinStake() external view returns (uint256);
