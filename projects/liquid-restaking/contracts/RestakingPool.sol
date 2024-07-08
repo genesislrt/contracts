@@ -771,6 +771,13 @@ contract RestakingPool is
         protocolFee = newProtocolFee;
     }
 
+    function setTargetFlashCapacity(
+        uint256 newTargetCapacity
+    ) external onlyGovernance {
+        emit TargetCapacityChanged(targetCapacity, newTargetCapacity);
+        targetCapacity = newTargetCapacity;
+    }
+
     function _setMaxTVL(uint256 newValue) internal {
         if (newValue == 0) {
             revert PoolZeroAmount();
