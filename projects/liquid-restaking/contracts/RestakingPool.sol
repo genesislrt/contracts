@@ -8,6 +8,8 @@ import "./interfaces/IEigenPod.sol";
 import "./restaker/IRestaker.sol";
 import "./interfaces/ISignatureUtils.sol";
 
+import {Library} from "./libraries/Library.sol";
+
 /**
  * @title General contract where stakes and unstakes of inETH happens.
  * @author GenesisLRT
@@ -71,11 +73,28 @@ contract RestakingPool is
      */
     uint256 _maxTVL;
 
+    /// @dev 100%
+    uint64 public constant MAX_PERCENT = 100 * 1e8;
+
+    uint256 public stakeBonusAmount;
+    uint256 public targetCapacity;
+
+    uint64 public maxBonusRate;
+    uint64 public optimalBonusRate;
+    uint64 public stakeUtilizationKink;
+
+    uint64 public maxFlashFeeRate;
+    uint64 public optimalUnstakeRate;
+    uint64 public unstakeUtilizationKink;
+    uint64 public protocolFee;
+
     /**
+     /// !!!!TODO!!!
      * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
+     /// !!!!TODO!!!
     uint256[50 - 13] private __gap;
 
     /*******************************************************************************
@@ -128,14 +147,21 @@ contract RestakingPool is
      */
     function stake() public payable {
         uint256 amount = msg.value;
+        if (amount < getMinStake()) revert PoolStakeAmLessThanMin();
+        if (amount > availableToStake()) revert PoolStakeAmGreaterThanAvailable();
 
-        if (amount < getMinStake()) {
-            revert PoolStakeAmLessThanMin();
+        uint256 stakeBonus;
+        if (stakeBonusAmount > 0) {
+            stakeBonus = calculateStakeBonus(amount);
+            if (stakeBonus > stakeBonusAmount) {
+                stakeBonus = stakeBonusAmount;
+                stakeBonusAmount = 0;
+            } else {
+                stakeBonusAmount -= stakeBonus;
+            }
+            emit StakeBonus(stakeBonus);
         }
 
-        if (amount > availableToStake()) {
-            revert PoolStakeAmGreaterThanAvailable();
-        }
 
         ICToken token = config().getCToken();
         uint256 shares = token.convertToShares(amount);
@@ -164,12 +190,10 @@ contract RestakingPool is
         if (
             pubkeysLen != signatures.length ||
             pubkeysLen != deposit_data_roots.length
-        ) {
-            revert PoolWrongInputLength();
-        }
-        if (address(this).balance < 32 ether * pubkeysLen) {
-            revert PoolInsufficientBalance();
-        }
+        ) revert PoolWrongInputLength();
+
+        if (address(this).balance < 32 ether * pubkeysLen) revert PoolInsufficientBalance();
+
 
         IEigenPodManager restaker = IEigenPodManager(
             _getRestakerOrRevert(provider)
@@ -186,6 +210,32 @@ contract RestakingPool is
         emit Deposited(provider, pubkeys);
     }
 
+    /// @dev Creates a withdrawal requests based on the current ratio
+    function flashUnstake(
+        uint256 shares,
+        address receiver
+    ) external nonReentrant {
+        address claimer = msg.sender;
+
+        ICToken token = config().getCToken();
+        uint256 amount = token.convertToAmount(shares);
+        if (amount > getFlashCapacity()) revert InsufficientCapacity(getFlashCapacity());
+
+        token.burn(claimer, shares);
+
+        uint256 fee = calculateFlashUnstakeFee(amount);
+        if (fee == 0) revert PoolZeroAmount();
+        uint256 protocolWithdrawalFee = (fee * protocolFee) / MAX_PERCENT;
+
+        amount -= fee;
+        stakeBonusAmount += (fee - protocolWithdrawalFee);
+
+        _sendValue(config().getTreasury(), protocolWithdrawalFee, false);
+        _sendValue(receiver, amount, false);
+
+        emit FlashUnstaked(claimer, receiver, claimer, amount, shares, fee);
+    }
+
     /**
      *
      * @notice Burns shares from owner and add exactly amount of ETH to unstake queue in order for `to`.
@@ -194,9 +244,7 @@ contract RestakingPool is
      * @param shares Amount of cToken to unstake
      */
     function unstake(address to, uint256 shares) external nonReentrant {
-        if (shares < getMinUnstake()) {
-            revert PoolUnstakeAmLessThanMin();
-        }
+        if (shares < getMinUnstake()) revert PoolUnstakeAmLessThanMin();
 
         address from = _msgSender();
         ICToken token = config().getCToken();
@@ -212,12 +260,8 @@ contract RestakingPool is
     }
 
     function _addIntoQueue(address recipient, uint256 amount) internal {
-        if (recipient == address(0)) {
-            revert PoolZeroAddress();
-        }
-        if (amount == 0) {
-            revert PoolZeroAmount();
-        }
+        if (recipient == address(0)) revert PoolZeroAddress();
+        if (amount == 0) revert PoolZeroAmount();
 
         // each new request is placed at the end of the queue
         _totalPendingUnstakes += amount;
@@ -235,15 +279,10 @@ contract RestakingPool is
         restaker.__claim();
         uint256 claimed = address(this).balance - balanceBefore;
 
-        if (fee > claimed) {
-            revert AmbiguousFee(claimed, fee);
-        }
-
+        if (fee > claimed) revert AmbiguousFee(claimed, fee);
+        // send committed by operator fee (deducted from ratio) to multi-sig treasury
         address treasury = config().getTreasury();
-        if (fee > 0) {
-            // send committed by operator fee (deducted from ratio) to multi-sig treasury
-            _sendValue(treasury, fee, false);
-        }
+        if (fee > 0) _sendValue(treasury, fee, false);
 
         // from {provider} fee claimed to {treasury}
         emit FeeClaimed(address(restaker), treasury, fee, claimed);
@@ -273,10 +312,7 @@ contract RestakingPool is
                 ++i;
                 continue;
             }
-
-            if (poolBalance < unstake_.amount) {
-                break;
-            }
+            if (poolBalance < unstake_.amount) break;
 
             _totalUnstakesOf[unstake_.recipient] -= unstake_.amount;
             _totalPendingUnstakes -= unstake_.amount;
@@ -293,9 +329,7 @@ contract RestakingPool is
         uint256 amount,
         bool limit
     ) internal returns (bool success) {
-        if (address(this).balance < amount) {
-            revert PoolInsufficientBalance();
-        }
+        if (address(this).balance < amount) revert PoolInsufficientBalance();
 
         address payable wallet = payable(recipient);
         if (limit) {
@@ -320,26 +354,19 @@ contract RestakingPool is
      * @notice Claim ETH available in {claimableOf}
      */
     function claimUnstake(address claimer) external nonReentrant {
-        if (claimer == address(0)) {
-            revert PoolZeroAddress();
-        }
+        if (claimer == address(0)) revert PoolZeroAddress();
 
         uint256 amount = claimableOf(claimer);
+        if (amount == 0) revert PoolZeroAmount();
 
-        if (amount == 0) {
-            revert PoolZeroAmount();
-        }
+        if (address(this).balance < getTotalClaimable()) revert PoolInsufficientBalance();
 
-        if (address(this).balance < getTotalClaimable()) {
-            revert PoolInsufficientBalance();
-        }
         _totalClaimable -= amount;
         _claimable[claimer] = 0;
 
         bool result = _sendValue(claimer, amount, false);
-        if (!result) {
-            revert PoolFailedInnerCall();
-        }
+        if (!result) revert PoolFailedInnerCall();
+
 
         emit UnstakeClaimed(claimer, _msgSender(), amount);
     }
@@ -446,6 +473,10 @@ contract RestakingPool is
     /*******************************************************************************
                         VIEW FUNCTIONS
     *******************************************************************************/
+
+    function getFlashCapacity() public view returns (uint256 total) {
+        return getPending() - stakeBonusAmount;
+    }
 
     /**
      *
@@ -598,6 +629,38 @@ contract RestakingPool is
         string memory providerName
     ) internal pure returns (bytes32) {
         return keccak256(bytes(providerName));
+    }
+
+    function calculateStakeBonus(
+        uint256 amount
+    ) public view returns (uint256) {
+        return
+            Library.calculateDepositBonus(
+                amount,
+                getFlashCapacity(),
+                (targetCapacity * stakeUtilizationKink) / MAX_PERCENT,
+                optimalBonusRate,
+                maxBonusRate,
+                targetCapacity
+            );
+    }
+
+    /// @dev Function to calculate flash withdrawal fee based on the utilization rate
+    function calculateFlashUnstakeFee(
+        uint256 amount
+    ) public view returns (uint256) {
+        uint256 capacity = getFlashCapacity();
+        if (amount > capacity) revert InsufficientCapacity(capacity);
+
+        return
+            Library.calculateWithdrawalFee(
+                amount,
+                capacity,
+                (targetCapacity * unstakeUtilizationKink) / MAX_PERCENT,
+                optimalUnstakeRate,
+                maxFlashFeeRate,
+                targetCapacity
+            );
     }
 
     /*******************************************************************************

@@ -18,6 +18,7 @@ interface IRestakingPool {
     error PoolInsufficientBalance();
     error PoolWrongInputLength();
     error AmbiguousFee(uint256 claimed, uint256 fee);
+    error InsufficientCapacity(uint256 capacity);
 
     /**
      * @dev A call to an address target failed. The target may have reverted.
@@ -74,6 +75,15 @@ interface IRestakingPool {
         uint256 value
     );
 
+    event FlashUnstaked(
+        address indexed sender,
+        address indexed receiver,
+        address indexed owner,
+        uint256 amount,
+        uint256 shares,
+        uint256 fee
+    );
+
     event FeeClaimed(
         address indexed restaker,
         address indexed treasury,
@@ -84,6 +94,8 @@ interface IRestakingPool {
     event RestakerAdded(string indexed provider, address restaker);
 
     event ReferralStake(bytes32 indexed code);
+
+    event StakeBonus(uint256 amount);
 
     /* functions */
 
