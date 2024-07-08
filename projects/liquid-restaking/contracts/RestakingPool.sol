@@ -76,6 +76,8 @@ contract RestakingPool is
     /// @dev 100%
     uint64 public constant MAX_PERCENT = 100 * 1e8;
 
+    uint256 public constant MAX_TARGET_PERCENT = 100 * 1e18;
+
     uint256 public stakeBonusAmount;
     uint256 public targetCapacity;
 
@@ -478,6 +480,10 @@ contract RestakingPool is
         return getPending() - stakeBonusAmount;
     }
 
+    function _getTargetCapacity() internal view returns (uint256) {
+        return (targetCapacity * (_totalStaked- _totalUnstaked)) / MAX_TARGET_PERCENT;
+    }
+
     /**
      *
      * @notice Get ETH amount available to stake before protocol reach max TVL.
@@ -634,14 +640,15 @@ contract RestakingPool is
     function calculateStakeBonus(
         uint256 amount
     ) public view returns (uint256) {
+        uint256 targetCap = _getTargetCapacity();
         return
             Library.calculateDepositBonus(
                 amount,
                 getFlashCapacity(),
-                (targetCapacity * stakeUtilizationKink) / MAX_PERCENT,
+                (targetCap * stakeUtilizationKink) / MAX_PERCENT,
                 optimalBonusRate,
                 maxBonusRate,
-                targetCapacity
+                targetCap
             );
     }
 
@@ -651,15 +658,15 @@ contract RestakingPool is
     ) public view returns (uint256) {
         uint256 capacity = getFlashCapacity();
         if (amount > capacity) revert InsufficientCapacity(capacity);
-
+        uint256 targetCap = _getTargetCapacity();
         return
             Library.calculateWithdrawalFee(
                 amount,
                 capacity,
-                (targetCapacity * unstakeUtilizationKink) / MAX_PERCENT,
+                (targetCap * unstakeUtilizationKink) / MAX_PERCENT,
                 optimalUnstakeRate,
                 maxFlashFeeRate,
-                targetCapacity
+                targetCap
             );
     }
 
