@@ -717,6 +717,60 @@ contract RestakingPool is
         _setMaxTVL(newValue);
     }
 
+    function setDepositBonusParams(
+        uint64 newMaxBonusRate,
+        uint64 newOptimalBonusRate,
+        uint64 newStakeUtilizationKink
+    ) external onlyGovernance {
+        if (newMaxBonusRate > MAX_PERCENT)
+            revert ParameterExceedsLimits(newMaxBonusRate);
+        if (newOptimalBonusRate > MAX_PERCENT)
+            revert ParameterExceedsLimits(newOptimalBonusRate);
+        if (newStakeUtilizationKink > MAX_PERCENT)
+            revert ParameterExceedsLimits(newStakeUtilizationKink);
+
+        maxBonusRate = newMaxBonusRate;
+        optimalBonusRate = newOptimalBonusRate;
+        stakeUtilizationKink = newStakeUtilizationKink;
+
+        emit StakeBonusParamsChanged(
+            newMaxBonusRate,
+            newOptimalBonusRate,
+            newStakeUtilizationKink
+        );
+    }
+
+    function setFlashWithdrawFeeParams(
+        uint64 newMaxFlashFeeRate,
+        uint64 newOptimalUnstakeRate,
+        uint64 newUnstakeUtilizationKink
+    ) external onlyGovernance {
+        if (newMaxFlashFeeRate > MAX_PERCENT)
+            revert ParameterExceedsLimits(newMaxFlashFeeRate);
+        if (newOptimalUnstakeRate > MAX_PERCENT)
+            revert ParameterExceedsLimits(newOptimalUnstakeRate);
+        if (newUnstakeUtilizationKink > MAX_PERCENT)
+            revert ParameterExceedsLimits(newUnstakeUtilizationKink);
+
+        maxFlashFeeRate = newMaxFlashFeeRate;
+        optimalUnstakeRate = newOptimalUnstakeRate;
+        unstakeUtilizationKink = newUnstakeUtilizationKink;
+
+        emit UnstakeFeeParamsChanged(
+            newMaxFlashFeeRate,
+            newOptimalUnstakeRate,
+            newUnstakeUtilizationKink
+        );
+    }
+
+    function setProtocolFee(uint64 newProtocolFee) external onlyGovernance {
+        if (newProtocolFee >= MAX_PERCENT)
+            revert ParameterExceedsLimits(newProtocolFee);
+
+        emit ProtocolFeeChanged(protocolFee, newProtocolFee);
+        protocolFee = newProtocolFee;
+    }
+
     function _setMaxTVL(uint256 newValue) internal {
         if (newValue == 0) {
             revert PoolZeroAmount();

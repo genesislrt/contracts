@@ -31,6 +31,8 @@ interface IRestakingPool {
     error PoolStakeAmGreaterThanAvailable();
     error PoolUnstakeAmLessThanMin();
 
+    error ParameterExceedsLimits(uint256 param);
+
     /* events */
 
     event Received(address indexed sender, uint256 amount);
@@ -96,6 +98,20 @@ interface IRestakingPool {
     event ReferralStake(bytes32 indexed code);
 
     event StakeBonus(uint256 amount);
+
+    event StakeBonusParamsChanged(
+        uint256 newMaxBonusRate,
+        uint256 newOptimalBonusRate,
+        uint256 newDepositUtilizationKink
+    );
+
+    event UnstakeFeeParamsChanged(
+        uint256 newMaxFlashFeeRate,
+        uint256 newOptimalWithdrawalRate,
+        uint256 newWithdrawUtilizationKink
+    );
+
+    event ProtocolFeeChanged(uint256 prevValue, uint256 newValue);
 
     /* functions */
 
