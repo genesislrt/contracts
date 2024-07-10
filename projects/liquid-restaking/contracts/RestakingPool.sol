@@ -154,7 +154,13 @@ contract RestakingPool is
 
         uint256 stakeBonus;
         if (stakeBonusAmount > 0) {
-            stakeBonus = calculateStakeBonus(amount);
+            uint256 capacity = getFlashCapacity();
+            if (capacity < amount) {
+                stakeBonus = _calculateStakeBonus(0, amount);
+            } else {
+                stakeBonus = _calculateStakeBonus(capacity - amount, amount);
+            }
+
             if (stakeBonus > stakeBonusAmount) {
                 stakeBonus = stakeBonusAmount;
                 stakeBonusAmount = 0;
@@ -194,7 +200,8 @@ contract RestakingPool is
             pubkeysLen != deposit_data_roots.length
         ) revert PoolWrongInputLength();
 
-        if (address(this).balance < 32 ether * pubkeysLen) revert PoolInsufficientBalance();
+        if (address(this).balance < 32 ether * pubkeysLen +  _getTargetCapacity())
+                revert PoolInsufficientBalance();
 
 
         IEigenPodManager restaker = IEigenPodManager(
@@ -231,6 +238,7 @@ contract RestakingPool is
 
         amount -= fee;
         stakeBonusAmount += (fee - protocolWithdrawalFee);
+        _totalUnstaked += amount;
 
         _sendValue(config().getTreasury(), protocolWithdrawalFee, false);
         _sendValue(receiver, amount, false);
@@ -477,11 +485,19 @@ contract RestakingPool is
     *******************************************************************************/
 
     function getFlashCapacity() public view returns (uint256 total) {
-        return getPending() - stakeBonusAmount;
+        uint256 balance = address(this).balance;
+        uint256 claimable = getTotalClaimable();
+        uint256 stakeBonus = stakeBonusAmount;
+
+        if (claimable + stakeBonus > balance) {
+            return 0;
+        } else {
+            return balance - claimable - stakeBonus;
+        }
     }
 
     function _getTargetCapacity() internal view returns (uint256) {
-        return (targetCapacity * (_totalStaked- _totalUnstaked)) / MAX_TARGET_PERCENT;
+        return (targetCapacity * (_totalStaked - _totalUnstaked)) / MAX_TARGET_PERCENT;
     }
 
     /**
@@ -535,11 +551,13 @@ contract RestakingPool is
     function getPending() public view returns (uint256) {
         uint256 balance = address(this).balance;
         uint256 claimable = getTotalClaimable();
+        uint256 stakeBonus = stakeBonusAmount;
+        uint256 targetCap = _getTargetCapacity();
 
-        if (claimable > balance) {
+        if (claimable + stakeBonus + targetCap > balance) {
             return 0;
         } else {
-            return balance - claimable;
+            return balance - claimable - stakeBonus - targetCap;
         }
     }
 
@@ -640,11 +658,18 @@ contract RestakingPool is
     function calculateStakeBonus(
         uint256 amount
     ) public view returns (uint256) {
+        return _calculateStakeBonus(getFlashCapacity(), amount);
+    }
+
+    function _calculateStakeBonus(
+        uint256 capacity,
+        uint256 amount
+    ) internal view returns (uint256) {
         uint256 targetCap = _getTargetCapacity();
         return
             Library.calculateDepositBonus(
                 amount,
-                getFlashCapacity(),
+                capacity,
                 (targetCap * stakeUtilizationKink) / MAX_PERCENT,
                 optimalBonusRate,
                 maxBonusRate,
