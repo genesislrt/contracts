@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import { Configurable } from "./Configurable.sol";
 
-import "./Configurable.sol";
 import "./interfaces/IEigenPod.sol";
-import "./restaker/IRestaker.sol";
-import "./interfaces/ISignatureUtils.sol";
+import { ICToken } from "./interfaces/ICToken.sol";
+import { IRestaker } from "./restaker/IRestaker.sol";
+import { IDelegationManager } from "./interfaces/IDelegationManager.sol";
+import { IProtocolConfig } from "./interfaces/IProtocolConfig.sol";
+import { IRestakingPool } from "./interfaces/IRestakingPool.sol";
+import { ISignatureUtils } from "./interfaces/ISignatureUtils.sol";
 
-import {Library} from "./libraries/Library.sol";
+import { Library } from "./libraries/Library.sol";
 
 /**
  * @title General contract where stakes and unstakes of inETH happens.
@@ -71,16 +75,14 @@ contract RestakingPool is
     /**
      * @dev max accepted TVL of protocol
      */
-    uint256 _maxTVL;
+    uint256 internal _maxTVL;
 
     /// @dev 100%
     uint64 public constant MAX_PERCENT = 100 * 1e8;
 
-    uint256 public constant MAX_TARGET_PERCENT = 100 * 1e18;
-
     uint256 public stakeBonusAmount;
-    uint256 public targetCapacity;
 
+    uint64 public targetCapacity;
     uint64 public maxBonusRate;
     uint64 public optimalBonusRate;
     uint64 public stakeUtilizationKink;
@@ -97,7 +99,7 @@ contract RestakingPool is
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
      /// !!!!TODO!!!
-    uint256[50 - 13] private __gap;
+    uint256[50 - 16] private __gap;
 
     /*******************************************************************************
                         CONSTRUCTOR
@@ -112,19 +114,19 @@ contract RestakingPool is
     function initialize(
         IProtocolConfig config,
         uint32 distributeGasLimit,
-        uint256 maxTVL
+        uint256 newMaxTVL
     ) external initializer {
         __ReentrancyGuard_init();
         __Configurable_init(config);
-        __RestakingPool_init(distributeGasLimit, maxTVL);
+        __RestakingPool_init(distributeGasLimit, newMaxTVL);
     }
 
     function __RestakingPool_init(
         uint32 distributeGasLimit,
-        uint256 maxTVL
+        uint256 newMaxTVL
     ) internal onlyInitializing {
         _setDistributeGasLimit(distributeGasLimit);
-        _setMaxTVL(maxTVL);
+        _setMaxTVL(newMaxTVL);
     }
 
     /*******************************************************************************
@@ -149,6 +151,7 @@ contract RestakingPool is
      */
     function stake() public payable {
         uint256 amount = msg.value;
+        if (targetCapacity == 0) revert TargetCapacityNotSet();
         if (amount < getMinStake()) revert PoolStakeAmLessThanMin();
         if (amount > availableToStake()) revert PoolStakeAmGreaterThanAvailable();
 
@@ -224,8 +227,9 @@ contract RestakingPool is
         uint256 shares,
         address receiver
     ) external nonReentrant {
-        address claimer = msg.sender;
+        if (targetCapacity == 0) revert TargetCapacityNotSet();
 
+        address claimer = msg.sender;
         ICToken token = config().getCToken();
         uint256 amount = token.convertToAmount(shares);
         if (amount > getFlashCapacity()) revert InsufficientCapacity(getFlashCapacity());
@@ -497,7 +501,7 @@ contract RestakingPool is
     }
 
     function _getTargetCapacity() internal view returns (uint256) {
-        return (targetCapacity * (_totalStaked - _totalUnstaked)) / MAX_TARGET_PERCENT;
+        return (targetCapacity * (_totalStaked - _totalUnstaked)) / MAX_PERCENT;
     }
 
     /**
@@ -566,6 +570,10 @@ contract RestakingPool is
      */
     function getTotalClaimable() public view returns (uint256) {
         return _totalClaimable;
+    }
+
+    function maxTVL() public view returns (uint256) {
+        return _maxTVL;
     }
 
     /**
@@ -797,7 +805,7 @@ contract RestakingPool is
     }
 
     function setTargetFlashCapacity(
-        uint256 newTargetCapacity
+        uint64 newTargetCapacity
     ) external onlyGovernance {
         emit TargetCapacityChanged(targetCapacity, newTargetCapacity);
         targetCapacity = newTargetCapacity;
