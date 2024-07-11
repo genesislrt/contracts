@@ -228,6 +228,7 @@ contract RestakingPool is
         address receiver
     ) external nonReentrant {
         if (targetCapacity == 0) revert TargetCapacityNotSet();
+        if (shares < getMinUnstake()) revert PoolUnstakeAmLessThanMin();
 
         address claimer = msg.sender;
         ICToken token = config().getCToken();
