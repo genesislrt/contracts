@@ -50,7 +50,7 @@ library Library {
         uint256 amount,
         uint256 capacity,
         uint256 optimalCapacity,
-        uint256 optimaFeeRate,
+        uint256 optimalFeeRate,
         uint256 maxFlashWithdrawalFeeRate,
         uint256 targetCapacity
     ) external pure returns (uint256 fee) {
@@ -60,14 +60,14 @@ library Library {
             if (capacity - amount < optimalCapacity)
                 replenished = capacity - optimalCapacity;
 
-            fee += (replenished * optimaFeeRate) / MAX_PERCENT;
+            fee += (replenished * optimalFeeRate) / MAX_PERCENT;
             amount -= replenished;
             capacity -= replenished;
             if (fee == 0) ++fee;
         }
         /// @dev the utilization rate is in the range [25:0] %
         if (amount > 0) {
-            uint256 feeSlope = ((maxFlashWithdrawalFeeRate - optimaFeeRate) *
+            uint256 feeSlope = ((maxFlashWithdrawalFeeRate - optimalFeeRate) *
                 1e18) / ((optimalCapacity * 1e18) / targetCapacity);
             uint256 bonusPercent = maxFlashWithdrawalFeeRate -
                 (feeSlope * (capacity - amount / 2)) /

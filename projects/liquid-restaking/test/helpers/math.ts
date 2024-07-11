@@ -1,3 +1,7 @@
+import { ethers } from 'ethers';
+import { CToken, RestakingPool } from '../../typechain-types';
+import { _1E18 } from './constants';
+
 export function randomBN(length: number): bigint {
   if (length > 0) {
     let randomNum = "";
@@ -19,4 +23,18 @@ export function randomBNbyMax(max: bigint) {
   } else {
     return 0n;
   }
+}
+
+export const toWei = (ether) => ethers.parseEther(ether.toString());
+
+// ratio = totalSharesSupply * 1e18 / (totalLocked + netRewards - pendingWithdrawals)
+export async function calcRatio(cToken: CToken, pool: RestakingPool, numOfValidators: bigint = 0n, netRewards: bigint = 0n ) {
+  const totalSharesSupply = await cToken.totalSupply();
+  // totalLocked = freeBalance + totalStaked + mevTipsRewards (withoutFee)
+  const freeBalance = await pool.getPending();
+  const totalStaked = toWei(32) * numOfValidators;
+  const totalLocked = freeBalance + totalStaked + netRewards;
+  const pendingWithdrawals = await pool.getTotalPendingUnstakes();
+
+  return totalSharesSupply * _1E18 / (totalLocked - pendingWithdrawals);
 }

@@ -81,14 +81,14 @@ contract RestakingPool is
     uint256 public stakeBonusAmount;
     uint256 public targetCapacity;
 
-    uint64 public maxBonusRate;
-    uint64 public optimalBonusRate;
-    uint64 public stakeUtilizationKink;
+    uint256 public maxBonusRate;
+    uint256 public optimalBonusRate;
+    uint256 public stakeUtilizationKink;
 
-    uint64 public maxFlashFeeRate;
-    uint64 public optimalUnstakeRate;
-    uint64 public unstakeUtilizationKink;
-    uint64 public protocolFee;
+    uint256 public maxFlashFeeRate;
+    uint256 public optimalUnstakeRate;
+    uint256 public unstakeUtilizationKink;
+    uint256 public protocolFee;
 
     /**
      /// !!!!TODO!!!
@@ -236,9 +236,9 @@ contract RestakingPool is
         if (fee == 0) revert PoolZeroAmount();
         uint256 protocolWithdrawalFee = (fee * protocolFee) / MAX_PERCENT;
 
+        _totalUnstaked += amount;
         amount -= fee;
         stakeBonusAmount += (fee - protocolWithdrawalFee);
-        _totalUnstaked += amount;
 
         _sendValue(config().getTreasury(), protocolWithdrawalFee, false);
         _sendValue(receiver, amount, false);
@@ -684,6 +684,7 @@ contract RestakingPool is
         uint256 capacity = getFlashCapacity();
         if (amount > capacity) revert InsufficientCapacity(capacity);
         uint256 targetCap = _getTargetCapacity();
+        console.log("targetCap: ", targetCapacity);
         return
             Library.calculateWithdrawalFee(
                 amount,
@@ -742,7 +743,7 @@ contract RestakingPool is
         _setMaxTVL(newValue);
     }
 
-    function setDepositBonusParams(
+    function setStakeBonusParams(
         uint64 newMaxBonusRate,
         uint64 newOptimalBonusRate,
         uint64 newStakeUtilizationKink
@@ -765,7 +766,7 @@ contract RestakingPool is
         );
     }
 
-    function setFlashWithdrawFeeParams(
+    function setFlashUnstakeFeeParams(
         uint64 newMaxFlashFeeRate,
         uint64 newOptimalUnstakeRate,
         uint64 newUnstakeUtilizationKink

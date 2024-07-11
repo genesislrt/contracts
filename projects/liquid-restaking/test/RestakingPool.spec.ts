@@ -12,7 +12,7 @@ import {
 } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { _1E18, pubkeys, signature, dataRoot } from "./helpers/constants";
-import { randomBN, randomBNbyMax } from "./helpers/math";
+import { randomBN, randomBNbyMax, toWei, calcRatio } from "./helpers/math";
 import { increaseChainTimeForSeconds } from "./helpers/evmutils";
 import { SnapshotRestorer } from "@nomicfoundation/hardhat-network-helpers/src/helpers/takeSnapshot";
 BigInt.prototype.format = function () {
@@ -75,6 +75,10 @@ describe("RestakingPool", function () {
 
   before(async function () {
     [config, pool, cToken, feed, deployer] = await init();
+    await pool.connect(governance).setFlashUnstakeFeeParams(30n * 10n ** 7n, 5n * 10n ** 7n, 25n * 10n ** 8n);
+    await pool.connect(governance).setStakeBonusParams(15n * 10n ** 7n, 25n * 10n ** 6n, 25n * 10n ** 8n);
+    await pool.connect(governance).setProtocolFee(50n * 10n ** 8n);
+
     snapshot = await takeSnapshot();
     MAX_PERCENT = await pool.MAX_PERCENT();
     MAX_TARGET_PERCENT = await pool.MAX_TARGET_PERCENT();
@@ -108,7 +112,20 @@ describe("RestakingPool", function () {
 
     // TODO: check that distribute gas limit cannot be greater than max
 
-    // TODO: set target capacity
+    it("setTargetFlashCapacity(): only governance can", async function () {
+      const prevValue = await pool.targetCapacity();
+      const newValue = randomBN(18);
+      await expect(pool.connect(governance).setTargetFlashCapacity(newValue))
+          .to.emit(pool, "TargetCapacityChanged")
+          .withArgs(prevValue, newValue);
+      expect(await pool.targetCapacity()).to.be.eq(newValue);
+    });
+
+    it("setTargetFlashCapacity(): reverts when caller is not an owner", async function () {
+      const newValue = randomBN(18);
+      await expect(pool.connect(signer1).setTargetFlashCapacity(newValue))
+          .to.be.revertedWithCustomError(pool, "OnlyGovernanceAllowed");
+    });
 
     it("setProtocolFee(): sets share of flashWithdrawFee that goes to treasury", async function () {
       const prevValue = await pool.protocolFee();
@@ -133,7 +150,7 @@ describe("RestakingPool", function () {
     });
   });
 
-  describe("stake", function () {
+  describe("Stake", function () {
     before(async function () {
       await snapshot.restore();
     });
@@ -296,7 +313,7 @@ describe("RestakingPool", function () {
     });
   });
 
-  describe("stake bonus params setter and calculation", function () {
+  describe("Stake bonus params setter and calculation", function () {
     let localSnapshot;
 
     const depositBonusSegment = [
@@ -414,18 +431,15 @@ describe("RestakingPool", function () {
           await localSnapshot.restore();
           const batchDeposited = _1E18 * 32n;
           const targetCapacity = _1E18;
-          const targetCapacityPercent = (targetCapacity * MAX_TARGET_PERCENT) / (targetCapacity + batchDeposited);
-          console.log(`Target capacity percent:\t${targetCapacityPercent}`);
-          console.log(`Default capacity percent:\t${await pool.targetCapacity()}`);
-
           let flashCapacity = amount.flashCapacity(targetCapacity);
+          const targetCapacityPercent = (targetCapacity * MAX_TARGET_PERCENT) / (flashCapacity + batchDeposited);
+          console.log(`Target capacity percent:\t${targetCapacityPercent}`);
 
-          console.log(`available to stake: ${await pool.availableToStake()}`);
           await pool.connect(signer1)["stake()"]({ value: batchDeposited + flashCapacity + 1n });
           await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
           await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
-          console.log(`Flash capacity:\t\t${await pool.getFlashCapacity()}`);
-          console.log(`Total assets:\t\t${await cToken.totalAssets()}`);
+          console.log(`Flash capacity:\t\t\t\t${await pool.getFlashCapacity()}`);
+          console.log(`Total deposited:\t\t\t${await cToken.totalAssets()}`);
 
           let _amount = await amount.amount(targetCapacity);
           let depositBonus = 0n;
@@ -442,9 +456,9 @@ describe("RestakingPool", function () {
                 const slope = ((toPercent - fromPercent) * MAX_PERCENT) / (toUtilization - fromUtilization);
                 const bonusPercent = fromPercent + (slope * (flashCapacity + replenished / 2n)) / targetCapacity;
                 const bonus = (replenished * bonusPercent) / MAX_PERCENT;
-                console.log(`Replenished:\t\t\t${replenished.format()}`);
-                console.log(`Bonus percent:\t\t\t${bonusPercent.format()}`);
-                console.log(`Bonus:\t\t\t\t\t${bonus.format()}`);
+                console.log(`Replenished:\t\t\t\t${replenished.format()}`);
+                console.log(`Bonus percent:\t\t\t\t${bonusPercent.format()}`);
+                console.log(`Bonus:\t\t\t\t\t\t${bonus.format()}`);
                 flashCapacity += replenished;
                 _amount -= replenished;
                 depositBonus += bonus;
@@ -452,8 +466,8 @@ describe("RestakingPool", function () {
             }
           }
           let contractBonus = await pool.calculateStakeBonus(await amount.amount(targetCapacity));
-          console.log(`Expected deposit bonus:\t${depositBonus.format()}`);
-          console.log(`Contract deposit bonus:\t${contractBonus.format()}`);
+          console.log(`Expected deposit bonus:\t\t${depositBonus.format()}`);
+          console.log(`Contract deposit bonus:\t\t${contractBonus.format()}`);
           expect(contractBonus).to.be.closeTo(depositBonus, 1n);
         });
       });
@@ -495,7 +509,140 @@ describe("RestakingPool", function () {
     });
   });
 
-  describe("unstake()", function () {
+  describe("Stake with bonus", function () {
+    const states = [
+      {
+        name: "deposit bonus > 0",
+        withBonus: true,
+      },
+      {
+        name: "deposit bonus = 0",
+        withBonus: false,
+      },
+    ];
+
+    const amounts = [
+      {
+        name: "for the first time",
+        predepositAmount: targetCapacity => 0n,
+        amount: targetCapacity => randomBNbyMax(targetCapacity / 4n) + targetCapacity / 4n,
+      },
+      {
+        name: "more",
+        predepositAmount: targetCapacity => targetCapacity / 3n,
+        amount: targetCapacity => randomBNbyMax(targetCapacity / 3n),
+      },
+      {
+        name: "up to target cap",
+        predepositAmount: targetCapacity => targetCapacity / 10n,
+        amount: targetCapacity => (targetCapacity * 9n) / 10n,
+      },
+      {
+        name: "all rewards",
+        predepositAmount: targetCapacity => 0n,
+        amount: targetCapacity => targetCapacity,
+      },
+      {
+        name: "up to target cap and above",
+        predepositAmount: targetCapacity => targetCapacity / 10n,
+        amount: targetCapacity => targetCapacity,
+      },
+      {
+        name: "above target cap",
+        predepositAmount: targetCapacity => targetCapacity,
+        amount: targetCapacity => randomBN(19),
+      },
+    ];
+
+    states.forEach(function (state) {
+      let localSnapshot;
+      it(`---Prepare state: ${state.name}`, async function () {
+        await snapshot.restore();
+        await pool.addRestaker(TEST_PROVIDER);
+        await pool.connect(governance).setMaxTVL(64n * _1E18);
+        if (state.withBonus) {
+          await pool.setTargetFlashCapacity(_1E18);
+          await pool.connect(signer3)["stake()"]({value: toWei(1.5)});
+          const balanceOf = await cToken.balanceOf(signer3.address);
+          await pool.connect(signer3).flashUnstake(balanceOf, signer3.address);
+          await pool.setTargetFlashCapacity(1n);
+        }
+        localSnapshot = await takeSnapshot();
+      });
+
+      amounts.forEach(function (arg) {
+        it(`Stake ${arg.name}`, async function () {
+          if (localSnapshot) {
+            await localSnapshot.restore();
+          } else {
+            expect(false).to.be.true("Can not restore local snapshot");
+          }
+
+          const batchDeposited = _1E18 * 32n;
+          const targetCapacity = _1E18;
+          let flashCapacityBefore = arg.predepositAmount(targetCapacity);
+          const targetCapacityPercent = (targetCapacity * MAX_TARGET_PERCENT) / (flashCapacityBefore + batchDeposited);
+          console.log(`Target capacity percent:\t${targetCapacityPercent}`);
+
+          //Add prestaked amount
+          await pool.connect(signer3)["stake()"]({ value: batchDeposited + flashCapacityBefore + 1n });
+          await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
+          await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
+          let availableBonus = await pool.stakeBonusAmount();
+          await updateRatio(feed, cToken, _1E18 - randomBNbyMax(17n));
+          const ratioBefore = await cToken.ratio();
+          const stakerSharesBefore = await cToken.balanceOf(signer1);
+          const totalAssetsBefore = await cToken.totalAssets();
+          console.log(`Flash capacity:\t\t\t\t${(await pool.getFlashCapacity()).format()}`);
+          console.log(`Total assets:\t\t\t${totalAssetsBefore.format()}`);
+          console.log(`Ratio:\t\t\t\t\t${ratioBefore.format()}`);
+
+          const amount = await arg.amount(targetCapacity);
+          console.log(`Amount:\t\t\t\t\t${amount.format()}`);
+          const calculatedBonus = await pool.calculateStakeBonus(amount);
+          console.log(`Calculated bonus:\t\t${calculatedBonus.format()}`);
+          console.log(`Available bonus:\t\t${availableBonus.format()}`);
+          const expectedBonus = calculatedBonus <= availableBonus ? calculatedBonus : availableBonus;
+          availableBonus -= expectedBonus;
+          console.log(`Expected bonus:\t\t\t${expectedBonus.format()}`);
+          const convertedShares = await cToken.convertToShares(amount + expectedBonus);
+          const expectedShares = ((amount + expectedBonus) * (await cToken.ratio())) / _1E18;
+
+          const tx = await pool.connect(signer1)["stake()"]({value: amount});
+          const receipt = await tx.wait();
+          const depositEvent = receipt.logs?.filter(e => e.eventName === "Staked");
+          expect(depositEvent.length).to.be.eq(1);
+          expect(depositEvent[0].args["staker"]).to.be.eq(signer1.address);
+          expect(depositEvent[0].args["amount"]).to.be.closeTo(amount, 1n);
+          expect(depositEvent[0].args["shares"] - expectedShares).to.be.closeTo(0, 1n);
+          //DepositBonus event
+          expect(receipt.logs.find(l => l.eventName === "StakeBonus")?.args.amount || 0n)
+              .to.be.closeTo(expectedBonus, 1n);
+
+          const stakerSharesAfter = await cToken.balanceOf(signer1);
+          const totalAssetsAfter = await cToken.totalAssets();
+          const flashCapacityAfter = await pool.getFlashCapacity();
+          const ratioAfter = await cToken.ratio();
+          console.log(`Ratio after:\t\t\t${ratioAfter.format()}`);
+          console.log(`Bonus after:\t\t\t${availableBonus.format()}`);
+
+          expect(stakerSharesAfter - stakerSharesBefore).to.be.closeTo(expectedShares, 1n);
+          expect(stakerSharesAfter - stakerSharesBefore).to.be.closeTo(convertedShares, 1n);
+          expect(totalAssetsAfter - totalAssetsBefore).to.be.closeTo(amount, 1n); //Everything stays on pool after stake
+          expect(flashCapacityAfter - flashCapacityBefore).to.be.closeTo( amount + expectedBonus, 1n);
+          expect(ratioAfter).to.be.closeTo(ratioBefore, 1n); //Ratio stays the same
+        });
+      });
+    });
+
+    it("Reverts when target capacity is 0", async function() {
+      await snapshot.restore();
+      await expect(pool.connect(signer1)["stake()"]({value: _1E18}))
+          .to.be.reverted;
+    });
+  });
+
+  describe("Unstake", function () {
     before(async function () {
       await snapshot.restore();
       await pool.setMaxTVL(200n * _1E18);
@@ -776,15 +923,12 @@ describe("RestakingPool", function () {
           let flashCapacity = amount.flashCapacity(targetCapacity);
           const targetCapacityPercent = (targetCapacity * MAX_TARGET_PERCENT) / (flashCapacity + batchDeposited);
           console.log(`Target capacity percent:\t${targetCapacityPercent}`);
-          console.log(`Default capacity percent:\t${await pool.targetCapacity()}`);
 
-
-          console.log(`available to stake: ${await pool.availableToStake()}`);
           await pool.connect(signer1)["stake()"]({ value: batchDeposited + flashCapacity + 1n });
           await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
           await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
-          console.log(`Flash capacity:\t\t${await pool.getFlashCapacity()}`);
-          console.log(`Total assets:\t\t${await cToken.totalAssets()}`);
+          console.log(`Flash capacity:\t\t\t\t${await pool.getFlashCapacity()}`);
+          console.log(`Total deposited:\t\t\t${await cToken.totalAssets()}`);
 
           let _amount = await amount.amount(targetCapacity);
           let withdrawFee = 0n;
@@ -803,9 +947,9 @@ describe("RestakingPool", function () {
                 const withdrawFeePercent =
                     fromPercent + (slope * (flashCapacity - replenished / 2n)) / targetCapacity;
                 const fee = (replenished * withdrawFeePercent) / MAX_PERCENT;
-                console.log(`Replenished:\t\t\t${replenished.format()}`);
-                console.log(`Fee percent:\t\t\t${withdrawFeePercent.format()}`);
-                console.log(`Fee:\t\t\t\t\t${fee.format()}`);
+                console.log(`Replenished:\t\t\t\t${replenished.format()}`);
+                console.log(`Fee percent:\t\t\t\t${withdrawFeePercent.format()}`);
+                console.log(`Fee:\t\t\t\t\t\t${fee.format()}`);
                 flashCapacity -= replenished;
                 _amount -= replenished;
                 withdrawFee += fee;
@@ -813,8 +957,8 @@ describe("RestakingPool", function () {
             }
           }
           let contractFee = await pool.calculateFlashUnstakeFee(await amount.amount(targetCapacity));
-          console.log(`Expected withdraw fee:\t${withdrawFee.format()}`);
-          console.log(`Contract withdraw fee:\t${contractFee.format()}`);
+          console.log(`Expected withdraw fee:\t\t${withdrawFee.format()}`);
+          console.log(`Contract withdraw fee:\t\t${contractFee.format()}`);
           expect(contractFee).to.be.closeTo(withdrawFee, 1n);
           expect(contractFee).to.be.gt(0n); //flashWithdraw fee is always greater than 0
         });
@@ -866,7 +1010,165 @@ describe("RestakingPool", function () {
     it("setFlashWithdrawFeeParams reverts when caller is not an owner", async function () {
       await expect(pool.connect(signer1)
               .setFlashUnstakeFeeParams(BigInt(2 * 10 ** 8), BigInt(0.2 * 10 ** 8), BigInt(25 * 10 ** 8)),
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+      ).to.be.revertedWithCustomError(pool, "OnlyGovernanceAllowed");
+    });
+  });
+
+  describe("Flash unstake with fee", function () {
+    let deposited = 0n;
+    beforeEach(async function () {
+      await snapshot.restore();
+      await pool.setTargetFlashCapacity(1n);
+      await pool.addRestaker(TEST_PROVIDER);
+      await pool.connect(governance).setMaxTVL(64n * _1E18);
+    });
+
+    const args = [
+      {
+        name: "part of the free balance when pool capacity > TARGET",
+        poolCapacity: targetCapacity => targetCapacity + _1E18,
+        amount: async () => (await pool.getPending()) / 2n,
+        receiver: () => signer1,
+      },
+      {
+        name: "all of the free balance when pool capacity > TARGET",
+        poolCapacity: targetCapacity => targetCapacity + _1E18,
+        amount: async () => await pool.getPending(),
+        receiver: () => signer1,
+      },
+      {
+        name: "all when pool capacity > TARGET",
+        poolCapacity: targetCapacity => targetCapacity + _1E18,
+        amount: async () => await pool.getFlashCapacity(),
+        receiver: () => signer1,
+      },
+      {
+        name: "partially when pool capacity = TARGET",
+        poolCapacity: targetCapacity => targetCapacity,
+        amount: async () => (await pool.getFlashCapacity()) / 2n,
+        receiver: () => signer1,
+      },
+      {
+        name: "all when pool capacity = TARGET",
+        poolCapacity: targetCapacity => targetCapacity,
+        amount: async () => await pool.getFlashCapacity(),
+        receiver: () => signer1,
+      },
+      {
+        name: "partially when pool capacity < TARGET",
+        poolCapacity: targetCapacity => (targetCapacity * 3n) / 4n,
+        amount: async () => (await pool.getFlashCapacity()) / 2n,
+        receiver: () => signer1,
+      },
+      {
+        name: "all when pool capacity < TARGET",
+        poolCapacity: targetCapacity => (targetCapacity * 3n) / 4n,
+        amount: async () => await pool.getFlashCapacity(),
+        receiver: () => signer1,
+      },
+      {
+        name: "to another address",
+        poolCapacity: targetCapacity => (targetCapacity * 3n) / 4n,
+        amount: async () => await pool.getFlashCapacity(),
+        receiver: () => signer2,
+      },
+    ];
+
+    args.forEach(function (arg) {
+      it(`flashWithdraw: ${arg.name}`, async function () {
+        const batchDeposited = _1E18 * 32n;
+        const targetCapacity = _1E18;
+        let flashCapacityBefore = arg.poolCapacity(targetCapacity);
+        const targetCapacityPercent = (targetCapacity * MAX_TARGET_PERCENT) / (flashCapacityBefore + batchDeposited);
+        console.log(`Target capacity percent:\t${targetCapacityPercent.format()}`);
+        await pool.connect(signer1)["stake()"]({ value: batchDeposited + flashCapacityBefore + 1n });
+        await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
+        await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
+
+        const receiver = arg.receiver();
+        const stakerSharesBefore = await cToken.balanceOf(signer1.address);
+        const receiverEthBalanceBefore = await ethers.provider.getBalance(receiver.address);
+        const treasuryBalanceBefore = await ethers.provider.getBalance(treasury);
+        const totalAssetsBefore = await cToken.totalAssets();
+        const freeBalanceBefore = await pool.getPending();
+        const stakedBonusBefore = await pool.stakeBonusAmount();
+        const ratioBefore = await calcRatio(cToken, pool, 1n);
+        console.log(`Flash capacity before:\t\t${(await pool.getFlashCapacity()).format()}`);
+        console.log(`Pending balance before:\t\t${freeBalanceBefore.format()}`);
+        console.log(`Total assets:\t\t\t\t${totalAssetsBefore.format()}`);
+        console.log(`Ratio:\t\t\t\t\t\t${ratioBefore.format()}`);
+
+        const amount = await arg.amount();
+        const shares = await cToken.convertToShares(amount); //+1 to compensate rounding after converting from shares to amount
+        const expectedFee = await pool.calculateFlashUnstakeFee(amount);
+        console.log(`Expected fee:\t\t\t${expectedFee.format()}`);
+
+        let tx = await pool.connect(signer1).flashUnstake(shares, receiver.address);
+        const receipt = await tx.wait();
+        const txFee = receiver.address === signer1.address ? receipt?.gasUsed * receipt?.gasPrice : 0n;
+        const withdrawEvent = receipt.logs?.filter(e => e.eventName === "FlashUnstaked");
+        expect(withdrawEvent.length).to.be.eq(1);
+        expect(withdrawEvent[0].args["sender"]).to.be.eq(signer1.address);
+        expect(withdrawEvent[0].args["receiver"]).to.be.eq(receiver.address);
+        expect(withdrawEvent[0].args["owner"]).to.be.eq(signer1.address);
+        expect(withdrawEvent[0].args["amount"]).to.be.closeTo(amount - expectedFee, 1n);
+        expect(withdrawEvent[0].args["shares"]).to.be.closeTo(shares, 1n);
+        const fee = withdrawEvent[0].args["fee"];
+        expect(fee).to.be.closeTo(expectedFee, 1n);
+
+        const stakerSharesAfter = await cToken.balanceOf(signer1);
+        const receiverEthBalanceAfter = await ethers.provider.getBalance(receiver);
+        const treasuryBalanceAfter = await ethers.provider.getBalance(treasury);
+        const totalAssetsAfter = await cToken.totalAssets();
+        const flashCapacityAfter = await pool.getFlashCapacity();
+        const stakedBonusAfter = await pool.stakeBonusAmount();
+        const ratioAfter = await calcRatio(cToken, pool, 1n);
+        console.log(`Shares diff:\t\t\t${(stakerSharesBefore - stakerSharesAfter).format()}`);
+        console.log(`TotalAssets diff:\t\t${(totalAssetsBefore - totalAssetsAfter).format()}`);
+        console.log(`FlashCapacity diff:\t\t${(flashCapacityBefore - flashCapacityAfter).format()}`);
+        console.log(`Ratio diff:\t\t${(ratioBefore - ratioAfter).format()}`);
+        console.log(`Fee paid:\t\t\t\t${fee.format()}`);
+
+        expect(stakerSharesBefore - stakerSharesAfter).to.be.eq(shares);
+        expect(receiverEthBalanceAfter - receiverEthBalanceBefore).to.be.closeTo(amount - expectedFee - txFee, 1n);
+        expect(treasuryBalanceAfter - treasuryBalanceBefore).to.be.closeTo(expectedFee / 2n, 1n);
+        expect(totalAssetsBefore - totalAssetsAfter).to.be.closeTo(amount, 1n);
+        expect(flashCapacityBefore - flashCapacityAfter).to.be.closeTo(amount, 1n);
+        expect(stakedBonusAfter - stakedBonusBefore).to.be.closeTo(expectedFee / 2n, 1n);
+      });
+    });
+
+    it("Reverts when capacity is not sufficient", async function () {
+      const batchDeposited = _1E18 * 32n;
+      const targetCapacity = _1E18;
+      const targetCapacityPercent = (targetCapacity * MAX_TARGET_PERCENT) / (targetCapacity + batchDeposited);
+      console.log(`Target capacity percent:\t${targetCapacityPercent.format()}`);
+      await pool.connect(signer1)["stake()"]({ value: batchDeposited + targetCapacity + 1n });
+      await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
+      await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
+
+
+      const shares = await cToken.balanceOf(signer1.address);
+      const capacity = await pool.getFlashCapacity();
+      await expect(pool.connect(signer1).flashUnstake(shares, signer1.address))
+          .to.be.revertedWithCustomError(pool, "InsufficientCapacity")
+          .withArgs(capacity);
+    });
+
+    it("Reverts when amount < min", async function () {
+      const batchDeposited = _1E18 * 32n;
+      const targetCapacity = _1E18;
+      const targetCapacityPercent = (targetCapacity * MAX_TARGET_PERCENT) / (targetCapacity + batchDeposited);
+      console.log(`Target capacity percent:\t${targetCapacityPercent.format()}`);
+      await pool.connect(signer1)["stake()"]({ value: batchDeposited + targetCapacity + 1n });
+      await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
+      await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
+
+      const minAmount = await pool.getMinUnstake();
+      const shares = (await cToken.convertToShares(minAmount)) - 1n;
+      await expect(pool.connect(signer1).flashUnstake(shares, signer1.address))
+          .to.be.revertedWithCustomError(pool, "PoolUnstakeAmLessThanMin")
+          .withArgs(minAmount);
     });
   });
 
@@ -917,7 +1219,7 @@ describe("RestakingPool", function () {
     });
   });
 
-  describe("distribute unstakes and claims", function () {
+  describe("Distribute unstakes and claims", function () {
     before(async function () {
       await snapshot.restore();
       await pool.setMaxTVL(_1E18 * _1E18);
@@ -972,7 +1274,7 @@ describe("RestakingPool", function () {
     }
   });
 
-  describe("claim rewards from restaker", function () {
+  describe("Claim rewards from restaker", function () {
     before(async function () {
       await snapshot.restore();
       await pool.addRestaker(TEST_PROVIDER);
