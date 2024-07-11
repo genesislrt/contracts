@@ -11,10 +11,11 @@ import {
   RestakingPool,
 } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import { _1E18, pubkeys, signature, dataRoot } from "./helpers/constants";
-import { randomBN, randomBNbyMax, toWei, calcRatio, divideAndCeil } from './helpers/math';
+import { _1E18, dataRoot, pubkeys, signature } from "./helpers/constants";
+import { calcRatio, divideAndCeil, randomBN, randomBNbyMax, toWei } from "./helpers/math";
 import { increaseChainTimeForSeconds } from "./helpers/evmutils";
 import { SnapshotRestorer } from "@nomicfoundation/hardhat-network-helpers/src/helpers/takeSnapshot";
+
 BigInt.prototype.format = function () {
   return this.toLocaleString("de-DE");
 };
@@ -117,15 +118,17 @@ describe("RestakingPool", function () {
       const prevValue = await pool.targetCapacity();
       const newValue = randomBN(18);
       await expect(pool.connect(governance).setTargetFlashCapacity(newValue))
-          .to.emit(pool, "TargetCapacityChanged")
-          .withArgs(prevValue, newValue);
+        .to.emit(pool, "TargetCapacityChanged")
+        .withArgs(prevValue, newValue);
       expect(await pool.targetCapacity()).to.be.eq(newValue);
     });
 
     it("setTargetFlashCapacity(): reverts when caller is not an owner", async function () {
       const newValue = randomBN(18);
-      await expect(pool.connect(signer1).setTargetFlashCapacity(newValue))
-          .to.be.revertedWithCustomError(pool, "OnlyGovernanceAllowed");
+      await expect(pool.connect(signer1).setTargetFlashCapacity(newValue)).to.be.revertedWithCustomError(
+        pool,
+        "OnlyGovernanceAllowed",
+      );
     });
 
     it("setProtocolFee(): sets share of flashWithdrawFee that goes to treasury", async function () {
@@ -159,8 +162,10 @@ describe("RestakingPool", function () {
     it("Reverts: when amount > available", async () => {
       const available = await pool.availableToStake();
       expect(available).to.be.eq(MAX_TVL);
-      await expect(pool.connect(signer1)["stake()"]({ value: available + 1n }))
-          .to.be.revertedWithCustomError(pool, "PoolStakeAmGreaterThanAvailable");
+      await expect(pool.connect(signer1)["stake()"]({ value: available + 1n })).to.be.revertedWithCustomError(
+        pool,
+        "PoolStakeAmGreaterThanAvailable",
+      );
     });
 
     const amounts = [
@@ -374,37 +379,37 @@ describe("RestakingPool", function () {
       {
         name: "min amount from 0",
         flashCapacity: targetCapacity => 0n,
-        amount: async (targetCapacity) => (await cToken.convertToAmount(await pool.getMinStake())) + 1n,
+        amount: async targetCapacity => (await cToken.convertToAmount(await pool.getMinStake())) + 1n,
       },
       {
         name: "1 wei from 0",
         flashCapacity: targetCapacity => 0n,
-        amount: async (targetCapacity) => 1n,
+        amount: async targetCapacity => 1n,
       },
       {
         name: "from 0 to 25% of TARGET",
         flashCapacity: targetCapacity => 0n,
-        amount: async (targetCapacity) => (targetCapacity * 25n) / 100n,
+        amount: async targetCapacity => (targetCapacity * 25n) / 100n,
       },
       {
         name: "from 0 to 25% + 1wei of TARGET",
         flashCapacity: targetCapacity => 0n,
-        amount: async (targetCapacity) => (targetCapacity * 25n) / 100n,
+        amount: async targetCapacity => (targetCapacity * 25n) / 100n,
       },
       {
         name: "from 25% to 100% of TARGET",
         flashCapacity: targetCapacity => (targetCapacity * 25n) / 100n,
-        amount: async (targetCapacity) => (targetCapacity * 75n) / 100n,
+        amount: async targetCapacity => (targetCapacity * 75n) / 100n,
       },
       {
         name: "from 0% to 100% of TARGET",
         flashCapacity: targetCapacity => 0n,
-        amount: async (targetCapacity) => targetCapacity,
+        amount: async targetCapacity => targetCapacity,
       },
       {
         name: "from 0% to 200% of TARGET",
         flashCapacity: targetCapacity => 0n,
-        amount: async (targetCapacity) => targetCapacity * 2n,
+        amount: async targetCapacity => targetCapacity * 2n,
       },
     ];
 
@@ -413,7 +418,9 @@ describe("RestakingPool", function () {
         await snapshot.restore();
         await pool.addRestaker(TEST_PROVIDER);
         await pool.connect(governance).setMaxTVL(64n * _1E18);
-        await expect(pool.setStakeBonusParams(arg.newMaxBonusRate, arg.newOptimalBonusRate, arg.newstakeUtilizationKink))
+        await expect(
+          pool.setStakeBonusParams(arg.newMaxBonusRate, arg.newOptimalBonusRate, arg.newstakeUtilizationKink),
+        )
           .to.emit(pool, "StakeBonusParamsChanged")
           .withArgs(arg.newMaxBonusRate, arg.newOptimalBonusRate, arg.newstakeUtilizationKink);
 
@@ -438,7 +445,7 @@ describe("RestakingPool", function () {
           const flashUnstakeAmount = actualFlashCapacity - flashCapacity;
           await pool.connect(signer1).flashUnstake(flashUnstakeAmount, signer1.address);
           //Set percent
-          const targetCapacityPercent = divideAndCeil(targetCapacity * MAX_PERCENT,  flashCapacity + batchDeposited);
+          const targetCapacityPercent = divideAndCeil(targetCapacity * MAX_PERCENT, flashCapacity + batchDeposited);
           await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
           console.log(`Pool balance:\t\t\t\t${await ethers.provider.getBalance(pool.address)}`);
           console.log(`Target capacity percent:\t${(await pool.targetCapacity()).format()}`);
@@ -503,14 +510,16 @@ describe("RestakingPool", function () {
     ];
     invalidArgs.forEach(function (arg) {
       it(`setStakeBonusParams reverts when ${arg.name}`, async function () {
-        await expect(pool.setStakeBonusParams(arg.newMaxBonusRate(), arg.newOptimalBonusRate(), arg.newstakeUtilizationKink()))
-            .to.be.revertedWithCustomError(pool, arg.customError);
+        await expect(
+          pool.setStakeBonusParams(arg.newMaxBonusRate(), arg.newOptimalBonusRate(), arg.newstakeUtilizationKink()),
+        ).to.be.revertedWithCustomError(pool, arg.customError);
       });
     });
 
     it("setDepositBonusParams reverts when caller is not an owner", async function () {
-      await expect(pool.connect(signer1).setStakeBonusParams(BigInt(2 * 10 ** 8), BigInt(0.2 * 10 ** 8), BigInt(25 * 10 ** 8)),)
-          .to.be.revertedWithCustomError(pool, "OnlyGovernanceAllowed");
+      await expect(
+        pool.connect(signer1).setStakeBonusParams(BigInt(2 * 10 ** 8), BigInt(0.2 * 10 ** 8), BigInt(25 * 10 ** 8)),
+      ).to.be.revertedWithCustomError(pool, "OnlyGovernanceAllowed");
     });
   });
 
@@ -573,7 +582,7 @@ describe("RestakingPool", function () {
           await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
           //Withdraw leftover
           await pool.connect(governance).setProtocolFee(60n * 10n ** 8n);
-          if(!state.withBonus){
+          if (!state.withBonus) {
             await pool.connect(governance).setProtocolFee(MAX_PERCENT);
           }
           const actualFlashCapacity = await pool.getFlashCapacity();
@@ -581,7 +590,10 @@ describe("RestakingPool", function () {
           const flashUnstakeAmount = actualFlashCapacity - flashCapacityBefore;
           await pool.connect(signer1).flashUnstake(flashUnstakeAmount, signer1.address);
           //Set percent
-          const targetCapacityPercent = divideAndCeil(targetCapacity * MAX_PERCENT,  flashCapacityBefore + batchDeposited);
+          const targetCapacityPercent = divideAndCeil(
+            targetCapacity * MAX_PERCENT,
+            flashCapacityBefore + batchDeposited,
+          );
           await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
           let availableBonus = await pool.stakeBonusAmount();
           await updateRatio(feed, cToken, await calcRatio(cToken, pool));
@@ -608,7 +620,7 @@ describe("RestakingPool", function () {
           const expectedShares = ((amount + expectedBonus) * (await cToken.ratio())) / _1E18;
           console.log(`Expected shares:\t\t\t${expectedShares.format()}`);
 
-          const tx = await pool.connect(signer1)["stake()"]({value: amount});
+          const tx = await pool.connect(signer1)["stake()"]({ value: amount });
           const receipt = await tx.wait();
           const depositEvent = receipt.logs?.filter(e => e.eventName === "Staked");
           const stakerSharesAfter = await cToken.balanceOf(signer1);
@@ -622,27 +634,31 @@ describe("RestakingPool", function () {
           //Event
           expect(depositEvent.length).to.be.eq(1);
           expect(depositEvent[0].args["staker"]).to.be.eq(signer1.address);
-          expect(depositEvent[0].args["amount"]).to.be.closeTo(amount+expectedBonus, 1n);
+          expect(depositEvent[0].args["amount"]).to.be.closeTo(amount + expectedBonus, 1n);
           expect(depositEvent[0].args["shares"] - expectedShares).to.be.closeTo(0, 1n);
           //DepositBonus event
-          expect(receipt.logs.find(l => l.eventName === "StakeBonus")?.args.amount || 0n)
-              .to.be.closeTo(expectedBonus, 1n);
+          expect(receipt.logs.find(l => l.eventName === "StakeBonus")?.args.amount || 0n).to.be.closeTo(
+            expectedBonus,
+            1n,
+          );
           //Values
           expect(stakerSharesAfter - stakerSharesBefore).to.be.closeTo(expectedShares, 1n);
           expect(stakerSharesAfter - stakerSharesBefore).to.be.closeTo(convertedShares, 1n);
           expect(totalAssetsAfter - totalAssetsBefore).to.be.closeTo(amount + expectedBonus, 1n); //Everything stays on pool after stake
-          expect(flashCapacityAfter - flashCapacityBefore).to.be.closeTo( amount + expectedBonus, 1n);
+          expect(flashCapacityAfter - flashCapacityBefore).to.be.closeTo(amount + expectedBonus, 1n);
           expect(ratioAfter).to.be.closeTo(ratioBefore, 1n); //Ratio stays the same
         });
       });
     });
 
-    it("Reverts when target capacity is 0", async function() {
+    it("Reverts when target capacity is 0", async function () {
       const [config, pool, cToken, feed, deployer] = await init();
       await pool.addRestaker(TEST_PROVIDER);
       await pool.connect(governance).setMaxTVL(64n * _1E18);
-      await expect(pool.connect(signer1)["stake()"]({value: _1E18}))
-          .to.be.revertedWithCustomError(pool, "TargetCapacityNotSet");
+      await expect(pool.connect(signer1)["stake()"]({ value: _1E18 })).to.be.revertedWithCustomError(
+        pool,
+        "TargetCapacityNotSet",
+      );
     });
   });
 
@@ -757,8 +773,7 @@ describe("RestakingPool", function () {
     });
 
     it("Reverts: when shares < min", async function () {
-      const ratio = await cToken.ratio();
-      const shares = (await pool.getMinUnstake()) - 1n;
+      const shares = await cToken.convertToShares((await pool.getMinUnstake()) - 1n);
       await expect(pool.connect(signer1).unstake(signer1.address, shares)).to.be.revertedWithCustomError(
         pool,
         "PoolUnstakeAmLessThanMin",
@@ -860,42 +875,42 @@ describe("RestakingPool", function () {
       {
         name: "from 200% to 0% of TARGET",
         flashCapacity: targetCapacity => targetCapacity * 2n,
-        amount: async (targetCapacity) => await pool.getFlashCapacity(),
+        amount: async targetCapacity => await pool.getFlashCapacity(),
       },
       {
         name: "from 200% to 100% of TARGET",
         flashCapacity: targetCapacity => targetCapacity * 2n,
-        amount: async (targetCapacity) => targetCapacity,
+        amount: async targetCapacity => targetCapacity,
       },
       {
         name: "from 100% to 0% of TARGET",
         flashCapacity: targetCapacity => targetCapacity,
-        amount: async (targetCapacity) => await pool.getFlashCapacity(),
+        amount: async targetCapacity => await pool.getFlashCapacity(),
       },
       {
         name: "1 wei from 100%",
         flashCapacity: targetCapacity => targetCapacity,
-        amount: async (targetCapacity) => 1n,
+        amount: async targetCapacity => 1n,
       },
       {
         name: "min amount from 100%",
         flashCapacity: targetCapacity => targetCapacity,
-        amount: async (targetCapacity) => (await cToken.convertToAmount(await pool.getMinUnstake())) + 1n,
+        amount: async targetCapacity => (await cToken.convertToAmount(await pool.getMinUnstake())) + 1n,
       },
       {
         name: "from 100% to 25% of TARGET",
         flashCapacity: targetCapacity => targetCapacity,
-        amount: async (targetCapacity) => (targetCapacity * 75n) / 100n,
+        amount: async targetCapacity => (targetCapacity * 75n) / 100n,
       },
       {
         name: "from 100% to 25% - 1wei of TARGET",
         flashCapacity: targetCapacity => targetCapacity,
-        amount: async (targetCapacity) => (targetCapacity * 75n) / 100n + 1n,
+        amount: async targetCapacity => (targetCapacity * 75n) / 100n + 1n,
       },
       {
         name: "from 25% to 0% of TARGET",
         flashCapacity: targetCapacity => (targetCapacity * 25n) / 100n,
-        amount: async (targetCapacity) => await pool.getFlashCapacity(),
+        amount: async targetCapacity => await pool.getFlashCapacity(),
       },
     ];
 
@@ -905,13 +920,10 @@ describe("RestakingPool", function () {
         await pool.addRestaker(TEST_PROVIDER);
         await pool.connect(governance).setMaxTVL(64n * _1E18);
         await expect(
-            pool.setFlashUnstakeFeeParams(
-                arg.maxFlashFeeRate,
-                arg.optimalUnstakeRate,
-                arg.unstakeUtilizationKink,
-            ))
-            .to.emit(pool, "UnstakeFeeParamsChanged")
-            .withArgs(arg.maxFlashFeeRate, arg.optimalUnstakeRate, arg.unstakeUtilizationKink);
+          pool.setFlashUnstakeFeeParams(arg.maxFlashFeeRate, arg.optimalUnstakeRate, arg.unstakeUtilizationKink),
+        )
+          .to.emit(pool, "UnstakeFeeParamsChanged")
+          .withArgs(arg.maxFlashFeeRate, arg.optimalUnstakeRate, arg.unstakeUtilizationKink);
 
         expect(await pool.maxFlashFeeRate()).to.be.eq(arg.maxFlashFeeRate);
         expect(await pool.optimalUnstakeRate()).to.be.eq(arg.optimalUnstakeRate);
@@ -928,7 +940,7 @@ describe("RestakingPool", function () {
           const targetCapacityPercent = (targetCapacity * MAX_PERCENT) / (flashCapacity + batchDeposited);
           console.log(`Target capacity percent:\t${targetCapacityPercent}`);
 
-          await pool.connect(signer1)["stake()"]({ value: batchDeposited + flashCapacity});
+          await pool.connect(signer1)["stake()"]({ value: batchDeposited + flashCapacity });
           await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
           await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
           console.log(`Flash capacity:\t\t\t\t${await pool.getFlashCapacity()}`);
@@ -994,26 +1006,26 @@ describe("RestakingPool", function () {
     ];
     invalidArgs.forEach(function (arg) {
       it(`setFlashWithdrawFeeParams reverts when ${arg.name}`, async function () {
-        await expect(pool.setFlashUnstakeFeeParams(
-                arg.maxFlashFeeRate(),
-                arg.optimalUnstakeRate(),
-                arg.unstakeUtilizationKink()),
+        await expect(
+          pool.setFlashUnstakeFeeParams(arg.maxFlashFeeRate(), arg.optimalUnstakeRate(), arg.unstakeUtilizationKink()),
         ).to.be.revertedWithCustomError(pool, arg.customError);
       });
     });
 
     it("calculateFlashWithdrawFee reverts when capacity is not sufficient", async function () {
       await snapshot.restore();
-      await pool.connect(signer1)["stake()"]({value: randomBN(19) });
+      await pool.connect(signer1)["stake()"]({ value: randomBN(19) });
       const capacity = await pool.getFlashCapacity();
       await expect(pool.calculateFlashUnstakeFee(capacity + 1n))
-          .to.be.revertedWithCustomError(pool, "InsufficientCapacity")
-          .withArgs(capacity);
+        .to.be.revertedWithCustomError(pool, "InsufficientCapacity")
+        .withArgs(capacity);
     });
 
     it("setFlashWithdrawFeeParams reverts when caller is not an owner", async function () {
-      await expect(pool.connect(signer1)
-              .setFlashUnstakeFeeParams(BigInt(2 * 10 ** 8), BigInt(0.2 * 10 ** 8), BigInt(25 * 10 ** 8)),
+      await expect(
+        pool
+          .connect(signer1)
+          .setFlashUnstakeFeeParams(BigInt(2 * 10 ** 8), BigInt(0.2 * 10 ** 8), BigInt(25 * 10 ** 8)),
       ).to.be.revertedWithCustomError(pool, "OnlyGovernanceAllowed");
     });
   });
@@ -1151,12 +1163,11 @@ describe("RestakingPool", function () {
       await pool.connect(operator).batchDeposit(TEST_PROVIDER, [pubkeys[0]], [signature], [dataRoot]);
       await pool.connect(governance).setTargetFlashCapacity(targetCapacityPercent);
 
-
       const shares = await cToken.balanceOf(signer1.address);
       const capacity = await pool.getFlashCapacity();
       await expect(pool.connect(signer1).flashUnstake(shares, signer1.address))
-          .to.be.revertedWithCustomError(pool, "InsufficientCapacity")
-          .withArgs(capacity);
+        .to.be.revertedWithCustomError(pool, "InsufficientCapacity")
+        .withArgs(capacity);
     });
 
     it("Reverts when amount < min", async function () {
@@ -1170,10 +1181,22 @@ describe("RestakingPool", function () {
 
       const minAmount = await pool.getMinUnstake();
       const shares = (await cToken.convertToShares(minAmount)) - 1n;
-      await pool.connect(signer1).flashUnstake(shares, signer1.address);
-      // await expect(pool.connect(signer1).flashUnstake(shares, signer1.address))
-      //     .to.be.revertedWithCustomError(pool, "PoolUnstakeAmLessThanMin")
-      //     .withArgs(minAmount);
+      await expect(pool.connect(signer1).flashUnstake(shares, signer1.address)).to.be.revertedWithCustomError(
+        pool,
+        "PoolUnstakeAmLessThanMin",
+      );
+    });
+
+    it("Reverts when targetFlashCapacity not set", async function () {
+      const batchDeposited = _1E18 * 32n;
+      await pool.connect(signer1)["stake()"]({ value: batchDeposited + _1E18 + 1n });
+      await pool.connect(governance).setTargetFlashCapacity(0n);
+
+      const shares = await cToken.balanceOf(signer1.address);
+      await expect(pool.connect(signer1).flashUnstake(shares / 10n, signer1.address)).to.be.revertedWithCustomError(
+        pool,
+        "TargetCapacityNotSet",
+      );
     });
   });
 

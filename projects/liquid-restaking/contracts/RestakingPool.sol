@@ -228,11 +228,11 @@ contract RestakingPool is
         address receiver
     ) external nonReentrant {
         if (targetCapacity == 0) revert TargetCapacityNotSet();
-        if (shares < getMinUnstake()) revert PoolUnstakeAmLessThanMin();
 
         address claimer = msg.sender;
         ICToken token = config().getCToken();
         uint256 amount = token.convertToAmount(shares);
+        if (amount < getMinUnstake()) revert PoolUnstakeAmLessThanMin();
         if (amount > getFlashCapacity()) revert InsufficientCapacity(getFlashCapacity());
 
         uint256 fee = calculateFlashUnstakeFee(amount);
@@ -259,11 +259,10 @@ contract RestakingPool is
      * @param shares Amount of cToken to unstake
      */
     function unstake(address to, uint256 shares) external nonReentrant {
-        if (shares < getMinUnstake()) revert PoolUnstakeAmLessThanMin();
-
         address from = _msgSender();
         ICToken token = config().getCToken();
         uint256 amount = token.convertToAmount(shares);
+        if (amount < getMinUnstake()) revert PoolUnstakeAmLessThanMin();
 
         // @dev don't need to check balance, because it throws ERC20InsufficientBalance
         token.burn(from, shares);
