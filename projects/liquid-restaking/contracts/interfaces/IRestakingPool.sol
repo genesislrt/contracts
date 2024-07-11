@@ -19,6 +19,7 @@ interface IRestakingPool {
     error PoolWrongInputLength();
     error AmbiguousFee(uint256 claimed, uint256 fee);
     error InsufficientCapacity(uint256 capacity);
+    error TargetCapacityNotSet();
 
     /**
      * @dev A call to an address target failed. The target may have reverted.
