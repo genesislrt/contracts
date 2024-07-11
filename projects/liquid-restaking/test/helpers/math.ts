@@ -1,6 +1,6 @@
-import { ethers } from 'ethers';
-import { CToken, RestakingPool } from '../../typechain-types';
-import { _1E18 } from './constants';
+import { ethers } from "ethers";
+import { CToken, RestakingPool } from "../../typechain-types";
+import { _1E18 } from "./constants";
 
 export function randomBN(length: number): bigint {
   if (length > 0) {
@@ -25,10 +25,28 @@ export function randomBNbyMax(max: bigint) {
   }
 }
 
+export function divideAndRound(a: bigint, b: bigint): bigint {
+  if (b === 0n) {
+    throw new Error("Division by zero");
+  }
+  const quotient = a / b;
+  const remainder = a % b;
+  return quotient + (2n * remainder >= b ? 1n : 0n);
+}
+
+export function divideAndCeil(a: bigint, b: bigint): bigint {
+  if (b === 0n) {
+    throw new Error("Division by zero");
+  }
+  const quotient = a / b;
+  const remainder = a % b;
+  return remainder === 0n ? quotient : quotient + 1n;
+}
+
 export const toWei = (ether) => ethers.parseEther(ether.toString());
 
 // ratio = totalSharesSupply * 1e18 / (totalLocked + netRewards - pendingWithdrawals)
-export async function calcRatio(cToken: CToken, pool: RestakingPool, numOfValidators: bigint = 0n, netRewards: bigint = 0n ) {
+export async function calcRatio(cToken: CToken, pool: RestakingPool, numOfValidators: bigint = 1n, netRewards: bigint = 0n ) {
   const totalSharesSupply = await cToken.totalSupply();
   // totalLocked = freeBalance + totalStaked + mevTipsRewards (withoutFee)
   const freeBalance = await pool.getPending();

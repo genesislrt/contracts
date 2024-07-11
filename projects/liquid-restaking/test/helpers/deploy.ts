@@ -91,6 +91,7 @@ export async function deployConfig(wallets: HardhatEthersSigner[]) {
     { redeployImplementation: "always" },
   );
   await config.waitForDeployment();
+  config.address = await config.getAddress();
 
   return config as unknown as ProtocolConfig;
 }
@@ -102,7 +103,8 @@ export async function deployRatioFeed(protocolConfig: ProtocolConfig, ratioThres
     { redeployImplementation: "always" },
   );
   await ratioFeed.waitForDeployment();
-  await protocolConfig.setRatioFeed(await ratioFeed.getAddress());
+  ratioFeed.address = await ratioFeed.getAddress();
+  await protocolConfig.setRatioFeed(ratioFeed.address);
 
   return ratioFeed as unknown as RatioFeed;
 }
@@ -117,6 +119,7 @@ export async function deployFeeCollector(
     { redeployImplementation: "always" },
   );
   await feeCollector.waitForDeployment();
+  feeCollector.address = await feeCollector.getAddress();
 
   return feeCollector as unknown as FeeCollector;
 }
@@ -154,7 +157,8 @@ export async function deployLiquidRestaking({
     { redeployImplementation: "always", unsafeAllowLinkedLibraries: true },
   );
   await restakingPool.waitForDeployment();
-  await protocolConfig.setRestakingPool(await restakingPool.getAddress());
+  restakingPool.address = await restakingPool.getAddress();
+  await protocolConfig.setRestakingPool(restakingPool.address);
 
   const ratioFeed = await deployRatioFeed(protocolConfig, ratioThreshold);
   await ratioFeed.repairRatio(await cToken.getAddress(), _1E18); // force update ratio to 1e18
@@ -173,6 +177,7 @@ export async function deployCToken(protocolConfig: ProtocolConfig, tokenName: st
     { redeployImplementation: "always" },
   );
   await cToken.waitForDeployment();
-  await protocolConfig.setCToken(await cToken.getAddress());
+  cToken.address = await cToken.getAddress();
+  await protocolConfig.setCToken(cToken.address);
   return cToken as unknown as CToken;
 }

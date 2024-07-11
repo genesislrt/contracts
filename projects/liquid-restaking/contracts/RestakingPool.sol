@@ -172,7 +172,7 @@ contract RestakingPool is
             }
             emit StakeBonus(stakeBonus);
         }
-
+        amount += stakeBonus;
 
         ICToken token = config().getCToken();
         uint256 shares = token.convertToShares(amount);
@@ -234,11 +234,11 @@ contract RestakingPool is
         uint256 amount = token.convertToAmount(shares);
         if (amount > getFlashCapacity()) revert InsufficientCapacity(getFlashCapacity());
 
-        token.burn(claimer, shares);
-
         uint256 fee = calculateFlashUnstakeFee(amount);
         if (fee == 0) revert PoolZeroAmount();
         uint256 protocolWithdrawalFee = (fee * protocolFee) / MAX_PERCENT;
+
+        token.burn(claimer, shares);
 
         _totalUnstaked += amount;
         amount -= fee;
@@ -310,7 +310,7 @@ contract RestakingPool is
         /// no need to check for {_distributeGasLimit} because it's never be 0
         /// TODO: claim from Restakers and spent fee from this sum
 
-        uint256 poolBalance = getPending();
+        uint256 poolBalance = getFreeBalance();
 
         uint256 unstakesLength = _pendingUnstakes.length;
         uint256 i = _pendingGap;
@@ -501,7 +501,7 @@ contract RestakingPool is
     }
 
     function _getTargetCapacity() internal view returns (uint256) {
-        return (targetCapacity * (_totalStaked - _totalUnstaked)) / MAX_PERCENT;
+        return (targetCapacity * config().getCToken().totalAssets()) / MAX_PERCENT;
     }
 
     /**
@@ -556,12 +556,22 @@ contract RestakingPool is
         uint256 balance = address(this).balance;
         uint256 claimable = getTotalClaimable();
         uint256 stakeBonus = stakeBonusAmount;
-        uint256 targetCap = _getTargetCapacity();
 
-        if (claimable + stakeBonus + targetCap > balance) {
+        if (claimable + stakeBonus > balance) {
             return 0;
         } else {
-            return balance - claimable - stakeBonus - targetCap;
+            return balance - claimable - stakeBonus;
+        }
+    }
+
+    function getFreeBalance() public view returns (uint256) {
+        uint256 pending = getPending();
+        uint256 targetCap = _getTargetCapacity();
+
+        if (targetCap > pending) {
+            return 0;
+        } else {
+            return pending - targetCapacity;
         }
     }
 
@@ -797,7 +807,7 @@ contract RestakingPool is
     }
 
     function setProtocolFee(uint64 newProtocolFee) external onlyGovernance {
-        if (newProtocolFee >= MAX_PERCENT)
+        if (newProtocolFee > MAX_PERCENT)
             revert ParameterExceedsLimits(newProtocolFee);
 
         emit ProtocolFeeChanged(protocolFee, newProtocolFee);
