@@ -567,7 +567,7 @@ contract RestakingPool is
         if (targetCap > pending) {
             return 0;
         } else {
-            return pending - targetCapacity;
+            return pending - targetCap;
         }
     }
 
