@@ -12,12 +12,16 @@ const func: DeployFunction = async function ({ deployments, network }) {
   const proxyAdmin = await ethers.getContractAt("IProxyAdmin", restakinPoolAdmin);
 
   /// 1. InceptionLibrary
-
-  const libFactory = await ethers.getContractFactory("InceptionLibrary");
-  const lib = await libFactory.deploy();
-  await lib.waitForDeployment();
-  const libAddress = await lib.getAddress();
-  console.log("InceptionLibrary deployed to:", libAddress);
+  let libAddress = "";
+  if (network.name === "mainnet") {
+    libAddress = "0x8a6a8a7233b16d0ecaa7510bfd110464a0d69f66";
+  } else {
+    const libFactory = await ethers.getContractFactory("InceptionLibrary");
+    const lib = await libFactory.deploy();
+    await lib.waitForDeployment();
+    libAddress = await lib.getAddress();
+  }
+  console.log("InceptionLibrary address:", libAddress);
 
   const RestakingPoolFactory = await ethers.getContractFactory("RestakingPool", {
     libraries: {
