@@ -143,14 +143,14 @@ export async function deployLiquidRestaking({
   const cToken = await deployCToken(protocolConfig, tokenName, tokenSymbol);
 
   // Library
-  const library = await ethers.deployContract("Library");
+  const library = await ethers.deployContract("InceptionLibrary");
   await library.waitForDeployment();
 
   // Pool
   const restakingPool = await upgrades.deployProxy(
     await ethers.getContractFactory("RestakingPool", {
       libraries: {
-        Library: await library.getAddress(),
+        InceptionLibrary: await library.getAddress(),
       },
     }),
     [await protocolConfig.getAddress(), distributeGasLimit || 250000n, maxTVL || 32_000_000_000_000_000_000n],

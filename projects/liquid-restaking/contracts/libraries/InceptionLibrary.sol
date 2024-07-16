@@ -2,10 +2,13 @@
 pragma solidity ^0.8.20;
 
 
-/// @dev It serves two primary functions:
-/// 1. Flash vault-related logic for the calculations of deposit bonus and withdrawal fee
-/// 2. Conversions between shares and assets
-library Library {
+/**
+ * @dev It serves two primary functions:
+ * 1. Flash vault-related logic for the calculation of deposit bonuses and withdrawal fees.
+ * 2. Conversion between shares and assets.
+ * @author InceptionLRT V2
+ */
+library InceptionLibrary {
     uint256 constant MAX_PERCENT = 100 * 1e8;
 
     /************************************************************

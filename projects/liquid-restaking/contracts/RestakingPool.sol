@@ -12,11 +12,11 @@ import { IProtocolConfig } from "./interfaces/IProtocolConfig.sol";
 import { IRestakingPool } from "./interfaces/IRestakingPool.sol";
 import { ISignatureUtils } from "./interfaces/ISignatureUtils.sol";
 
-import { Library } from "./libraries/Library.sol";
+import { InceptionLibrary } from "./libraries/InceptionLibrary.sol";
 
 /**
  * @title General contract where stakes and unstakes of inETH happens.
- * @author GenesisLRT
+ * @author InceptionLRT V2
  */
 contract RestakingPool is
     Configurable,
@@ -93,12 +93,10 @@ contract RestakingPool is
     uint64 public protocolFee;
 
     /**
-     /// !!!!TODO!!!
      * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
-     /// !!!!TODO!!!
     uint256[50 - 16] private __gap;
 
     /*******************************************************************************
@@ -183,7 +181,6 @@ contract RestakingPool is
     }
 
     /**
-     *
      * @notice Deposit pubkeys together with 32 ETH to given `provider`.
      * @param provider Provider to restake ETH.
      * @param pubkeys Array of provider's `pubkeys`.
@@ -221,7 +218,11 @@ contract RestakingPool is
         emit Deposited(provider, pubkeys);
     }
 
-    /// @dev Creates a withdrawal requests based on the current ratio
+    /**
+     * @dev Creates a withdrawal request based on the current ratio.
+     * @param shares The number of shares to be unstaked.
+     * @param receiver The address that will receive the withdrawn amount.
+     */
     function flashUnstake(
         uint256 shares,
         address receiver
@@ -251,7 +252,6 @@ contract RestakingPool is
     }
 
     /**
-     *
      * @notice Burns shares from owner and add exactly amount of ETH to unstake queue in order for `to`.
      * @dev Returns ETH via queue
      * @param to Address for receiving unstaked funds
@@ -363,7 +363,6 @@ contract RestakingPool is
     }
 
     /**
-     *
      * @notice Claim ETH available in {claimableOf}
      */
     function claimUnstake(address claimer) external nonReentrant {
@@ -392,7 +391,6 @@ contract RestakingPool is
     *******************************************************************************/
 
     /**
-     *
      * @notice Will be called only once for each restaker, because it activates restaking.
      * @dev deprecated. Remove after EigenPod activation
      */
@@ -403,7 +401,6 @@ contract RestakingPool is
     }
 
     /**
-     *
      * @notice withdraw not restaked ETH
      * @dev deprecated. Remove after EigenPod activation
      */
@@ -504,7 +501,6 @@ contract RestakingPool is
     }
 
     /**
-     *
      * @notice Get ETH amount available to stake before protocol reach max TVL.
      */
     function availableToStake() public view virtual returns (uint256) {
@@ -675,6 +671,11 @@ contract RestakingPool is
         return keccak256(bytes(providerName));
     }
 
+    /**
+     * @dev Function to calculate stake bonus based on the current utilization rate (interest rate model).
+     * @param amount The amount for which the stake bonus is to be calculated.
+     * @return The calculated stake bonus.
+     */
     function calculateStakeBonus(
         uint256 amount
     ) public view returns (uint256) {
@@ -687,7 +688,7 @@ contract RestakingPool is
     ) internal view returns (uint256) {
         uint256 targetCap = _getTargetCapacity();
         return
-            Library.calculateDepositBonus(
+            InceptionLibrary.calculateDepositBonus(
                 amount,
                 capacity,
                 (targetCap * stakeUtilizationKink) / MAX_PERCENT,
@@ -697,7 +698,11 @@ contract RestakingPool is
             );
     }
 
-    /// @dev Function to calculate flash withdrawal fee based on the utilization rate
+    /**
+     * @dev Function to calculate flash unstake fee based on the utilization rate.
+     * @param amount The amount for which the flash unstake fee is to be calculated.
+     * @return The calculated flash unstake fee.
+     */
     function calculateFlashUnstakeFee(
         uint256 amount
     ) public view returns (uint256) {
@@ -705,7 +710,7 @@ contract RestakingPool is
         if (amount > capacity) revert InsufficientCapacity(capacity);
         uint256 targetCap = _getTargetCapacity();
         return
-            Library.calculateWithdrawalFee(
+            InceptionLibrary.calculateWithdrawalFee(
                 amount,
                 capacity,
                 (targetCap * unstakeUtilizationKink) / MAX_PERCENT,

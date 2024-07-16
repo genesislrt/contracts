@@ -7,7 +7,7 @@ import "./interfaces/IProtocolConfig.sol";
 
 /**
  * @title Basic layout with common variables and modifiers from config
- * @author GenesisLRT
+ * @author InceptionLRT V2
  */
 abstract contract Configurable is Initializable, ContextUpgradeable {
     error OnlyGovernanceAllowed();
