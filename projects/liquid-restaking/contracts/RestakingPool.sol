@@ -203,8 +203,7 @@ contract RestakingPool is
             pubkeysLen != deposit_data_roots.length
         ) revert PoolWrongInputLength();
 
-        if (address(this).balance < 32 ether * pubkeysLen +  _getTargetCapacity())
-                revert PoolInsufficientBalance();
+        if (getFreeBalance() < 32 ether * pubkeysLen) revert PoolInsufficientBalance();
 
 
         IEigenPodManager restaker = IEigenPodManager(
@@ -550,8 +549,8 @@ contract RestakingPool is
     }
 
     /**
-     * @notice Get free to {batchDeposit}/{distributeUnstakes} balance.
-     */
+    * @notice Get pending to calculate ratio.
+    */
     function getPending() public view returns (uint256) {
         uint256 balance = address(this).balance;
         uint256 claimable = getTotalClaimable();
@@ -564,6 +563,9 @@ contract RestakingPool is
         }
     }
 
+    /**
+    * @notice Get free to {batchDeposit}/{distributeUnstakes} balance.
+    */
     function getFreeBalance() public view returns (uint256) {
         uint256 pending = getPending();
         uint256 targetCap = _getTargetCapacity();
@@ -571,7 +573,7 @@ contract RestakingPool is
         if (targetCap > pending) {
             return 0;
         } else {
-            return pending - targetCapacity;
+            return pending - targetCap;
         }
     }
 
