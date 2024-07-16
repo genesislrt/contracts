@@ -18,6 +18,8 @@ interface IRestakingPool {
     error PoolInsufficientBalance();
     error PoolWrongInputLength();
     error AmbiguousFee(uint256 claimed, uint256 fee);
+    error InsufficientCapacity(uint256 capacity);
+    error TargetCapacityNotSet();
 
     /**
      * @dev A call to an address target failed. The target may have reverted.
@@ -29,6 +31,8 @@ interface IRestakingPool {
     error PoolStakeAmLessThanMin();
     error PoolStakeAmGreaterThanAvailable();
     error PoolUnstakeAmLessThanMin();
+
+    error ParameterExceedsLimits(uint256 param);
 
     /* events */
 
@@ -74,6 +78,15 @@ interface IRestakingPool {
         uint256 value
     );
 
+    event FlashUnstaked(
+        address indexed sender,
+        address indexed receiver,
+        address indexed owner,
+        uint256 amount,
+        uint256 shares,
+        uint256 fee
+    );
+
     event FeeClaimed(
         address indexed restaker,
         address indexed treasury,
@@ -84,6 +97,24 @@ interface IRestakingPool {
     event RestakerAdded(string indexed provider, address restaker);
 
     event ReferralStake(bytes32 indexed code);
+
+    event StakeBonus(uint256 amount);
+
+    event StakeBonusParamsChanged(
+        uint256 newMaxBonusRate,
+        uint256 newOptimalBonusRate,
+        uint256 newDepositUtilizationKink
+    );
+
+    event UnstakeFeeParamsChanged(
+        uint256 newMaxFlashFeeRate,
+        uint256 newOptimalWithdrawalRate,
+        uint256 newWithdrawUtilizationKink
+    );
+
+    event ProtocolFeeChanged(uint256 prevValue, uint256 newValue);
+
+    event TargetCapacityChanged(uint256 prevValue, uint256 newValue);
 
     /* functions */
 

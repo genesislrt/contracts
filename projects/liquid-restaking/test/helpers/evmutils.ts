@@ -1,6 +1,6 @@
 // const eth = require("ethereumjs-util");
 
-import { ethers, network } from 'hardhat';
+import { ethers, network } from "hardhat";
 
 // function signMessageUsingPrivateKey(privateKey, data) {
 //   const { ec: EC } = require("elliptic"),
@@ -171,24 +171,24 @@ import { ethers, network } from 'hardhat';
 // };
 
 export const increaseChainTimeForSeconds = async (seconds: number) => {
-    if (seconds > 0) {
-        await ethers.provider.send('evm_increaseTime', [seconds]);
-        await mineBlock();
-        const nextBlockNumber = await ethers.provider.getBlockNumber();
-        const nextBlock = await ethers.provider.getBlock(nextBlockNumber);
-        return nextBlock;
-    } else {
-        return await ethers.provider.getBlock('latest');
-    }
+  if (seconds > 0) {
+    await ethers.provider.send("evm_increaseTime", [seconds]);
+    await mineBlock();
+    const nextBlockNumber = await ethers.provider.getBlockNumber();
+    const nextBlock = await ethers.provider.getBlock(nextBlockNumber);
+    return nextBlock;
+  } else {
+    return await ethers.provider.getBlock("latest");
+  }
 };
 
 export const mineBlock = async () => {
-    network.provider.send('evm_mine');
+  network.provider.send("evm_mine");
 };
 
 export async function hhReset() {
-    await network.provider.request({
-        method: 'hardhat_reset',
-        params: [],
-    });
+  await network.provider.request({
+    method: "hardhat_reset",
+    params: [],
+  });
 }

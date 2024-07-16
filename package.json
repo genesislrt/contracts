@@ -2,7 +2,9 @@
   "devDependencies": {
     "dotenv": "^16.3.1",
     "prettier": "^3.1.0",
-    "prettier-plugin-solidity": "^1.2.0"
+    "prettier-plugin-solidity": "^1.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
   },
   "name": "contracts",
   "version": "1.0.0",
@@ -13,7 +15,7 @@
   "private": true,
   "scripts": {
     "prettier:sol": "prettier --write --plugin=prettier-plugin-solidity './**/*.sol'",
-    "prettier:ts": "prettier --write './**/*.ts'",
-    "prettier:js": "prettier --write './**/*.js'"
+    "prettier:ts": "prettier --write ./**/*.ts",
+    "prettier:js": "prettier --write ./**/*.js"
   }
 }
